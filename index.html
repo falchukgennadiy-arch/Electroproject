@@ -75,23 +75,31 @@
             z-index: 1000;
             padding: 15px 20px;
             display: flex;
-            justify-content: space-between;
-            align-items: center;
+            justify-content: center;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
+            height: 80px;
+        }
+
+        header .container {
+            max-width: 1200px;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
         }
 
         .logo {
-            font-size: 1.5em;
-            font-weight: bold;
-            color: var(--gold-accent);
-            line-height: 1.2;
+            width: 170px;
+            height: 50px;
+            background: url('images/logo.png') no-repeat center;
+            background-size: contain;
         }
 
         nav {
             display: flex;
             justify-content: center;
             align-items: center;
-            flex-grow: 1;
         }
 
         nav ul {
@@ -107,6 +115,7 @@
             font-weight: bold;
             transition: color 0.3s ease;
             line-height: 1.2;
+            text-decoration: none;
         }
 
         nav a:hover {
@@ -120,8 +129,8 @@
 
         .hero {
             width: 100%;
-            height: 360px;
             background: linear-gradient(135deg, var(--gold-accent), var(--gold-hover));
+            position: relative;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -129,7 +138,26 @@
             color: var(--primary-dark);
             font-size: 2em;
             font-weight: bold;
-            margin-bottom: 20px;
+            margin-top: 80px;
+            margin-bottom: 40px;
+        }
+
+        .hero .container {
+            max-width: 1200px;
+            width: 100%;
+            position: relative;
+            height: 360px;
+        }
+
+        .hero img {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            max-width: 1200px;
+            width: 100%;
+            height: 360px;
+            object-fit: contain;
         }
 
         .structure-diagram {
@@ -137,44 +165,15 @@
             flex-direction: column;
             align-items: center;
             gap: 20px;
-            padding: 40px 20px;
+            padding: 0 20px 20px 20px;
             max-width: 1200px;
             margin: 0 auto;
         }
 
-        .structure-main {
+        .structure-diagram img {
             width: 100%;
-            max-width: 300px;
-            height: 60px;
-            background-color: var(--accent-dark);
-            border: 3px solid var(--gold-accent);
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--text-light);
-            font-size: 1.2em;
-        }
-
-        .structure-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 20px;
-            width: 100%;
-            max-width: 800px;
-        }
-
-        .structure-box {
-            height: 60px;
-            background-color: var(--accent-dark);
-            border: 3px solid var(--gold-accent);
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--text-light);
-            font-size: 0.9em;
-            text-align: center;
+            max-width: 1200px;
+            height: auto;
         }
 
         main {
@@ -185,10 +184,12 @@
             color: var(--gold-accent);
             margin-bottom: 10px;
             text-align: center;
+            text-transform: uppercase;
         }
 
         .content h2 {
             text-align: left;
+            text-transform: none;
         }
 
         p {
@@ -213,18 +214,47 @@
             border-radius: 25px;
             transition: transform 0.3s ease, box-shadow 0.3s ease;
             box-shadow: 0 4px 15px rgba(212, 175, 55, 0.4);
+            text-decoration: none;
         }
 
         .btn:hover {
             transform: translateY(-2px);
             box-shadow: 0 6px 20px rgba(212, 175, 55, 0.6);
             background: linear-gradient(135deg, var(--gold-hover), var(--gold-accent));
+            color: var(--primary-dark);
+        }
+
+        .download-btn {
+            display: inline-block;
+            padding: 12px 24px;
+            background: var(--gold-accent);
+            color: var(--primary-dark);
+            font-weight: bold;
+            border-radius: 25px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            box-shadow: 0 4px 15px rgba(212, 175, 55, 0.4);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+        }
+
+        .download-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(212, 175, 55, 0.6);
+            background: var(--gold-hover);
+            color: var(--primary-dark);
+        }
+
+        .download-btn img {
+            margin-right: 10px;
+            width: 24px;
+            height: 24px;
         }
 
         section {
             display: flex;
             align-items: center;
-            padding: 40px 20px;
+            padding: 20px 20px;
             max-width: 1200px;
             margin: 0 auto;
             gap: 20px;
@@ -235,15 +265,21 @@
             flex: 0 0 40%;
             max-width: 40%;
             height: 240px;
-            background-color: var(--accent-dark);
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
             border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--text-light);
-            font-size: 1.2em;
-            text-align: center;
+            width: 427px;
         }
+
+        #structure .image-placeholder { background-image: url('images/placeholder-elektroproject.png'); }
+        #directions .image-placeholder { background-image: url('images/placeholder-oma.png'); }
+        #oma-visual .image-placeholder { background-image: url('images/placeholder-omavisual.png'); }
+        #rabochee-proektirovanie .image-placeholder { background-image: url('images/placeholder-proektirovanie.png'); }
+        #kursy .image-placeholder { background-image: url('images/placeholder-kursy.png'); }
+        #mobile-app .image-placeholder { background-image: url('images/placeholder-encyclopedia.png'); }
+        #store .image-placeholder { background-image: url('images/placeholder-magazin.png'); }
+        #contact .image-placeholder { background-image: url('images/placeholder-kontakty.png'); }
 
         section .content {
             flex: 0 0 60%;
@@ -259,7 +295,7 @@
 
         #team {
             justify-content: center;
-            padding: 40px;
+            padding: 20px;
         }
 
         #team .content {
@@ -285,10 +321,12 @@
         }
 
         .team-member .member-placeholder {
-            width: 100px;
-            height: 100px;
+            width: 130px;
+            height: 130px;
             border-radius: 50%;
-            background-color: var(--accent-dark);
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
             border: 3px solid var(--gold-accent);
             margin: 0 auto 10px;
             display: flex;
@@ -297,6 +335,12 @@
             color: var(--text-light);
             font-size: 0.9em;
         }
+
+        #team .team-member:nth-child(1) .member-placeholder { background-image: url('images/member-kurdumov.png'); }
+        #team .team-member:nth-child(2) .member-placeholder { background-image: url('images/member-orlov.png'); }
+        #team .team-member:nth-child(3) .member-placeholder { background-image: url('images/member-petukhov.png'); }
+        #team .team-member:nth-child(4) .member-placeholder { background-image: url('images/member-malygin.png'); }
+        #team .team-member:nth-child(5) .member-placeholder { background-image: url('images/member-falchuk.png'); }
 
         .team-member h3 {
             font-size: 1em;
@@ -309,6 +353,10 @@
             color: var(--text-light);
         }
 
+        #history {
+            padding: 0 20px 20px 20px;
+        }
+
         #history .content {
             flex: 0 0 100%;
             max-width: 100%;
@@ -317,7 +365,7 @@
 
         #history .intro-text, #history .outro-text {
             max-width: 1200px;
-            margin: 20px auto;
+            margin: 5px auto;
             text-align: center;
         }
 
@@ -347,11 +395,18 @@
         .timeline-circle {
             width: 150px;
             height: 150px;
-            background-color: var(--accent-dark);
-            border: 3px solid var(--gold-accent);
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
             border-radius: 50%;
             flex-shrink: 0;
         }
+
+        #history .timeline-item:nth-child(1) .timeline-circle { background-image: url('images/timeline-circle-1.png'); }
+        #history .timeline-item:nth-child(2) .timeline-circle { background-image: url('images/timeline-circle-2.png'); }
+        #history .timeline-item:nth-child(3) .timeline-circle { background-image: url('images/timeline-circle-3.png'); }
+        #history .timeline-item:nth-child(4) .timeline-circle { background-image: url('images/timeline-circle-4.png'); }
+        #history .timeline-item:nth-child(5) .timeline-circle { background-image: url('images/timeline-circle-5.png'); }
 
         .timeline-title {
             color: var(--gold-accent);
@@ -365,15 +420,10 @@
             font-size: 0.9em;
         }
 
-        .timeline-divider {
-            border-top: 2px solid var(--gold-accent);
-            max-width: 800px;
-            margin: 20px auto;
-        }
-
         #downloads {
             justify-content: center;
             text-align: center;
+            padding: 20px 20px 50px 20px;
         }
 
         #downloads .content {
@@ -383,17 +433,62 @@
             flex-wrap: nowrap;
         }
 
-        #contact .content {
+        #contact {
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        #contact .contact-info {
+            flex: 0 0 40%;
+            padding: 0 20px 20px 20px;
+            border-radius: 10px;
             display: flex;
             flex-direction: column;
+            justify-content: space-between;
+            height: 100%;
+            text-align: center;
+        }
+
+        #contact .contact-info h3 {
+            color: var(--gold-accent);
+            margin-bottom: 15px;
+        }
+
+        #contact .contact-info .icon {
+            display: flex;
             align-items: center;
+            margin-bottom: 15px;
+        }
+
+        #contact .contact-info .icon img {
+            width: 60px;
+            height: 60px;
+            margin-right: 10px;
+        }
+
+        #contact .contact-info .icon span {
+            flex: 1;
+            text-align: center;
+        }
+
+        #contact .contact-form {
+            flex: 0 0 40%;
+            height: 100%;
+        }
+
+        #contact .contact-form h3 {
+            color: var(--gold-accent);
+            margin-bottom: 15px;
             text-align: center;
         }
 
         #contact form {
-            max-width: 400px;
-            margin: 20px auto;
-            width: 100%;
+            max-width: 100%;
+            margin: 0;
         }
 
         input, button {
@@ -440,31 +535,29 @@
             header {
                 flex-direction: column;
                 gap: 10px;
-                justify-content: center;
-                align-items: center;
+            }
+
+            .logo {
+                width: 120px;
+                height: 40px;
             }
 
             nav {
-                display: none;
+                width: 100%;
             }
 
-            .hero {
-                height: 240px;
-                font-size: 1.5em;
-            }
-
-            .structure-main {
-                max-width: 250px;
-            }
-
-            .structure-grid {
-                grid-template-columns: repeat(2, 1fr);
+            nav ul {
+                flex-wrap: wrap;
+                justify-content: center;
                 gap: 10px;
             }
 
-            .structure-box {
-                font-size: 0.8em;
-                height: 50px;
+            .hero .container {
+                height: 240px;
+            }
+
+            .structure-diagram, .team, #history, #downloads, #contact {
+                padding: 10px 20px;
             }
 
             section {
@@ -478,7 +571,8 @@
             }
 
             .image-placeholder {
-                height: 160px;
+                height: 240px;
+                width: 427px;
             }
 
             .team {
@@ -491,17 +585,8 @@
             }
 
             .team-member .member-placeholder {
-                width: 80px;
-                height: 80px;
-                font-size: 0.8em;
-            }
-
-            .team-member h3 {
-                font-size: 0.9em;
-            }
-
-            .team-member p {
-                font-size: 0.7em;
+                width: 100px;
+                height: 100px;
             }
 
             .timeline-circle {
@@ -524,134 +609,108 @@
                 font-size: 0.8em;
             }
 
-            .timeline-divider {
-                margin: 10px auto;
-            }
-
             #downloads .content {
                 gap: 10px;
             }
 
-            .btn {
-                padding: 10px 20px;
-                font-size: 0.9em;
+            #contact {
+                flex-direction: column;
+            }
+
+            #contact .contact-info, #contact .contact-form {
+                flex: 0 0 100%;
             }
         }
     </style>
 </head>
 <body>
     <header>
-        <div class="logo">ЭлектроПроект</div>
-        <nav>
-            <ul>
-                <li><a href="#structure">Структура компании</a></li>
-                <li><a href="#directions">Направления</a></li>
-                <li><a href="#team">Наша команда</a></li>
-                <li><a href="#history">История развития</a></li>
-                <li><a href="#contact">Контакты</a></li>
-            </ul>
-        </nav>
+        <div class="container">
+            <div class="logo"></div>
+            <nav>
+                <ul>
+                    <li><a href="#structure">Структура компании</a></li>
+                    <li><a href="#directions">Направления</a></li>
+                    <li><a href="#team">Наша команда</a></li>
+                    <li><a href="#history">История развития</a></li>
+                    <li><a href="#contact">Контакты</a></li>
+                </ul>
+            </nav>
+        </div>
     </header>
 
-    <div class="hero">Международный учебный центр ЭЛЕКТРОПРОЕКТ</div>
+    <div class="hero">
+        <div class="container">
+            <img src="images/hero-banner-with-transparent-bg.png" alt="Международный учебный центр ЭЛЕКТРОПРОЕКТ">
+        </div>
+    </div>
 
     <h2>Структура компании</h2>
     <div class="structure-diagram">
-        <div class="structure-main">Главный отдел</div>
-        <div class="structure-grid">
-            <div class="structure-box">Отдел 1.1</div>
-            <div class="structure-box">Отдел 2.1</div>
-            <div class="structure-box">Отдел 3.1</div>
-            <div class="structure-box">Отдел 4.1</div>
-            <div class="structure-box">Отдел 1.2</div>
-            <div class="structure-box">Отдел 2.2</div>
-            <div class="structure-box">Отдел 3.2</div>
-            <div class="structure-box">Отдел 4.2</div>
-            <div class="structure-box">Отдел 1.3</div>
-            <div class="structure-box">Отдел 2.3</div>
-            <div class="structure-box">Отдел 3.3</div>
-            <div class="structure-box">Отдел 4.3</div>
-            <div class="structure-box">Отдел 1.4</div>
-            <div class="structure-box">Отдел 2.4</div>
-            <div class="structure-box">Отдел 3.4</div>
-            <div class="structure-box">Отдел 4.4</div>
-            <div class="structure-box">Отдел 1.5</div>
-            <div class="structure-box">Отдел 2.5</div>
-            <div class="structure-box">Отдел 3.5</div>
-            <div class="structure-box">Отдел 4.5</div>
-            <div class="structure-box">Отдел 1.6</div>
-            <div class="structure-box">Отдел 2.6</div>
-            <div class="structure-box">Отдел 3.6</div>
-            <div class="structure-box">Отдел 4.6</div>
-        </div>
+        <img src="images/structure-diagram.png" alt="Структура компании">
     </div>
 
     <main>
         <h2>Направления</h2>
         <section id="structure">
-            <div class="image-placeholder">ЭлектроПроект</div>
+            <div class="image-placeholder"></div>
             <div class="content">
-                <h2>О нас</h2>
-                <p>Сайт объединяющий все наши проекты</p>
+                <h2>Международный учебный центр "ЭлектроПроект"</h2>
+                <p>Сайт, объединяющий все наши проекты.</p>
                 <a href="#details" class="btn">Подробнее...</a>
             </div>
         </section>
 
         <section id="directions">
-            <div class="image-placeholder">ОМА</div>
+            <div class="image-placeholder"></div>
             <div class="content">
                 <h2>Программный комплекс ОМА</h2>
-                <p>Программный комплекс "ОМА" - это универсальное, простое в использование и многофункциональное приложение на базе AutoCad, способствующее значительно повысить продуктивность создания проектов электроустановок любой сложности.</p>
+                <p>Программный комплекс "ОМА" — это универсальное, простое в использовании и многофункциональное приложение на базе AutoCAD, способствующее значительному повышению продуктивности создания проектов электроустановок любой сложности.</p>
                 <a href="https://omaproject.ru" class="btn">Подробнее...</a>
             </div>
         </section>
 
         <section id="oma-visual">
-            <div class="image-placeholder">OMA Visual</div>
+            <div class="image-placeholder"></div>
             <div class="content">
-                <h2>OMA VISUAL</h2>
-                <p>Создание фигур электрики в формате DWG (AutoCAD)</p>
-                <p>Уникальные ресурсы:</p>
-                <ul>
-                    <li>Бесплатные и премиальные динамические блоки DWG</li>
-                    <li>Эксклюзивные и бесплатные обучающие материалы по созданию профессиональных схем визуализации</li>
-                </ul>
+                <h2>OMA Visual</h2>
+                <p>Создание фигур электрики в формате DWG (AutoCAD). Уникальные ресурсы: бесплатные и премиальные динамические блоки DWG, эксклюзивные и бесплатные обучающие материалы по созданию профессиональных схем визуализации.</p>
                 <a href="https://vk.com/omavisual" class="btn">Подробнее...</a>
             </div>
         </section>
 
         <section id="rabochee-proektirovanie">
-            <div class="image-placeholder">Проектирование</div>
+            <div class="image-placeholder"></div>
             <div class="content">
-                <h2>РАБОЧЕЕ ПРОЕКТИРОВАНИЕ "ЭЛЕКТРОПРОЕКТ"</h2>
-                <p>Это канал в котором одним дублем Курдюмов Сергей рассказывает про автоматизацию в проектирование электроустановок, выполняет проекты, делает обзоры на нормативные документы, рассказывает о предпринимательстве и личном опыте в проектирование.</p>
+                <h2>Рабочее проектирование "ЭлектроПроект"</h2>
+                <p>Это канал, в котором одним дублем Курдюмов Сергей рассказывает об автоматизации в проектировании электроустановок, выполняет проекты, делает обзоры нормативных документов, рассказывает о предпринимательстве и личном опыте в проектировании.</p>
                 <a href="https://elektroskhem.ru/" class="btn">Подробнее...</a>
             </div>
         </section>
 
         <section id="kursy">
-            <div class="image-placeholder">Курсы</div>
+            <div class="image-placeholder"></div>
             <div class="content">
-                <h2>Курсы обучения ПО ПРОЕКТИРОВАНИЮ ДО 1000 в</h2>
-                <p>Дизайн розетки - это уникальные авторские курсы по проектированию электроустановок и электроснабжения, обучению работе в САПР программах, а также возможности высокого заработка в этих областях! Первые в России максимально подробные курсы с применением анимационных видео, множеством готовых решений, шаблонов и инструментов автоматизации проектирования! Разработка обучающих курсов берет свое начало еще в начале 2022 года, но сам старт будет осуществлен только 15 января 2024 года.</p>
+                <h2>Курсы обучения по проектированию до 1000 В</h2>
+                <p>Дизайн розетки — это уникальные авторские курсы по проектированию электроустановок и электроснабжения, обучению работе в САПР-программах, а также возможности высокого заработка в этих областях! Первые в России максимально подробные курсы с применением анимационных видео, множеством готовых решений, шаблонов и инструментов автоматизации проектирования!</p>
                 <a href="https://rosette-design.info/" class="btn">Подробнее...</a>
             </div>
         </section>
 
         <section id="mobile-app">
-            <div class="image-placeholder">Энциклопедия</div>
+            <div class="image-placeholder"></div>
             <div class="content">
-                <h2>Мобильное приложение Энциклопедия Электрика</h2>
-                <p>Энциклопедия электрика — это полезный канал для всех специалистов в области электроэнергетики. Мы подробно и интересно рассказываем о мире электроустановок, хотим сделать его проще и еще понятнее для всех!</p>
+                <h2>Мобильное приложение "Энциклопедия Электрика"</h2>
+                <p>Энциклопедия электрика — это полезный канал для всех специалистов в области электроэнергетики. Мы подробно и интересно рассказываем о мире электроустановок, хотим сделать его проще и понятнее для всех!</p>
                 <a href="https://www.rustore.ru/catalog/app/ru.electroproject.electropedia" class="btn">Подробнее...</a>
             </div>
         </section>
 
         <section id="store">
-            <div class="image-placeholder">Магазин</div>
+            <div class="image-placeholder"></div>
             <div class="content">
-                <h2>Интернет магазин - omastore.ru</h2>
-                <p>Интернет магазин где можно приобрести ПО OMA, а также дополнения для него. На сайте большой выбор файлов в формате dwg.</p>
+                <h2>Интернет-магазин omastore.ru</h2>
+                <p>Интернет-магазин, где можно приобрести ПО OMA и дополнения для него. На сайте большой выбор файлов в формате DWG.</p>
                 <a href="https://omastore.ru/" class="btn">Подробнее...</a>
             </div>
         </section>
@@ -661,27 +720,27 @@
             <div class="content">
                 <div class="team">
                     <div class="team-member">
-                        <div class="member-placeholder">Курдюмов</div>
+                        <div class="member-placeholder"></div>
                         <h3>Курдюмов Сергей</h3>
                         <p>Руководитель организации</p>
                     </div>
                     <div class="team-member">
-                        <div class="member-placeholder">Орлов</div>
+                        <div class="member-placeholder"></div>
                         <h3>Орлов Михаил</h3>
                         <p>Главный специалист в области программирования</p>
                     </div>
                     <div class="team-member">
-                        <div class="member-placeholder">Петухов</div>
+                        <div class="member-placeholder"></div>
                         <h3>Петухов Александр</h3>
                         <p>Руководитель в области развития</p>
                     </div>
                     <div class="team-member">
-                        <div class="member-placeholder">Малыгин</div>
+                        <div class="member-placeholder"></div>
                         <h3>Малыгин Александр</h3>
                         <p>Главный специалист в области развития социальных сетей и маркетинга</p>
                     </div>
                     <div class="team-member">
-                        <div class="member-placeholder">Фальчук</div>
+                        <div class="member-placeholder"></div>
                         <h3>Фальчук Геннадий</h3>
                         <p>Руководитель группы OMAVisual</p>
                     </div>
@@ -693,7 +752,7 @@
         <section id="history">
             <div class="content">
                 <div class="intro-text">
-                    <p>«ЭлектроПроект» основана Курдюмовым Сергеем в 2021 году после многолетнего опыта работы проектировщиком. Основной целью компании стало повышение эффективности процесса проектирования электроустановок путём внедрения инновационных методов и цифровых инструментов.</p>
+                    <p>«ЭлектроПроект» основан Курдюмовым Сергеем в 2021 году после многолетнего опыта работы проектировщиком. Основной целью компании стало повышение эффективности процесса проектирования электроустановок путём внедрения инновационных методов и цифровых инструментов.</p>
                 </div>
                 <div class="timeline">
                     <div class="timeline-item">
@@ -707,7 +766,6 @@
                             </ul>
                         </div>
                     </div>
-                    <div class="timeline-divider"></div>
                     <div class="timeline-item">
                         <div class="timeline-left">
                             <div class="timeline-circle"></div>
@@ -720,7 +778,6 @@
                             </ul>
                         </div>
                     </div>
-                    <div class="timeline-divider"></div>
                     <div class="timeline-item">
                         <div class="timeline-left">
                             <div class="timeline-circle"></div>
@@ -740,7 +797,6 @@
                             </ul>
                         </div>
                     </div>
-                    <div class="timeline-divider"></div>
                     <div class="timeline-item">
                         <div class="timeline-left">
                             <div class="timeline-circle"></div>
@@ -757,7 +813,6 @@
                             </ul>
                         </div>
                     </div>
-                    <div class="timeline-divider"></div>
                     <div class="timeline-item">
                         <div class="timeline-left">
                             <div class="timeline-circle"></div>
@@ -768,15 +823,6 @@
                                 <li>Выпуск мобильного приложения «Энциклопедия Электрика».</li>
                                 <li>Стартапы подготовки к выходу OMA v.3.</li>
                                 <li>Введение системы визуализации модульного щитового оборудования — OMA Visual.</li>
-                                <li>Объединение направлений деятельности в рамках Международного Учебного Центра «ЭлектроПроект»:</li>
-                                <li style="list-style-type: none;">
-                                    <ul>
-                                        <li>разработка ПК OMA,</li>
-                                        <li>курсы по проектированию электроустановок до 1 кВ,</li>
-                                        <li>визуализация щитового оборудования,</li>
-                                        <li>поддержка мобильных приложений.</li>
-                                    </ul>
-                                </li>
                                 <li>Открытие единого Интернет-магазина omastore.ru.</li>
                                 <li>Повторное участие в IV Всероссийском слёте электриков.</li>
                             </ul>
@@ -790,21 +836,27 @@
         </section>
 
         <h2>Скачать приложение</h2>
-        <section id="downloads">
+        <div id="downloads">
             <div class="content">
                 <div style="display: flex; justify-content: center; gap: 20px; flex-wrap: nowrap;">
-                    <a href="https://apps.apple.com/ru/app/%D1%8D%D0%BD%D1%86%D0%B8%D0%BA%D0%BB%D0%BE%D0%BF%D0%B5%D0%B4%D0%B8%D1%8F-%D1%8D%D0%BB%D0%B5%D0%BA%D1%82%D1%80%D0%B8%D0%BA%D0%B0/id6475500351" class="btn">Download app from App Store</a>
-                    <a href="https://play.google.com/store/apps/details?id=ru.electroproject.electropedia" class="btn">Download app from Play Market</a>
+                    <a href="https://apps.apple.com/ru/app/%D1%8D%D0%BD%D1%86%D0%B8%D0%BA%D0%BB%D0%BE%D0%BF%D0%B5%D0%B4%D0%B8%D1%8F-%D1%8D%D0%BB%D0%B5%D0%BA%D1%82%D1%80%D0%B8%D0%BA%D0%B0/id6475500351" class="download-btn" style="width: 170px; height: 50px;"><img src="images/appstore-icon.png" alt="App Store Icon">App Store</a>
+                    <a href="https://play.google.com/store/apps/details?id=ru.electroproject.electropedia" class="download-btn" style="width: 170px; height: 50px;"><img src="images/googleplay-icon.png" alt="Google Play Icon">Google Play</a>
+                    <a href="https://www.rustore.ru/catalog/app/ru.electroproject.electropedia" class="download-btn" style="width: 170px; height: 50px;"><img src="images/rustore-icon.png" alt="RuStore Icon">RuStore</a>
                 </div>
             </div>
-        </section>
+        </div>
 
         <h2>Контакты</h2>
-        <section id="contact">
-            <div class="image-placeholder">Контакты</div>
-            <div class="content">
-                <h2>Свяжитесь с нами</h2>
-                <p>Оставьте заявку или позвоните нам самостоятельно, и мы ответим на все возникшие у вас вопросы!</p>
+        <div id="contact">
+            <div class="contact-info">
+                <h3>Контактная информация</h3>
+                <div class="icon"><img src="images/phone-icon.png" alt="Phone"><span>+7 (909) 582-75-51</span></div>
+                <div class="icon"><img src="images/address-icon.png" alt="Address"><span>Ленинградская обл., г. Коммунар, ул. Радужная, д. 28</span></div>
+                <div class="icon"><img src="images/email-icon.png" alt="Email"><span><a href="mailto:electroprojectoma@yandex.ru">electroprojectoma@yandex.ru</a></span></div>
+            </div>
+            <div class="contact-form">
+                <h3>Свяжитесь с нами</h3>
+                <p>Оставьте заявку или позвоните, мы ответим на вопросы!</p>
                 <form action="#" method="post">
                     <input type="text" placeholder="Ваше имя" required>
                     <input type="email" placeholder="Ваш email" required>
@@ -812,7 +864,7 @@
                     <button type="submit">Отправить заявку</button>
                 </form>
             </div>
-        </section>
+        </div>
     </main>
 
     <footer>
@@ -824,9 +876,16 @@
         document.querySelectorAll('a[href^="#"]').forEach(anchor => {
             anchor.addEventListener('click', function (e) {
                 e.preventDefault();
-                document.querySelector(this.getAttribute('href')).scrollIntoView({
-                    behavior: 'smooth'
-                });
+                const href = this.getAttribute('href');
+                const target = document.querySelector(href);
+                if (target) {
+                    const headerHeight = document.querySelector('header').offsetHeight;
+                    const targetPosition = target.getBoundingClientRect().top + window.pageYOffset - headerHeight;
+                    window.scrollTo({
+                        top: targetPosition,
+                        behavior: 'smooth'
+                    });
+                }
             });
         });
 
