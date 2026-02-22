@@ -1,917 +1,491 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Международный учебный центр ЭЛЕКТРОПРОЕКТ</title>
-    <style>
-        :root {
-            --primary-dark: #1a1a1a;
-            --secondary-dark: #2c2c2c;
-            --accent-dark: #3a3a3a;
-            --gold-accent: #d4af37;
-            --gold-hover: #e6c74b;
-            --text-light: #f0f0f0;
-        }
-
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-
-        body {
-            font-family: 'Roboto', Arial, sans-serif;
-            background-color: var(--primary-dark);
-            color: var(--text-light);
-            line-height: 1.6;
-            overflow-x: hidden;
-        }
-
-        header {
-            background-color: var(--secondary-dark);
-            position: fixed;
-            top: 0;
-            width: 100%;
-            z-index: 1000;
-            padding: 15px 20px;
-            display: flex;
-            justify-content: center;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
-            height: 80px;
-        }
-
-        header .container {
-            max-width: 1200px;
-            width: 100%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 20px;
-        }
-
-        .logo {
-            width: 170px;
-            height: 50px;
-            background: url('images/logo.png') no-repeat center;
-            background-size: contain;
-        }
-
-        nav {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        nav ul {
-            list-style: none;
-            display: flex;
-            gap: 20px;
-            align-items: center;
-            justify-content: center;
-        }
-
-        nav a {
-            color: var(--text-light);
-            font-weight: bold;
-            transition: color 0.3s ease;
-            line-height: 1.2;
-            text-decoration: none;
-        }
-
-        nav a:hover {
-            color: var(--gold-hover);
-        }
-
-        nav a.active {
-            color: var(--gold-accent);
-            border-bottom: 2px solid var(--gold-accent);
-        }
-
-        .hero {
-            width: 100%;
-            background: linear-gradient(135deg, var(--gold-accent), var(--gold-hover));
-            position: relative;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-            color: var(--primary-dark);
-            font-size: 2em;
-            font-weight: bold;
-            margin-top: 80px;
-            margin-bottom: 40px;
-        }
-
-        .hero .container {
-            max-width: 1200px;
-            width: 100%;
-            position: relative;
-            height: auto; /* Динамическая высота */
-            min-height: 360px; /* Минимальная высота для десктопной версии */
-        }
-
-        .hero img {
-            position: absolute;
-            bottom: 0;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 100%;
-            height: auto;
-            max-width: 1200px;
-            object-fit: contain;
-        }
-
-        .structure-diagram {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 20px;
-            padding: 0 20px 20px 20px;
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-
-        .structure-diagram img {
-            width: 100%;
-            max-width: 1200px;
-            height: auto;
-        }
-
-        main {
-            margin-top: 80px;
-        }
-
-        h2 {
-            color: var(--gold-accent);
-            margin-bottom: 10px;
-            text-align: center;
-            text-transform: uppercase;
-        }
-
-        .content h2 {
-            text-align: left;
-            text-transform: none;
-        }
-
-        p {
-            margin-bottom: 20px;
-        }
-
-        a {
-            color: var(--gold-accent);
-            text-decoration: none;
-        }
-
-        a:hover {
-            color: var(--gold-hover);
-        }
-
-        .btn {
-            display: inline-block;
-            padding: 12px 24px;
-            background: linear-gradient(135deg, var(--gold-accent), var(--gold-hover));
-            color: var(--primary-dark);
-            font-weight: bold;
-            border-radius: 25px;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-            box-shadow: 0 4px 15px rgba(212, 175, 55, 0.4);
-            text-decoration: none;
-        }
-
-        .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(212, 175, 55, 0.6);
-            background: linear-gradient(135deg, var(--gold-hover), var(--gold-accent));
-            color: var(--primary-dark);
-        }
-
-        .download-btn {
-            display: inline-block;
-            padding: 12px;
-            background: var(--gold-accent);
-            color: var(--primary-dark);
-            font-weight: bold;
-            border-radius: 25px;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-            box-shadow: 0 4px 15px rgba(212, 175, 55, 0.4);
-            text-decoration: none;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 170px;
-            height: 50px;
-        }
-
-        .download-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(212, 175, 55, 0.6);
-            background: var(--gold-hover);
-            color: var(--primary-dark);
-        }
-
-        .download-btn img {
-            margin-right: 10px;
-            width: 24px;
-            height: 24px;
-        }
-
-        section {
-            display: flex;
-            align-items: center;
-            padding: 20px 20px;
-            max-width: 1200px;
-            margin: 0 auto;
-            gap: 20px;
-            width: 100%;
-        }
-
-        section .image-placeholder {
-            flex: 0 0 40%;
-            max-width: 40%;
-            height: 240px;
-            background-size: cover;
-            background-repeat: no-repeat;
-            background-position: center;
-            border-radius: 10px;
-            width: 427px;
-        }
-
-        #structure .image-placeholder { background-image: url('images/placeholder-elektroproject.png'); }
-        #directions .image-placeholder { background-image: url('images/placeholder-oma.png'); }
-        #oma-visual .image-placeholder { background-image: url('images/placeholder-omavisual.png'); }
-        #rabochee-proektirovanie .image-placeholder { background-image: url('images/placeholder-proektirovanie.png'); }
-        #kursy .image-placeholder { background-image: url('images/placeholder-kursy.png'); }
-        #mobile-app .image-placeholder { background-image: url('images/placeholder-encyclopedia.png'); }
-        #store .image-placeholder { background-image: url('images/placeholder-magazin.png'); }
-        #contact .image-placeholder { background-image: url('images/placeholder-kontakty.png'); }
-
-        section .content {
-            flex: 0 0 60%;
-            max-width: 60%;
-            text-align: left;
-        }
-
-        ul {
-            list-style-type: disc;
-            padding-left: 20px;
-            margin-bottom: 20px;
-        }
-
-        #team {
-            justify-content: center;
-            padding: 20px;
-        }
-
-        #team .content {
-            flex: 0 0 100%;
-            max-width: 100%;
-            text-align: center;
-        }
-
-        .team {
-            display: flex;
-            justify-content: space-evenly;
-            align-items: stretch;
-            gap: 10px;
-            width: 100%;
-            max-width: 1200px;
-            flex-wrap: nowrap;
-        }
-
-        .team-member {
-            flex: 1;
-            text-align: center;
-            max-width: 18%;
-        }
-
-        .team-member .member-placeholder {
-            width: 130px;
-            height: 130px;
-            border-radius: 50%;
-            background-size: contain;
-            background-repeat: no-repeat;
-            background-position: center;
-            border: 3px solid var(--gold-accent);
-            margin: 0 auto 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--text-light);
-            font-size: 0.9em;
-        }
-
-        #team .team-member:nth-child(1) .member-placeholder { background-image: url('images/member-kurdumov.png'); }
-        #team .team-member:nth-child(2) .member-placeholder { background-image: url('images/member-orlov.png'); }
-        #team .team-member:nth-child(3) .member-placeholder { background-image: url('images/member-petukhov.png'); }
-        #team .team-member:nth-child(4) .member-placeholder { background-image: url('images/member-malygin.png'); }
-        #team .team-member:nth-child(5) .member-placeholder { background-image: url('images/member-falchuk.png'); }
-
-        .team-member h3 {
-            font-size: 1em;
-            color: var(--gold-accent);
-            white-space: nowrap;
-        }
-
-        .team-member p {
-            font-size: 0.8em;
-            color: var(--text-light);
-        }
-
-        #history {
-            padding: 0 20px 20px 20px;
-        }
-
-        #history .content {
-            flex: 0 0 100%;
-            max-width: 100%;
-            text-align: center;
-        }
-
-        #history .intro-text, #history .outro-text {
-            max-width: 1200px;
-            margin: 5px auto;
-            text-align: center;
-        }
-
-        #history .timeline {
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-            width: 100%;
-            max-width: 800px;
-            margin: 0 auto;
-        }
-
-        .timeline-item {
-            display: flex;
-            align-items: center;
-            gap: 20px;
-        }
-
-        .timeline-left {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 10px;
-            flex-shrink: 0;
-        }
-
-        .timeline-circle {
-            width: 150px;
-            height: 150px;
-            background-size: contain;
-            background-repeat: no-repeat;
-            background-position: center;
-            border-radius: 50%;
-            flex-shrink: 0;
-        }
-
-        #history .timeline-item:nth-child(1) .timeline-circle { background-image: url('images/timeline-circle-1.png'); }
-        #history .timeline-item:nth-child(2) .timeline-circle { background-image: url('images/timeline-circle-2.png'); }
-        #history .timeline-item:nth-child(3) .timeline-circle { background-image: url('images/timeline-circle-3.png'); }
-        #history .timeline-item:nth-child(4) .timeline-circle { background-image: url('images/timeline-circle-4.png'); }
-        #history .timeline-item:nth-child(5) .timeline-circle { background-image: url('images/timeline-circle-5.png'); }
-
-        .timeline-title {
-            color: var(--gold-accent);
-            font-size: 1em;
-            text-align: center;
-        }
-
-        .timeline-content {
-            flex: 1;
-            text-align: left;
-            font-size: 0.9em;
-        }
-
-        #downloads {
-            justify-content: center;
-            text-align: center;
-            padding: 20px 20px 50px 20px;
-        }
-
-        #downloads .content {
-            display: flex;
-            justify-content: center;
-            gap: 20px;
-            flex-wrap: nowrap;
-        }
-
-        #contact {
-            padding: 20px;
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-
-        #contact .contact-info {
-            flex: 0 0 40%;
-            padding: 0 20px 20px 20px;
-            border-radius: 10px;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            height: 100%;
-            text-align: center;
-        }
-
-        #contact .contact-info h3 {
-            color: var(--gold-accent);
-            margin-bottom: 15px;
-        }
-
-        #contact .contact-info .icon {
-            display: flex;
-            align-items: center;
-            margin-bottom: 15px;
-        }
-
-        #contact .contact-info .icon img {
-            width: 60px;
-            height: 60px;
-            margin-right: 10px;
-        }
-
-        #contact .contact-info .icon span {
-            flex: 1;
-            text-align: center;
-        }
-
-        #contact .contact-form {
-            flex: 0 0 40%;
-            height: 100%;
-        }
-
-        #contact .contact-form h3 {
-            color: var(--gold-accent);
-            margin-bottom: 15px;
-            text-align: center;
-        }
-
-        #contact form {
-            max-width: 100%;
-            margin: 0;
-        }
-
-        input, button {
-            display: block;
-            width: 100%;
-            margin: 10px 0;
-            padding: 12px;
-            border-radius: 5px;
-            border: none;
-            background-color: var(--secondary-dark);
-            color: var(--text-light);
-        }
-
-        input::placeholder {
-            color: #aaa;
-        }
-
-        button {
-            background: linear-gradient(135deg, var(--gold-accent), var(--gold-hover));
-            color: var(--primary-dark);
-            cursor: pointer;
-            font-weight: bold;
-            transition: background 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
-            box-shadow: 0 4px 15px rgba(212, 175, 55, 0.4);
-        }
-
-        button:hover {
-            background: linear-gradient(135deg, var(--gold-hover), var(--gold-accent));
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(212, 175, 55, 0.6);
-        }
-
-        footer {
-            padding: 20px;
-            text-align: center;
-            background-color: var(--secondary-dark);
-        }
-
-        footer a {
-            margin: 0 10px;
-        }
-
-        @media (max-width: 768px) {
-            header {
-                flex-direction: column;
-                gap: 10px;
-            }
-
-            .logo {
-                width: 200px;
-                height: 60px;
-                margin: 0 auto; /* Центрирование логотипа на мобильной версии */
-                background: url('images/logo-mobile.png') no-repeat center;
-                background-size: contain;
-            }
-
-            nav {
-                display: none; /* Убираем меню на мобильной версии */
-            }
-
-            .hero .container {
-                min-height: 240px; /* Минимальная высота для мобильной версии */
-            }
-
-            .hero img {
-                content: url('images/hero-banner-mobile-240.png'); /* Изображение для мобильной версии */
-                height: 100%; /* Масштабирование по высоте контейнера */
-                width: auto; /* Автоматическая ширина для пропорций */
-                max-width: 100%; /* Ограничение максимальной ширины */
-                bottom: 0; /* Прижатие к низу */
-                left: 50%;
-                transform: translateX(-50%);
-            }
-
-            .structure-diagram, .team, #history, #downloads, #contact {
-                padding: 10px 20px;
-            }
-
-            section {
-                flex-direction: column;
-                text-align: center;
-            }
-
-            section .image-placeholder, section .content {
-                flex: 0 0 100%;
-                max-width: 100%;
-            }
-
-            .image-placeholder {
-                height: 200px; /* Фиксированная минимальная высота */
-                width: 100%; /* Полная ширина контейнера */
-                max-width: 100%; /* Адаптация к экрану */
-                background-size: cover; /* Лучшее заполнение пространства */
-                background-position: center; /* Центрирование изображения */
-                min-height: 200px; /* Минимальная высота для предотвращения обнуления */
-            }
-
-            .team {
-                flex-direction: column;
-                gap: 20px;
-            }
-
-            .team-member {
-                max-width: 100%;
-            }
-
-            .team-member .member-placeholder {
-                width: 100px;
-                height: 100px;
-            }
-
-            .timeline-circle {
-                width: 125px;
-                height: 125px;
-            }
-
-            .timeline-title {
-                font-size: 0.9em;
-            }
-
-            .timeline-item {
-                flex-direction: column;
-                align-items: center;
-                gap: 10px;
-            }
-
-            .timeline-content {
-                text-align: left;
-                font-size: 0.8em;
-            }
-
-            #downloads .content {
-                gap: 10px;
-            }
-
-            #contact {
-                flex-direction: column;
-            }
-
-            #contact .contact-info, #contact .contact-form {
-                flex: 0 0 100%;
-            }
-
-            .download-btn {
-                width: 50px;
-                padding: 12px;
-                justify-content: center;
-            }
-
-            .download-btn img {
-                margin-right: 0;
-            }
-
-            .download-btn span {
-                display: none; /* Скрываем текст на мобильной версии */
-            }
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ЭлектроПроект Donuts - Тесты</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #111;
+      color: #fff;
+      display: flex;
+      justify-content: center;
+      min-height: 100vh;
+    }
+
+    .app-wrapper {
+      width: 100%;
+      max-width: 480px;
+      background: #111;
+      padding: 16px;
+      padding-bottom: 100px;
+    }
+
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 0;
+      margin-bottom: 20px;
+      border-bottom: 1px solid #2a2a2a;
+    }
+
+    .logo {
+      font-size: 20px;
+      font-weight: 700;
+    }
+
+    .logo span {
+      background: linear-gradient(135deg, #e6c158, #f1c40f);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .card {
+      background: #1c1c1e;
+      border-radius: 16px;
+      padding: 16px;
+      margin-bottom: 16px;
+      border: 1px solid rgba(255,255,255,0.04);
+    }
+
+    .test-card {
+      background: #1c1c1e;
+      border-radius: 16px;
+      padding: 18px;
+      margin-bottom: 12px;
+      border: 1px solid #2a2a2a;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .test-card:hover {
+      border-color: #e6c158;
+      transform: scale(1.02);
+    }
+
+    .test-title {
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+
+    .test-description {
+      color: #a7a7a7;
+      font-size: 14px;
+      margin-bottom: 12px;
+    }
+
+    .test-meta {
+      display: flex;
+      gap: 12px;
+      color: #666;
+      font-size: 13px;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .badge.free {
+      background: #2ecc71;
+      color: #000;
+    }
+
+    .badge.test {
+      background: #e74c3c;
+      color: #fff;
+    }
+
+    .question-container {
+      margin: 20px 0;
+    }
+
+    .question-text {
+      font-size: 18px;
+      margin-bottom: 20px;
+    }
+
+    .answer-btn {
+      width: 100%;
+      padding: 14px;
+      background: #2a2a2a;
+      border: 1px solid #3a3a3a;
+      border-radius: 12px;
+      color: #fff;
+      font-size: 16px;
+      text-align: left;
+      margin-bottom: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .answer-btn:hover {
+      background: #3a3a3a;
+    }
+
+    .answer-btn.correct {
+      background: rgba(46, 204, 113, 0.3);
+      border-color: #2ecc71;
+    }
+
+    .answer-btn.wrong {
+      background: rgba(231, 76, 60, 0.3);
+      border-color: #e74c3c;
+    }
+
+    .progress-bar {
+      height: 6px;
+      background: #2a2a2a;
+      border-radius: 999px;
+      margin: 16px 0;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: #e6c158;
+      transition: width 0.3s;
+    }
+
+    .explanation {
+      background: #2a2a2a;
+      border-left: 4px solid #e6c158;
+      padding: 16px;
+      border-radius: 12px;
+      margin: 16px 0;
+    }
+
+    .button {
+      width: 100%;
+      padding: 14px;
+      background: #e6c158;
+      color: #000;
+      border: none;
+      border-radius: 12px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      margin-top: 16px;
+    }
+
+    .button.secondary {
+      background: transparent;
+      border: 1px solid #2a2a2a;
+      color: #fff;
+    }
+
+    .loader {
+      text-align: center;
+      padding: 40px;
+      color: #666;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .result-stats {
+      background: #2a2a2a;
+      border-radius: 12px;
+      padding: 16px;
+      margin: 16px 0;
+    }
+
+    .stat-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 8px 0;
+      border-bottom: 1px solid #3a3a3a;
+    }
+
+    .stat-label {
+      color: #a7a7a7;
+    }
+
+    .stat-value {
+      font-weight: 600;
+      color: #e6c158;
+    }
+  </style>
 </head>
 <body>
-    <header>
-        <div class="container">
-            <div class="logo"></div>
-            <nav>
-                <ul>
-                    <li><a href="#structure">Структура компании</a></li>
-                    <li><a href="#directions">Направления</a></li>
-                    <li><a href="#team">Наша команда</a></li>
-                    <li><a href="#history">История развития</a></li>
-                    <li><a href="#contact">Контакты</a></li>
-                </ul>
-            </nav>
-        </div>
-    </header>
-
-    <div class="hero">
-        <div class="container">
-            <img src="images/hero-banner-with-transparent-bg.png" alt="Международный учебный центр ЭЛЕКТРОПРОЕКТ">
-        </div>
+  <div class="app-wrapper">
+    <div class="header">
+      <div class="logo">⚡ ЭлектроПроект <span>Donuts</span></div>
     </div>
 
-    <h2>Структура компании</h2>
-    <div class="structure-diagram">
-        <img src="images/structure-diagram.png" alt="Структура компании">
+    <!-- Список тестов -->
+    <div id="tests-list" class="section">
+      <div class="card">
+        <h2 style="margin-bottom: 16px;">📝 Доступные тесты</h2>
+        <div id="tests-container"></div>
+      </div>
     </div>
 
-    <main>
-        <h2>Направления</h2>
-        <section id="structure">
-            <div class="image-placeholder"></div>
-            <div class="content">
-                <h2>Международный учебный центр "ЭлектроПроект"</h2>
-                <p>Сайт, объединяющий все наши проекты.</p>
-                <a href="#details" class="btn">Подробнее...</a>
-            </div>
-        </section>
-
-        <section id="directions">
-            <div class="image-placeholder"></div>
-            <div class="content">
-                <h2>Программный комплекс ОМА</h2>
-                <p>Программный комплекс "ОМА" — это универсальное, простое в использовании и многофункциональное приложение на базе AutoCAD, способствующее значительному повышению продуктивности создания проектов электроустановок любой сложности.</p>
-                <a href="https://omaproject.ru" class="btn">Подробнее...</a>
-            </div>
-        </section>
-
-        <section id="oma-visual">
-            <div class="image-placeholder"></div>
-            <div class="content">
-                <h2>OMA Visual</h2>
-                <p>Создание фигур электрики в формате DWG (AutoCAD). Уникальные ресурсы: бесплатные и премиальные динамические блоки DWG, эксклюзивные и бесплатные обучающие материалы по созданию профессиональных схем визуализации.</p>
-                <a href="https://vk.com/omavisual" class="btn">Подробнее...</a>
-            </div>
-        </section>
-
-        <section id="rabochee-proektirovanie">
-            <div class="image-placeholder"></div>
-            <div class="content">
-                <h2>Рабочее проектирование "ЭлектроПроект"</h2>
-                <p>Это канал, в котором одним дублем Курдюмов Сергей рассказывает об автоматизации в проектировании электроустановок, выполняет проекты, делает обзоры нормативных документов, рассказывает о предпринимательстве и личном опыте в проектировании.</p>
-                <a href="https://elektroskhem.ru/" class="btn">Подробнее...</a>
-            </div>
-        </section>
-
-        <section id="kursy">
-            <div class="image-placeholder"></div>
-            <div class="content">
-                <h2>Курсы обучения по проектированию до 1000 В</h2>
-                <p>Дизайн розетки — это уникальные авторские курсы по проектированию электроустановок и электроснабжения, обучению работе в САПР-программах, а также возможности высокого заработка в этих областях! Первые в России максимально подробные курсы с применением анимационных видео, множеством готовых решений, шаблонов и инструментов автоматизации проектирования!</p>
-                <a href="https://rosette-design.info/" class="btn">Подробнее...</a>
-            </div>
-        </section>
-
-        <section id="mobile-app">
-            <div class="image-placeholder"></div>
-            <div class="content">
-                <h2>Мобильное приложение "Энциклопедия Электрика"</h2>
-                <p>Энциклопедия электрика — это полезный канал для всех специалистов в области электроэнергетики. Мы подробно и интересно рассказываем о мире электроустановок, хотим сделать его проще и понятнее для всех!</p>
-                <a href="https://www.rustore.ru/catalog/app/ru.electroproject.electropedia" class="btn">Подробнее...</a>
-            </div>
-        </section>
-
-        <section id="store">
-            <div class="image-placeholder"></div>
-            <div class="content">
-                <h2>Интернет-магазин omastore.ru</h2>
-                <p>Интернет-магазин, где можно приобрести ПО OMA и дополнения для него. На сайте большой выбор файлов в формате DWG.</p>
-                <a href="https://omastore.ru/" class="btn">Подробнее...</a>
-            </div>
-        </section>
-
-        <h2>Наша команда</h2>
-        <section id="team">
-            <div class="content">
-                <div class="team">
-                    <div class="team-member">
-                        <div class="member-placeholder"></div>
-                        <h3>Курдюмов Сергей</h3>
-                        <p>Руководитель организации</p>
-                    </div>
-                    <div class="team-member">
-                        <div class="member-placeholder"></div>
-                        <h3>Орлов Михаил</h3>
-                        <p>Главный специалист в области программирования</p>
-                    </div>
-                    <div class="team-member">
-                        <div class="member-placeholder"></div>
-                        <h3>Петухов Александр</h3>
-                        <p>Руководитель в области развития</p>
-                    </div>
-                    <div class="team-member">
-                        <div class="member-placeholder"></div>
-                        <h3>Малыгин Александр</h3>
-                        <p>Главный специалист в области развития социальных сетей и маркетинга</p>
-                    </div>
-                    <div class="team-member">
-                        <div class="member-placeholder"></div>
-                        <h3>Фальчук Геннадий</h3>
-                        <p>Руководитель группы OMAVisual</p>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <h2>История развития</h2>
-        <section id="history">
-            <div class="content">
-                <div class="intro-text">
-                    <p>«ЭлектроПроект» основан Курдюмовым Сергеем в 2021 году после многолетнего опыта работы проектировщиком. Основной целью компании стало повышение эффективности процесса проектирования электроустановок путём внедрения инновационных методов и цифровых инструментов.</p>
-                </div>
-                <div class="timeline">
-                    <div class="timeline-item">
-                        <div class="timeline-left">
-                            <div class="timeline-circle"></div>
-                            <div class="timeline-title">Этап 1. 2020-2021</div>
-                        </div>
-                        <div class="timeline-content">
-                            <ul>
-                                <li>Создание тематического ресурса на платформе Дзен «ЭлектроПроект», публикации статей и аналитики по проектированию электроустановок.</li>
-                            </ul>
-                        </div>
-                    </div>
-                    <div class="timeline-item">
-                        <div class="timeline-left">
-                            <div class="timeline-circle"></div>
-                            <div class="timeline-title">Этап 2. 2021-2022</div>
-                        </div>
-                        <div class="timeline-content">
-                            <ul>
-                                <li>Переход автора на фриланс.</li>
-                                <li>Формулировка концепции образовательной платформы и начало разработки программного комплекса OMA.</li>
-                            </ul>
-                        </div>
-                    </div>
-                    <div class="timeline-item">
-                        <div class="timeline-left">
-                            <div class="timeline-circle"></div>
-                            <div class="timeline-title">Этап 3. 2022-2023</div>
-                        </div>
-                        <div class="timeline-content">
-                            <ul>
-                                <li>Запуск первого потока платных курсов «Дизайн розетки».</li>
-                                <li>Выход первой стабильной версии программного комплекса OMA — OMA v.1 Pro.</li>
-                                <li>Создание сообществ в социальной сети ВКонтакте:</li>
-                                <li style="list-style-type: none;">
-                                    <ul>
-                                        <li>vk.com/omaprogramm — ресурс по программному комплексу OMA.</li>
-                                        <li>vk.com/electroprojectoma — ресурс по рабочему проектированию.</li>
-                                    </ul>
-                                </li>
-                            </ul>
-                        </div>
-                    </div>
-                    <div class="timeline-item">
-                        <div class="timeline-left">
-                            <div class="timeline-circle"></div>
-                            <div class="timeline-title">Этап 4. 2022-2023</div>
-                        </div>
-                        <div class="timeline-content">
-                            <ul>
-                                <li>Привлечение партнеров, расширение ассортимента продукции и услуг, формирование профессиональной команды.</li>
-                                <li>Запуски последующих потоков платных курсов («Дизайн розетки», «Проектировщик электросетей на удаленке», «Мастер проектирования электросетей»).</li>
-                                <li>Начало разработки мобильного приложения «Энциклопедия Электрика».</li>
-                                <li>Участие в IV Всероссийском слёте электриков.</li>
-                                <li>Организация Интернет-магазина omaproject.ru/market.</li>
-                                <li>Образование сообщества по проектированию электроустановок до 1 кВ (vk.com/electrocourses).</li>
-                            </ul>
-                        </div>
-                    </div>
-                    <div class="timeline-item">
-                        <div class="timeline-left">
-                            <div class="timeline-circle"></div>
-                            <div class="timeline-title">Этап 5. 2022-2023</div>
-                        </div>
-                        <div class="timeline-content">
-                            <ul>
-                                <li>Выпуск мобильного приложения «Энциклопедия Электрика».</li>
-                                <li>Стартапы подготовки к выходу OMA v.3.</li>
-                                <li>Введение системы визуализации модульного щитового оборудования — OMA Visual.</li>
-                                <li>Открытие единого Интернет-магазина omastore.ru.</li>
-                                <li>Повторное участие в IV Всероссийском слёте электриков.</li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-                <div class="outro-text">
-                    <p>Сегодня «ЭлектроПроект» объединяет образовательные ресурсы, передовые решения по рабочему проектированию и профессиональные консультации в сфере проектирования электроустановок. Компания активно развивает международные инициативы, укрепляя своё положение на рынке инженерно-технических услуг.</p>
-                </div>
-            </div>
-        </section>
-
-        <h2>Скачать приложение</h2>
-        <div id="downloads">
-            <div class="content">
-                <div style="display: flex; justify-content: center; gap: 20px; flex-wrap: nowrap;">
-                    <a href="https://apps.apple.com/ru/app/%D1%8D%D0%BD%D1%86%D0%B8%D0%BA%D0%BB%D0%BE%D0%BF%D0%B5%D0%B4%D0%B8%D1%8F-%D1%8D%D0%BB%D0%B5%D0%BA%D1%82%D1%80%D0%B8%D0%BA%D0%B0/id6475500351" class="download-btn"><img src="images/appstore-icon.png" alt="App Store Icon"><span>App Store</span></a>
-                    <a href="https://play.google.com/store/apps/details?id=ru.electroproject.electropedia" class="download-btn"><img src="images/googleplay-icon.png" alt="Google Play Icon"><span>Google Play</span></a>
-                    <a href="https://www.rustore.ru/catalog/app/ru.electroproject.electropedia" class="download-btn"><img src="images/rustore-icon.png" alt="RuStore Icon"><span>RuStore</span></a>
-                </div>
-            </div>
+    <!-- Прохождение теста -->
+    <div id="test-taking" class="section hidden">
+      <div class="card">
+        <div id="test-header">
+          <h2 id="test-title"></h2>
+          <p id="test-description" class="test-description"></p>
         </div>
-
-        <h2>Контакты</h2>
-        <div id="contact">
-            <div class="contact-info">
-                <h3>Контактная информация</h3>
-                <div class="icon"><img src="images/phone-icon.png" alt="Phone"><span>+7 (909) 582-75-51</span></div>
-                <div class="icon"><img src="images/address-icon.png" alt="Address"><span>Ленинградская обл., г. Коммунар, ул. Радужная, д. 28</span></div>
-                <div class="icon"><img src="images/email-icon.png" alt="Email"><span><a href="mailto:electroprojectoma@yandex.ru">electroprojectoma@yandex.ru</a></span></div>
-            </div>
-            <div class="contact-form">
-                <h3>Свяжитесь с нами</h3>
-                <p>Оставьте заявку или позвоните, мы ответим на вопросы!</p>
-                <form action="#" method="post">
-                    <input type="text" placeholder="Ваше имя" required>
-                    <input type="email" placeholder="Ваш email" required>
-                    <input type="tel" placeholder="Ваш телефон">
-                    <button type="submit">Отправить заявку</button>
-                </form>
-            </div>
+        
+        <div class="progress-bar">
+          <div id="progress" class="progress-fill" style="width: 0%"></div>
         </div>
-    </main>
+        
+        <div id="question-container"></div>
+        <div id="explanation-container"></div>
+        
+        <button id="next-btn" class="button hidden">Следующий вопрос</button>
+        <button id="back-btn" class="button secondary" onclick="showTestsList()">← К списку тестов</button>
+      </div>
+    </div>
 
-    <footer>
-        <p>&copy; 2025 ЭлектроПроект</p>
-    </footer>
+    <!-- Результаты -->
+    <div id="test-results" class="section hidden">
+      <div class="card">
+        <h2 style="margin-bottom: 16px;">📊 Результаты</h2>
+        <div id="results-container"></div>
+        <button class="button" onclick="showTestsList()">К списку тестов</button>
+      </div>
+    </div>
+  </div>
 
-    <script>
-        // Smooth scroll for anchor links
-        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-            anchor.addEventListener('click', function (e) {
-                e.preventDefault();
-                const href = this.getAttribute('href');
-                const target = document.querySelector(href);
-                if (target) {
-                    const headerHeight = document.querySelector('header').offsetHeight;
-                    const targetPosition = target.getBoundingClientRect().top + window.pageYOffset - headerHeight;
-                    window.scrollTo({
-                        top: targetPosition,
-                        behavior: 'smooth'
-                    });
-                }
-            });
-        });
+  <script>
+    // Конфигурация
+    const API_URL = 'http://85.235.205.72:3000/api';
+    
+    // Состояние
+    let currentTest = null;
+    let currentQuestions = [];
+    let currentQuestionIndex = 0;
+    let userAnswers = [];
+    let testStarted = false;
 
-        // Highlight active menu item on scroll
-        window.addEventListener('scroll', () => {
-            const sections = document.querySelectorAll('section');
-            const navLinks = document.querySelectorAll('nav a');
-            let currentSection = '';
+    // Загрузка тестов при старте
+    document.addEventListener('DOMContentLoaded', loadTests);
 
-            sections.forEach(section => {
-                const sectionTop = section.offsetTop - 100;
-                if (pageYOffset >= sectionTop) {
-                    currentSection = section.getAttribute('id');
-                }
-            });
+    async function loadTests() {
+      try {
+        const response = await fetch(`${API_URL}/tests`);
+        const tests = await response.json();
+        renderTestsList(tests);
+      } catch (error) {
+        console.error('Ошибка загрузки тестов:', error);
+        document.getElementById('tests-container').innerHTML = `
+          <div class="card" style="text-align: center; color: #e74c3c;">
+            Ошибка загрузки тестов. Проверьте подключение к серверу.
+          </div>
+        `;
+      }
+    }
 
-            navLinks.forEach(link => {
-                link.classList.remove('active');
-                if (link.getAttribute('href').slice(1) === currentSection) {
-                    link.classList.add('active');
-                }
-            });
-        });
+    function renderTestsList(tests) {
+      const container = document.getElementById('tests-container');
+      
+      if (tests.length === 0) {
+        container.innerHTML = `
+          <div class="card" style="text-align: center; color: #666;">
+            Пока нет доступных тестов
+          </div>
+        `;
+        return;
+      }
 
-        // Синхронизация высоты .hero .container с .hero img
-        function updateHeroContainerHeight() {
-            const heroImg = document.querySelector('.hero img');
-            const heroContainer = document.querySelector('.hero .container');
-            if (heroImg && heroContainer) {
-                heroContainer.style.height = `${heroImg.offsetHeight}px`;
-            }
+      let html = '';
+      tests.forEach(test => {
+        html += `
+          <div class="test-card" onclick="loadTest('${test.id}')">
+            <div class="test-title">${test.title}</div>
+            <div class="test-description">${test.description || 'Нет описания'}</div>
+            <div class="test-meta">
+              <span class="badge ${test.free ? 'free' : 'test'}">
+                ${test.free ? 'Бесплатно' : 'Требуется подписка'}
+              </span>
+              <span>Проходной балл: ${test.passingScore || 70}%</span>
+            </div>
+          </div>
+        `;
+      });
+      
+      container.innerHTML = html;
+    }
+
+    async function loadTest(testId) {
+      try {
+        const response = await fetch(`${API_URL}/tests/${testId}/full`);
+        const testData = await response.json();
+        
+        currentTest = testData;
+        currentQuestions = testData.questions || [];
+        currentQuestionIndex = 0;
+        userAnswers = new Array(currentQuestions.length).fill(null);
+        
+        showTestTaking();
+      } catch (error) {
+        console.error('Ошибка загрузки теста:', error);
+        alert('Не удалось загрузить тест');
+      }
+    }
+
+    function showTestTaking() {
+      document.getElementById('tests-list').classList.add('hidden');
+      document.getElementById('test-taking').classList.remove('hidden');
+      document.getElementById('test-results').classList.add('hidden');
+      
+      document.getElementById('test-title').textContent = currentTest.title;
+      document.getElementById('test-description').textContent = currentTest.description;
+      
+      renderQuestion();
+    }
+
+    function renderQuestion() {
+      const question = currentQuestions[currentQuestionIndex];
+      const container = document.getElementById('question-container');
+      const explanationContainer = document.getElementById('explanation-container');
+      const nextBtn = document.getElementById('next-btn');
+      
+      // Обновляем прогресс
+      const progress = ((currentQuestionIndex + 1) / currentQuestions.length) * 100;
+      document.getElementById('progress').style.width = `${progress}%`;
+      
+      // Проверяем, отвечали ли уже на этот вопрос
+      const answered = userAnswers[currentQuestionIndex] !== null;
+      const userAnswer = userAnswers[currentQuestionIndex];
+      
+      let answersHtml = '';
+      question.answers.forEach(answer => {
+        let answerClass = 'answer-btn';
+        
+        if (answered) {
+          if (answer.isCorrect) {
+            answerClass += ' correct';
+          } else if (userAnswer && userAnswer.answerId === answer.id && !answer.isCorrect) {
+            answerClass += ' wrong';
+          }
         }
+        
+        answersHtml += `
+          <button class="${answerClass}" 
+                  onclick="selectAnswer('${answer.id}')"
+                  ${answered ? 'disabled' : ''}>
+            ${answer.text}
+          </button>
+        `;
+      });
+      
+      container.innerHTML = `
+        <div class="question-text">${question.text}</div>
+        ${answersHtml}
+      `;
+      
+      // Показываем объяснение, если уже отвечали
+      if (answered) {
+        const selectedAnswer = question.answers.find(a => a.id === userAnswer.answerId);
+        explanationContainer.innerHTML = `
+          <div class="explanation">
+            ${question.explanation || 'Нет объяснения'}
+          </div>
+        `;
+        
+        // Показываем кнопку "Далее", если это не последний вопрос
+        if (currentQuestionIndex < currentQuestions.length - 1) {
+          nextBtn.classList.remove('hidden');
+          nextBtn.onclick = nextQuestion;
+        } else {
+          nextBtn.classList.remove('hidden');
+          nextBtn.textContent = 'Завершить тест';
+          nextBtn.onclick = showResults;
+        }
+      } else {
+        explanationContainer.innerHTML = '';
+        nextBtn.classList.add('hidden');
+      }
+    }
 
-        // Вызываем при загрузке страницы и при изменении размера окна
-        window.addEventListener('load', updateHeroContainerHeight);
-        window.addEventListener('resize', updateHeroContainerHeight);
-    </script>
+    function selectAnswer(answerId) {
+      const question = currentQuestions[currentQuestionIndex];
+      const answer = question.answers.find(a => a.id === answerId);
+      
+      userAnswers[currentQuestionIndex] = {
+        questionId: question.id,
+        answerId: answerId,
+        isCorrect: answer.isCorrect
+      };
+      
+      renderQuestion();
+    }
+
+    function nextQuestion() {
+      if (currentQuestionIndex < currentQuestions.length - 1) {
+        currentQuestionIndex++;
+        renderQuestion();
+      } else {
+        showResults();
+      }
+    }
+
+    function showResults() {
+      const correctCount = userAnswers.filter(a => a && a.isCorrect).length;
+      const totalQuestions = currentQuestions.length;
+      const score = Math.round((correctCount / totalQuestions) * 100);
+      const passingScore = currentTest.passingScore || 70;
+      const passed = score >= passingScore;
+      
+      document.getElementById('tests-list').classList.add('hidden');
+      document.getElementById('test-taking').classList.add('hidden');
+      document.getElementById('test-results').classList.remove('hidden');
+      
+      let resultsHtml = `
+        <div class="result-stats">
+          <div class="stat-row">
+            <span class="stat-label">Правильных ответов:</span>
+            <span class="stat-value">${correctCount} из ${totalQuestions}</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-label">Результат:</span>
+            <span class="stat-value">${score}%</span>
+          </div>
+          <div class="stat-row">
+            <span class="stat-label">Проходной балл:</span>
+            <span class="stat-value">${passingScore}%</span>
+          </div>
+          <div class="stat-row" style="border-bottom: none;">
+            <span class="stat-label">Статус:</span>
+            <span class="stat-value" style="color: ${passed ? '#2ecc71' : '#e74c3c'}">
+              ${passed ? '✅ Тест пройден' : '❌ Тест не пройден'}
+            </span>
+          </div>
+        </div>
+      `;
+      
+      document.getElementById('results-container').innerHTML = resultsHtml;
+      
+      // TODO: Сохранить результаты на сервер
+      // saveTestResults(correctCount, totalQuestions, score);
+    }
+
+    function showTestsList() {
+      document.getElementById('tests-list').classList.remove('hidden');
+      document.getElementById('test-taking').classList.add('hidden');
+      document.getElementById('test-results').classList.add('hidden');
+      
+      // Обновляем список тестов на случай изменений
+      loadTests();
+    }
+  </script>
 </body>
 </html>
