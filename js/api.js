@@ -1,6 +1,6 @@
 const API = {
-  // baseURL: 'http://localhost:3000/api',
-  baseURL: 'https://api.omavisual.ru/api', // ЗАМЕНИТЕ НА ВАШ АДРЕС
+  // ⚠️ ЗАМЕНИТЕ НА ВАШ АДРЕС
+  baseURL: 'https://api.omavisual.ru/api',
 
   async getTests() {
     const response = await fetch(`${this.baseURL}/tests`);
