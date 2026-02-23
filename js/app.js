@@ -1250,6 +1250,7 @@ function goBackFromTemplate() {
 // ⭐ НОВЫЕ ФУНКЦИИ ДЛЯ РАБОТЫ С БАЗОЙ ДАННЫХ ⭐
 
 // ===== Тесты с загрузкой из БД =====
+// ===== Тесты с загрузкой из БД =====
 async function renderTestsList() {
   const listEl = document.getElementById("topicsList");
   const testArea = document.getElementById("testArea");
@@ -1263,10 +1264,19 @@ async function renderTestsList() {
     // Загружаем тесты из базы данных
     const tests = await API.getTests();
     
+    // Для каждого теста загружаем количество вопросов
     for (let test of tests) {
+      try {
+        const testFull = await API.getTestFull(test.id);
+        test.questions = testFull.questions || [];
+      } catch (e) {
+        test.questions = [];
+      }
+      
       const progress = testProgress[test.id];
       let progressText = '';
       let completedClass = '';
+      const questionsCount = test.questions.length;
       
       if (progress) {
         if (progress.completed) {
@@ -1283,7 +1293,7 @@ async function renderTestsList() {
             <span class="test-title">${test.title}</span>
             <span class="test-badge ${test.free ? 'free' : 'test'}">${test.free ? 'FREE' : 'TEST'}</span>
           </div>
-          <div class="subtle">${test.questions?.length || 0} вопросов</div>
+          <div class="subtle">${questionsCount} вопросов</div>
           ${progressText}
         </div>
       `;
