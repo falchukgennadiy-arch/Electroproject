@@ -41,7 +41,6 @@ let userName = "Алексей Александров";
 let userEmail = "alex@example.com";
 let registrationDate = new Date('2025-01-15');
 
-const letters = ["A","B","C","D"];
 
 // Сегодняшняя дата для определения активных материалов
 const today = new Date();
