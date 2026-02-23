@@ -13,6 +13,11 @@ let viewModes = {
   templates: 'list'
 };
 
+// Профиль
+let userName = "Алексей Александров";
+let userEmail = "alex@example.com";
+let registrationDate = new Date('2025-01-15');
+
 // Календарь
 let calendarCurrentDate = new Date();
 let calendarSelectedDate = new Date();
@@ -22,6 +27,31 @@ let calendarSection = 'visual';
 let startTime = null;
 let timerInterval = null;
 let autoTransitionTimer = null;
+
+// ===== Загрузка прогресса из localStorage =====
+function loadProgress() {
+  try {
+    const saved = localStorage.getItem('testProgress');
+    if (saved) {
+      testProgress = JSON.parse(saved);
+      console.log('Прогресс загружен:', testProgress);
+    }
+  } catch (e) {
+    console.error('Ошибка загрузки прогресса:', e);
+  }
+}
+
+// ===== Сохранение прогресса в localStorage =====
+function saveProgress() {
+  try {
+    localStorage.setItem('testProgress', JSON.stringify(testProgress));
+  } catch (e) {
+    console.error('Ошибка сохранения прогресса:', e);
+  }
+}
+
+// Загружаем прогресс при старте
+loadProgress();
 
 // ===== Навигация =====
 function navigate(section, btn) {
