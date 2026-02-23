@@ -1250,7 +1250,6 @@ function goBackFromTemplate() {
 // ⭐ НОВЫЕ ФУНКЦИИ ДЛЯ РАБОТЫ С БАЗОЙ ДАННЫХ ⭐
 
 // ===== Тесты с загрузкой из БД =====
-// ===== Тесты с загрузкой из БД =====
 async function renderTestsList() {
   const listEl = document.getElementById("topicsList");
   const testArea = document.getElementById("testArea");
@@ -1264,47 +1263,57 @@ async function renderTestsList() {
     // Загружаем тесты из базы данных
     const tests = await API.getTests();
     
-    // Для каждого теста загружаем количество вопросов
+    // Для каждого теста загружаем количество вопросов отдельно
     for (let test of tests) {
       try {
         const testFull = await API.getTestFull(test.id);
-        test.questions = testFull.questions || [];
-      } catch (e) {
-        test.questions = [];
-      }
-      
-      const progress = testProgress[test.id];
-      let progressText = '';
-      let completedClass = '';
-      const questionsCount = test.questions.length;
-      
-      if (progress) {
-        if (progress.completed) {
-          completedClass = 'completed';
-          progressText = `<div style="font-size:12px; margin-top:8px;"><span style="color:var(--good);">✅ Пройден: ${progress.score}/${progress.total}</span></div>`;
-        } else if (progress.currentQuestion > 0) {
-          progressText = `<div style="font-size:12px; margin-top:8px;"><span style="color:var(--accent);">⏳ Прогресс: ${progress.currentQuestion}/${progress.total}</span></div>`;
+        const questionsCount = testFull.questions?.length || 0;
+        
+        const progress = testProgress[test.id];
+        let progressText = '';
+        let completedClass = '';
+        
+        if (progress) {
+          if (progress.completed) {
+            completedClass = 'completed';
+            progressText = `<div style="font-size:12px; margin-top:8px;"><span style="color:var(--good);">✅ Пройден: ${progress.score}/${progress.total}</span></div>`;
+          } else if (progress.currentQuestion > 0) {
+            progressText = `<div style="font-size:12px; margin-top:8px;"><span style="color:var(--accent);">⏳ Прогресс: ${progress.currentQuestion}/${progress.total}</span></div>`;
+          }
         }
-      }
-      
-      html += `
-        <div class="test-item ${completedClass}" onclick="startTest('${test.id}')">
-          <div class="test-row">
-            <span class="test-title">${test.title}</span>
-            <span class="test-badge ${test.free ? 'free' : 'test'}">${test.free ? 'FREE' : 'TEST'}</span>
+        
+        html += `
+          <div class="test-item ${completedClass}" onclick="startTest('${test.id}')">
+            <div class="test-row">
+              <span class="test-title">${test.title}</span>
+              <span class="test-badge ${test.free ? 'free' : 'test'}">${test.free ? 'FREE' : 'TEST'}</span>
+            </div>
+            <div class="subtle">${questionsCount} вопросов</div>
+            ${progressText}
           </div>
-          <div class="subtle">${questionsCount} вопросов</div>
-          ${progressText}
-        </div>
-      `;
+        `;
+      } catch (e) {
+        // Если не удалось загрузить вопросы, показываем просто тест
+        html += `
+          <div class="test-item" onclick="startTest('${test.id}')">
+            <div class="test-row">
+              <span class="test-title">${test.title}</span>
+              <span class="test-badge ${test.free ? 'free' : 'test'}">${test.free ? 'FREE' : 'TEST'}</span>
+            </div>
+            <div class="subtle">Нажмите чтобы начать</div>
+          </div>
+        `;
+      }
     }
   } catch (error) {
     console.error('Ошибка загрузки тестов:', error);
-    html += '<div class="card" style="color: #e74c3c;">Ошибка загрузки тестов. Проверьте подключение к серверу.</div>';
+    html += '<div class="card" style="color: #e74c3c;">Ошибка загрузки тестов</div>';
   }
   
   listEl.innerHTML = html;
 }
+
+
 
 async function startTest(testId) {
   try {
