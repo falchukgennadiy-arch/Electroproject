@@ -1647,3 +1647,79 @@ function clearAutoTransition() {
 document.addEventListener('DOMContentLoaded', () => {
   updateProfileDisplay();
 });
+
+// ===== Управление пользователем =====
+let currentUser = null;
+
+// Загружаем пользователя при старте
+async function loadUser() {
+  const token = localStorage.getItem('userToken');
+  if (!token) return;
+  
+  try {
+    const response = await fetch('https://api.omavisual.ru/api/auth/me', {
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+    
+    const data = await response.json();
+    if (data.user) {
+      currentUser = data.user;
+      updateUserUI(data.user);
+    }
+  } catch (error) {
+    console.error('Failed to load user:', error);
+  }
+}
+
+function updateUserUI(user) {
+  const vkSection = document.getElementById('vkAuthSection');
+  const userSection = document.getElementById('userInfoSection');
+  
+  if (vkSection) vkSection.style.display = 'none';
+  if (userSection) {
+    userSection.style.display = 'block';
+    document.getElementById('userAvatar').src = user.avatar || 'images/default-avatar.png';
+    document.getElementById('userName').textContent = user.name;
+    document.getElementById('userEmail').textContent = user.email || 'Email не указан';
+    
+    // Отображаем подписки
+    const subsContainer = document.getElementById('userSubscriptions');
+    subsContainer.innerHTML = '';
+    
+    const subTypes = {
+      course: { name: 'COURSE', color: 'var(--course)' },
+      visual: { name: 'VISUAL', color: 'var(--visual)' },
+      template: { name: 'TEMPLATE', color: 'var(--template)' },
+      test: { name: 'TEST', color: 'var(--test)' }
+    };
+    
+    user.subscriptions.forEach(type => {
+      const sub = subTypes[type];
+      if (sub) {
+        const badge = document.createElement('span');
+        badge.className = 'item-badge';
+        badge.style.background = sub.color;
+        badge.textContent = sub.name;
+        subsContainer.appendChild(badge);
+      }
+    });
+  }
+}
+
+function logout() {
+  localStorage.removeItem('userToken');
+  localStorage.removeItem('userData');
+  currentUser = null;
+  
+  const vkSection = document.getElementById('vkAuthSection');
+  const userSection = document.getElementById('userInfoSection');
+  
+  if (vkSection) vkSection.style.display = 'block';
+  if (userSection) userSection.style.display = 'none';
+  
+  // Сбрасываем иконку профиля
+  document.getElementById('headerProfileIcon').innerHTML = '👤';
+}
+
+// Загружаем пользователя при загрузке страницы
+document.addEventListener('DOMContentLoaded', loadUser);
