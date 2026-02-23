@@ -238,6 +238,9 @@ function saveTestProgress(completed = false) {
     total: total,
     lastUpdated: Date.now()
   };
+  
+  // Сохраняем в localStorage
+  saveProgress();
 }
 
 function showTestResult() {
@@ -295,3 +298,4 @@ window.nextQuestion = nextQuestion;
 window.finishTest = finishTest;
 window.exitTest = exitTest;
 window.restartTest = restartTest;
+window.saveProgress = saveProgress;
