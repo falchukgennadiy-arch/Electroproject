@@ -1,4 +1,7 @@
-// ===== Тесты =====
+// ===== Константы =====
+const letters = ["A", "B", "C", "D"];
+
+// ===== Тесты с загрузкой из БД =====
 let currentTestId = null;
 let currentTestData = null;
 let currentQuestions = [];
@@ -240,7 +243,15 @@ function saveTestProgress(completed = false) {
   };
   
   // Сохраняем в localStorage
-  saveProgress();
+  if (typeof window.saveProgress === 'function') {
+    window.saveProgress();
+  } else {
+    try {
+      localStorage.setItem('testProgress', JSON.stringify(testProgress));
+    } catch (e) {
+      console.error('Ошибка сохранения прогресса:', e);
+    }
+  }
 }
 
 function showTestResult() {
@@ -290,7 +301,7 @@ function restartTest() {
   startTest(currentTestId);
 }
 
-// Экспорт функций
+// ===== Экспорт функций =====
 window.renderTestsList = renderTestsList;
 window.startTest = startTest;
 window.selectAnswer = selectAnswer;
@@ -298,4 +309,3 @@ window.nextQuestion = nextQuestion;
 window.finishTest = finishTest;
 window.exitTest = exitTest;
 window.restartTest = restartTest;
-window.saveProgress = saveProgress;
