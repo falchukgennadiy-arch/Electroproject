@@ -8,18 +8,6 @@ let subscriptions = {
 
 let currentView = 'home';
 
-// Тесты
-let currentTestId = null;
-let currentTestData = null;
-let currentQuestions = [];
-let currentQuestion = 0;
-let score = 0;
-let answered = false;
-let answeredQuestions = [];
-let startTime = null;
-let timerInterval = null;
-let autoTransitionTimer = null;
-
 // Прогресс тестов
 let testProgress = {};
 
