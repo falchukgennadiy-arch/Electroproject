@@ -1,7 +1,7 @@
 // VK Аутентификация
 const VKAuth = {
-  // ID  приложения VK
-  appId: CONFIG.VK_APP_ID,
+  // ID вашего приложения VK (из настроек)
+  appId: '54458443',
   
   // URL, куда VK перенаправит после авторизации
   redirectUri: 'https://falchukgennadiy-arch.github.io/Electroproject/vk-callback.html',
@@ -10,16 +10,15 @@ const VKAuth = {
    * Запускает процесс авторизации
    */
   login() {
-    // Формируем URL для авторизации [citation:1][citation:7]
+    // Убираем scope=email, оставляем только базовые права
     const authUrl = `https://oauth.vk.com/authorize?` +
       `client_id=${this.appId}` +
       `&display=page` +
       `&redirect_uri=${encodeURIComponent(this.redirectUri)}` +
-      `&scope=email` + // Запрашиваем email
       `&response_type=code` +
       `&v=5.199`;
     
-    // Перенаправляем пользователя
+    console.log('Auth URL:', authUrl); // для отладки
     window.location.href = authUrl;
   },
   
@@ -44,6 +43,7 @@ const VKAuth = {
       });
       
       const data = await response.json();
+      console.log('Auth response:', data);
       
       if (data.success) {
         // Сохраняем данные пользователя
@@ -51,36 +51,27 @@ const VKAuth = {
         localStorage.setItem('userData', JSON.stringify(data.user));
         
         // Обновляем интерфейс
-        updateUserInterface(data.user);
+        if (typeof updateUserUI === 'function') {
+          updateUserUI(data.user);
+        }
         
         // Закрываем окно и возвращаемся
         if (window.opener) {
           window.opener.postMessage({ type: 'vk-auth-success', user: data.user }, '*');
           window.close();
         } else {
-          // Перенаправляем на главную
           window.location.href = '/Electroproject/';
         }
+      } else {
+        console.error('Auth failed:', data);
+        alert('Ошибка авторизации: ' + (data.error || 'Неизвестная ошибка'));
       }
     } catch (error) {
       console.error('Auth error:', error);
+      alert('Ошибка соединения с сервером');
     }
   }
 };
-
-// Функция обновления интерфейса
-function updateUserInterface(user) {
-  const profileIcon = document.getElementById('headerProfileIcon');
-  if (profileIcon && user.avatar) {
-    profileIcon.innerHTML = `<img src="${user.avatar}" style="width:40px; height:40px; border-radius:50%;">`;
-  }
-  
-  // Обновляем информацию в профиле
-  const displayName = document.getElementById('displayName');
-  if (displayName) {
-    displayName.textContent = user.name;
-  }
-}
 
 // Делаем доступным глобально
 window.VKAuth = VKAuth;
