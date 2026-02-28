@@ -62,15 +62,15 @@ function navigate(section, btn) {
   currentView = section;
   
   if (section === 'courses') {
-    renderCoursesList();
+    if (window.renderCoursesList) window.renderCoursesList();
   } else if (section === 'visual') {
-    setViewMode('visual', viewModes.visual);
+    if (window.setViewMode) window.setViewMode('visual', viewModes.visual);
   } else if (section === 'templates') {
-    setViewMode('templates', viewModes.templates);
+    if (window.setViewMode) window.setViewMode('templates', viewModes.templates);
   } else if (section === 'tests') {
-    renderTestsList();
+    if (window.renderTestsList) window.renderTestsList();
   } else if (section === 'profile') {
-    updateProfileDisplay();
+    if (window.updateProfileDisplay) window.updateProfileDisplay();
   }
   
   if (section !== 'tests') {
@@ -81,20 +81,24 @@ function navigate(section, btn) {
 
 // ===== Управление тестами (общее) =====
 function showTestControls() {
-  document.getElementById("testControls").style.display = "block";
-  document.getElementById("nextBtn").style.display = "none";
+  const controls = document.getElementById("testControls");
+  if (controls) controls.style.display = "block";
+  const nextBtn = document.getElementById("nextBtn");
+  if (nextBtn) nextBtn.style.display = "none";
 }
 
 function hideTestControls() {
-  document.getElementById("testControls").style.display = "none";
-  document.getElementById("testArea").style.paddingBottom = "0";
+  const controls = document.getElementById("testControls");
+  if (controls) controls.style.display = "none";
+  const testArea = document.getElementById("testArea");
+  if (testArea) testArea.style.paddingBottom = "0";
 }
 
 function startTimer() {
   stopTimer();
   timerInterval = setInterval(() => {
     const el = document.getElementById("timer");
-    if (el) el.textContent = "⏱ " + formatSeconds(getElapsedSeconds());
+    if (el) el.textContent = "⏱ " + window.formatSeconds(getElapsedSeconds());
   }, 1000);
 }
 
@@ -115,19 +119,26 @@ function clearAutoTransition() {
   }
 }
 
-// ===== Профиль =====
+// ===== Профиль (перемещено из main.js) =====
 function updateProfileDisplay() {
-  document.getElementById("displayName").innerText = userName;
-  document.getElementById("avatar").innerText = userName.split(' ').map(n => n[0]).join('').toUpperCase();
+  const displayName = document.getElementById("displayName");
+  if (displayName) displayName.innerText = userName;
   
-  const days = Math.floor((new Date() - registrationDate) / (1000 * 60 * 60 * 24));
-  document.getElementById("daysWithUs").innerText = days;
+  const avatar = document.getElementById("avatar");
+  if (avatar) avatar.innerText = userName.split(' ').map(n => n[0]).join('').toUpperCase();
+  
+  const daysElement = document.getElementById("daysWithUs");
+  if (daysElement) {
+    const days = Math.floor((new Date() - registrationDate) / (1000 * 60 * 60 * 24));
+    daysElement.innerText = days;
+  }
   
   renderSubscriptions();
 }
 
 function renderSubscriptions() {
   const subsList = document.getElementById("subscriptionsList");
+  if (!subsList) return;
   
   const subscriptionTypes = [
     { key: 'course', name: 'COURSE', icon: '📚', desc: 'Доступ к курсам' },
@@ -162,7 +173,7 @@ function renderSubscriptions() {
         </div>
         ${isActive 
           ? `<span class="sub-status active">Активна</span>` 
-          : `<button class="sub-button" onclick="activateSubscription('${sub.key}')">Подключить</button>`
+          : `<button class="sub-button" onclick="window.activateSubscription('${sub.key}')">Подключить</button>`
         }
       </div>
     `;
@@ -178,43 +189,55 @@ function activateSubscription(level) {
 }
 
 function enableNameEdit() {
-  document.getElementById("profileView").style.display = "none";
-  document.getElementById("profileEdit").style.display = "block";
-  document.getElementById("editNameInput").value = userName;
+  const profileView = document.getElementById("profileView");
+  const profileEdit = document.getElementById("profileEdit");
+  const editNameInput = document.getElementById("editNameInput");
+  
+  if (profileView) profileView.style.display = "none";
+  if (profileEdit) profileEdit.style.display = "block";
+  if (editNameInput) editNameInput.value = userName;
 }
 
 function cancelNameEdit() {
-  document.getElementById("profileView").style.display = "block";
-  document.getElementById("profileEdit").style.display = "none";
+  const profileView = document.getElementById("profileView");
+  const profileEdit = document.getElementById("profileEdit");
+  
+  if (profileView) profileView.style.display = "block";
+  if (profileEdit) profileEdit.style.display = "none";
 }
 
 function saveName() {
-  const newName = document.getElementById("editNameInput").value.trim();
-  if (newName) {
-    userName = newName;
+  const editNameInput = document.getElementById("editNameInput");
+  if (editNameInput) {
+    const newName = editNameInput.value.trim();
+    if (newName) {
+      userName = newName;
+    }
   }
   cancelNameEdit();
   updateProfileDisplay();
 }
 
-// ===== Временные заглушки для других разделов =====
+// ===== Заглушки для других разделов =====
 function renderCoursesList() {
   const listEl = document.getElementById("coursesList");
-  listEl.innerHTML = '<div class="card">Раздел курсов в разработке</div>';
+  if (listEl) listEl.innerHTML = '<div class="card">Раздел курсов в разработке</div>';
 }
 
 function renderVisualList() {
   const listEl = document.getElementById("visualList");
-  listEl.innerHTML = '<div class="card">Раздел визуализации в разработке</div>';
+  if (listEl) listEl.innerHTML = '<div class="card">Раздел визуализации в разработке</div>';
 }
 
 function renderTemplatesList() {
   const listEl = document.getElementById("templatesList");
-  listEl.innerHTML = '<div class="card">Раздел шаблонов в разработке</div>';
+  if (listEl) listEl.innerHTML = '<div class="card">Раздел шаблонов в разработке</div>';
 }
 
 function setViewMode(section, mode) {
-  console.log('setViewMode', section, mode);
+  viewModes[section] = mode;
+  if (section === 'visual' && window.renderVisualList) window.renderVisualList();
+  if (section === 'templates' && window.renderTemplatesList) window.renderTemplatesList();
 }
 
 // ===== Инициализация =====
@@ -223,10 +246,35 @@ document.addEventListener('DOMContentLoaded', () => {
   navigate('home', document.querySelectorAll('.nav-btn')[0]);
 });
 
-// Экспорт в глобальную область
+// ===== Экспорт в глобальную область =====
+window.subscriptions = subscriptions;
+window.testProgress = testProgress;
+window.viewModes = viewModes;
+window.userName = userName;
+window.userEmail = userEmail;
+window.registrationDate = registrationDate;
+window.calendarCurrentDate = calendarCurrentDate;
+window.calendarSelectedDate = calendarSelectedDate;
+window.calendarSection = calendarSection;
+window.startTime = startTime;
+window.timerInterval = timerInterval;
+window.autoTransitionTimer = autoTransitionTimer;
+
+window.loadProgress = loadProgress;
+window.saveProgress = saveProgress;
 window.navigate = navigate;
+window.showTestControls = showTestControls;
+window.hideTestControls = hideTestControls;
+window.startTimer = startTimer;
+window.stopTimer = stopTimer;
+window.getElapsedSeconds = getElapsedSeconds;
+window.clearAutoTransition = clearAutoTransition;
+window.updateProfileDisplay = updateProfileDisplay;
+window.activateSubscription = activateSubscription;
 window.enableNameEdit = enableNameEdit;
 window.cancelNameEdit = cancelNameEdit;
 window.saveName = saveName;
-window.activateSubscription = activateSubscription;
+window.renderCoursesList = renderCoursesList;
+window.renderVisualList = renderVisualList;
+window.renderTemplatesList = renderTemplatesList;
 window.setViewMode = setViewMode;
