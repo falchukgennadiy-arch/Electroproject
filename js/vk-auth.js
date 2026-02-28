@@ -3,22 +3,28 @@ const VKAuth = {
   appId: '54466809',
   redirectUrl: 'https://falchukgennadiy-arch.github.io/Electroproject/vk-callback.html',
 
-  async login() {
+  // Новый метод для инициализации виджета
+  init(containerId = 'vk-auth-container') {
+    this.renderWidget(containerId);
+  },
+
+  // Переименовал login в renderWidget для ясности
+  renderWidget(containerId = 'vk-auth-container') {
     if ('VKIDSDK' in window) {
       const VKID = window.VKIDSDK;
       
       VKID.Config.init({
         app: this.appId,
         redirectUrl: this.redirectUrl,
-        responseMode: VKID.ConfigResponseMode.Callback, // или Redirect
+        responseMode: VKID.ConfigResponseMode.Callback,
         source: VKID.ConfigSource.LOWCODE,
-        scope: '' // email phone если нужно
+        scope: ''
       });
 
       const oneTap = new VKID.OneTap();
       
       oneTap.render({
-        container: document.getElementById('vk-auth-container'),
+        container: document.getElementById(containerId),
         showAlternativeLogin: true
       })
       .on(VKID.WidgetEvents.ERROR, (error) => {
@@ -58,6 +64,11 @@ const VKAuth = {
     }
   },
 
+  // Старый метод login оставим для обратной совместимости
+  login() {
+    this.renderWidget('vk-auth-container');
+  },
+
   logout() {
     localStorage.removeItem('userToken');
     localStorage.removeItem('userData');
@@ -78,3 +89,11 @@ const VKAuth = {
 };
 
 window.VKAuth = VKAuth;
+
+// Автоматический запуск при загрузке
+document.addEventListener('DOMContentLoaded', () => {
+  const container = document.getElementById('vk-auth-container');
+  if (container && !VKAuth.isAuthenticated()) {
+    VKAuth.init('vk-auth-container');
+  }
+});
