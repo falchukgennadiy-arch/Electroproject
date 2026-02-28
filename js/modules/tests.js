@@ -1,7 +1,6 @@
-// ===== Константы =====
-const letters = ["A", "B", "C", "D"];
-
 // ===== Тесты с загрузкой из БД =====
+// Используем letters из helpers.js, не объявляем заново
+
 let currentTestId = null;
 let currentTestData = null;
 let currentQuestions = [];
