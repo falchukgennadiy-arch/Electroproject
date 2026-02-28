@@ -59,29 +59,63 @@
       <div id="testArea"></div>
     </div>
 
-    <!-- ПРОФИЛЬ -->
-    <div id="profile" class="section">
-     <!-- После блока с подписками -->
-<div style="margin-top: 20px; text-align: center;" id="vkAuthSection">
-  <button class="button" onclick="VKAuth.login()" style="background: #4a76a8; margin-bottom: 10px;">
-    🔵 Войти через ВКонтакте
-  </button>
-</div>
+<!-- ПРОФИЛЬ -->
+<div id="profile" class="section">
+  <!-- Блок информации о пользователе (по умолчанию виден) -->
+  <div id="profileView" style="display: block;">
+    <div class="card profile-card">
+      <div class="profile-header">
+        <div class="profile-avatar" id="avatar">AA</div>
+        <div class="profile-info">
+          <h3 id="displayName">Алексей Александров</h3>
+          <p id="userEmail">alex@example.com</p>
+          <p class="subtle">С нами <span id="daysWithUs">0</span> дней</p>
+        </div>
+        <button class="icon-button" onclick="enableNameEdit()">✏️</button>
+      </div>
+    </div>
+  </div>
 
-<!-- Блок с информацией о пользователе (скрыт по умолчанию) -->
-<div id="userInfoSection" style="display: none; margin-top: 20px;">
-  <div style="display: flex; align-items: center; gap: 15px; padding: 15px; background: #1a1a1a; border-radius: 12px;">
-    <img id="userAvatar" src="" style="width: 60px; height: 60px; border-radius: 50%; border: 2px solid #e6c158;">
-    <div>
-      <h3 id="userName" style="margin: 0 0 5px;"></h3>
-      <p id="userEmail" style="margin: 0; color: #a7a7a7; font-size: 13px;"></p>
+  <!-- Редактирование профиля (скрыто) -->
+  <div id="profileEdit" style="display: none;">
+    <div class="card">
+      <h3>Редактировать профиль</h3>
+      <input type="text" id="editNameInput" class="input" placeholder="Ваше имя">
+      <div style="display: flex; gap: 10px; margin-top: 15px;">
+        <button class="button primary" onclick="saveName()">Сохранить</button>
+        <button class="button ghost" onclick="cancelNameEdit()">Отмена</button>
+      </div>
     </div>
   </div>
-  <div id="userSubscriptions" style="margin-top: 15px; display: flex; flex-wrap: wrap; gap: 8px;"></div>
-  <button class="button ghost" onclick="logout()" style="margin-top: 15px;">Выйти</button>
+
+  <!-- Секция подписок -->
+  <div class="card">
+    <h3>Мои подписки</h3>
+    <div id="subscriptionsList"></div>
+  </div>
+
+  <!-- VK Авторизация -->
+  <div style="margin-top: 20px; text-align: center;" id="vkAuthSection">
+    <div id="vk-auth-container"></div> <!-- Это для виджета VK -->
+    <!-- ИЛИ кнопка, если виджет не используется -->
+    <button class="button" onclick="VKAuth.login()" style="background: #4a76a8; margin-bottom: 10px; display: none;" id="vkButton">
+      🔵 Войти через ВКонтакте
+    </button>
+  </div>
+
+  <!-- Блок с информацией о пользователе VK (скрыт по умолчанию) -->
+  <div id="userInfoSection" style="display: none; margin-top: 20px;">
+    <div style="display: flex; align-items: center; gap: 15px; padding: 15px; background: #1a1a1a; border-radius: 12px;">
+      <img id="userAvatar" src="" style="width: 60px; height: 60px; border-radius: 50%; border: 2px solid #e6c158;">
+      <div>
+        <h3 id="userName" style="margin: 0 0 5px;"></h3>
+        <p id="userEmailVK" style="margin: 0; color: #a7a7a7; font-size: 13px;"></p>
+      </div>
+    </div>
+    <div id="userSubscriptions" style="margin-top: 15px; display: flex; flex-wrap: wrap; gap: 8px;"></div>
+    <button class="button ghost" onclick="logout()" style="margin-top: 15px;">Выйти</button>
+  </div>
 </div>
-    </div>
-  </div>
 
   <!-- Панель управления тестом -->
   <div id="testControls" class="test-controls">
