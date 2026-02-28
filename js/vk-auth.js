@@ -1,8 +1,7 @@
 // VK Аутентификация
 const VKAuth = {
   // ID вашего приложения VK (из настроек)
-  appId: '54458443',
-  
+  appId: '54466809',
   // URL, куда VK перенаправит после авторизации
   redirectUri: 'https://falchukgennadiy-arch.github.io/Electroproject/vk-callback.html',
   
