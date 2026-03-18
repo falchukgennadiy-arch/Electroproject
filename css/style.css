@@ -1,10 +1,879 @@
-/* ===== АДАПТАЦИЯ ДЛЯ РАЗНЫХ УСТРОЙСТВ ===== */
+:root{
+  --bg:#111;
+  --card:#1c1c1e;
+  --muted:#a7a7a7;
+  --line:#2a2a2a;
+  --btn:#2e2e2e;
+  --accent:#e6c158;
+  --good:#2ecc71;
+  --bad:#e74c3c;
+  --inactive:#3a3a3c;
+  --future:#4a4a4e;
+  
+  --course:#3498db;
+  --visual:#9b59b6;
+  --template:#e67e22;
+  --test:#e74c3c;
+  
+  --course-future:rgba(52, 152, 219, 0.4);
+  --visual-future:rgba(155, 89, 182, 0.4);
+  --template-future:rgba(230, 126, 34, 0.4);
+  --good-future:rgba(46, 204, 113, 0.4);
+  
+  --empty-border:rgba(255,255,255,0.15);
+}
 
-/* Планшеты и небольшие ноутбуки (481px - 768px) */
-@media (min-width: 481px) and (max-width: 768px) {
+*{ 
+  box-sizing: border-box; 
+  margin: 0;
+  padding: 0;
+}
+
+body{
+  margin:0;
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
+  background: #000;
+  color:#fff;
+  display: flex;
+  justify-content: center;
+  min-height: 100vh;
+}
+
+.app-wrapper {
+  width: 100%;
+  max-width: 480px;
+  background: var(--bg);
+  box-shadow: 0 0 30px rgba(0,0,0,0.8);
+  position: relative;
+  min-height: 100vh;
+}
+
+.header {
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--line);
+  background: var(--card);
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 20px;
+  font-weight: 700;
+  color: #fff;
+}
+
+.logo-img {
+  height: 30px;
+  width: auto;
+}
+
+.logo span {
+  background: linear-gradient(135deg, var(--accent), #f1c40f);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  font-weight: 800;
+}
+
+.profile-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--btn);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  color: var(--muted);
+  cursor: pointer;
+  margin-left: 10px;
+}
+
+.container{
+  padding:16px;
+  padding-bottom:100px;
+}
+
+.section{ display:none; }
+.section.active{ display:block; }
+
+.card{
+  background:var(--card);
+  border-radius:16px;
+  padding:16px;
+  margin-bottom:12px;
+  border:1px solid rgba(255,255,255,0.04);
+}
+
+.subtle{
+  color:var(--muted);
+  font-size:13px;
+  line-height:1.4;
+}
+
+.row{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  flex-wrap: wrap;
+}
+
+.pill{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  padding:4px 10px;
+  border-radius:999px;
+  background:rgba(255,255,255,0.06);
+  color:#fff;
+  font-size:12px;
+  border:1px solid rgba(255,255,255,0.06);
+  white-space:nowrap;
+}
+
+.badge-free {
+  background: var(--good);
+  color: #000;
+  font-size: 10px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 12px;
+  display: inline-block;
+}
+
+.badge-course {
+  background: var(--course);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 12px;
+  display: inline-block;
+}
+
+.badge-visual {
+  background: var(--visual);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 12px;
+  display: inline-block;
+}
+
+.badge-template {
+  background: var(--template);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 12px;
+  display: inline-block;
+}
+
+.badge-test {
+  background: var(--test);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 12px;
+  display: inline-block;
+}
+
+.progress-bar{
+  height:6px;
+  background:var(--btn);
+  border-radius:999px;
+  overflow:hidden;
+  margin:10px 0 4px;
+}
+.progress{
+  height:100%;
+  width:0%;
+  background:var(--accent);
+  transition: width 0.3s ease;
+}
+
+.button{
+  width:100%;
+  padding:12px;
+  border-radius:10px;
+  border:1px solid rgba(255,255,255,0.06);
+  background:var(--btn);
+  color:#fff;
+  margin-top:8px;
+  font-size:14px;
+  cursor:pointer;
+  transition: transform .06s ease, opacity .2s ease, background-color 0.2s ease;
+  text-align:left;
+}
+.button:active{ transform:scale(0.99); }
+.button:hover{ opacity:.92; }
+.button:disabled{ opacity:.5; cursor:not-allowed; background: var(--inactive); }
+
+.button.primary{
+  background:var(--accent);
+  color:#000;
+  font-weight:700;
+  border-color:rgba(0,0,0,0.12);
+  text-align:center;
+}
+
+.button.ghost{
+  background:transparent;
+  border-color:rgba(255,255,255,0.10);
+}
+
+.back-button-large {
+  width: 100%;
+  padding: 16px;
+  background: var(--accent);
+  color: #000;
+  border: none;
+  border-radius: 30px;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  margin: 20px 0 10px 0;
+  text-align: center;
+}
+
+.back-button-small {
+  margin-bottom: 15px;
+  background: transparent;
+  border: 1px solid var(--line);
+  color: #fff;
+  padding: 8px 15px;
+  border-radius: 30px;
+  font-size: 14px;
+  cursor: pointer;
+  width: auto;
+  display: inline-block;
+}
+
+.view-toggle {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+  background: var(--card);
+  padding: 4px;
+  border-radius: 30px;
+  border: 1px solid var(--line);
+}
+
+.view-toggle-btn {
+  flex: 1;
+  padding: 8px;
+  border: none;
+  border-radius: 30px;
+  background: transparent;
+  color: var(--muted);
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.view-toggle-btn.active {
+  background: var(--accent);
+  color: #000;
+  font-weight: 600;
+}
+
+.calendar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.calendar-title {
+  font-size: 18px;
+  font-weight: 600;
+  text-transform: capitalize;
+}
+
+.calendar-nav-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  border: 1px solid var(--line);
+  background: var(--btn);
+  color: #fff;
+  font-size: 18px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.calendar-nav-btn:active {
+  background: var(--accent);
+  color: #000;
+}
+
+.calendar-weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  text-align: center;
+  color: var(--muted);
+  font-size: 12px;
+  margin-bottom: 12px;
+}
+
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+}
+
+.calendar-cell {
+  aspect-ratio: 1;
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  cursor: pointer;
+  position: relative;
+  transition: all 0.1s ease;
+  padding: 4px 0;
+  border: 2px solid;
+  background: var(--card);
+}
+
+.calendar-cell.empty {
+  border-color: transparent !important;
+  background: transparent;
+  cursor: default;
+}
+
+.calendar-cell.regular {
+  border-color: var(--empty-border);
+}
+
+.calendar-cell.selected {
+  background: rgba(230, 193, 88, 0.15);
+}
+
+.day-number {
+  font-weight: 500;
+  margin-bottom: 2px;
+}
+
+.event-dots {
+  display: flex;
+  gap: 2px;
+  justify-content: center;
+  flex-wrap: wrap;
+  max-width: 100%;
+  padding: 0 2px;
+}
+
+.event-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+}
+
+.day-materials {
+  margin-top: 20px;
+}
+
+.day-materials-title {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 12px;
+  color: var(--accent);
+}
+
+.profile-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--line);
+}
+
+.profile-avatar-large {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: var(--accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32px;
+  font-weight: 700;
+  color: #000;
+}
+
+.profile-info-large {
+  flex: 1;
+}
+
+.profile-name-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.profile-name-row h2 {
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.edit-name {
+  background: none;
+  border: none;
+  color: var(--muted);
+  font-size: 14px;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 20px;
+}
+
+.edit-name:hover {
+  background: rgba(255,255,255,0.1);
+}
+
+.profile-email {
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.subscription-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin: 20px 0;
+}
+
+.sub-card {
+  background: rgba(255,255,255,0.03);
+  border-radius: 12px;
+  padding: 14px;
+  border: 1px solid var(--line);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.sub-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.sub-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+}
+
+.sub-icon.course { background: var(--course); }
+.sub-icon.visual { background: var(--visual); }
+.sub-icon.template { background: var(--template); }
+.sub-icon.test { background: var(--test); }
+.sub-icon.free { background: var(--good); }
+
+.sub-details h4 {
+  font-size: 15px;
+  margin-bottom: 2px;
+}
+
+.sub-details p {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.sub-status {
+  font-size: 12px;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 20px;
+}
+
+.sub-status.active {
+  background: rgba(46, 204, 113, 0.2);
+  color: var(--good);
+}
+
+.sub-status.inactive {
+  background: rgba(231, 76, 60, 0.1);
+  color: var(--bad);
+}
+
+.sub-button {
+  background: var(--accent);
+  color: #000;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+@keyframes correctFlash {
+  0% { background-color: var(--btn); }
+  30% { background-color: var(--good); }
+  70% { background-color: var(--good); }
+  100% { background-color: var(--btn); }
+}
+
+.button.correct-flash {
+  animation: correctFlash 0.8s ease;
+}
+
+.button.correct-permanent {
+  background: rgba(46, 204, 113, 0.3) !important;
+  border-color: var(--good) !important;
+  position: relative;
+}
+
+.button.correct-permanent::after {
+  content: "✓";
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--good);
+  font-weight: 700;
+  font-size: 18px;
+}
+
+.button.wrong-permanent {
+  background: rgba(231, 76, 60, 0.2) !important;
+  border-color: var(--bad) !important;
+  position: relative;
+}
+
+.button.wrong-permanent::after {
+  content: "✗";
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--bad);
+  font-weight: 700;
+  font-size: 18px;
+}
+
+.comment {
+  margin-top: 20px;
+  padding: 16px 18px;
+  border-radius: 14px;
+  background: rgba(20, 20, 25, 0.95);
+  border: 1px solid var(--line);
+  border-left: 4px solid var(--accent);
+  font-size: 14px;
+  line-height: 1.5;
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+}
+
+.placeholder-image {
+  width: 100%;
+  height: 160px;
+  background: linear-gradient(45deg, var(--btn), var(--inactive));
+  border-radius: 12px;
+  margin: 10px 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.placeholder-video {
+  width: 100%;
+  height: 200px;
+  background: linear-gradient(45deg, var(--btn), var(--inactive));
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.course-card {
+  background: var(--card);
+  border-radius: 16px;
+  padding: 18px;
+  margin-bottom: 14px;
+  border: 1px solid rgba(255,255,255,0.04);
+  cursor: pointer;
+  transition: transform 0.1s ease, border-color 0.2s ease;
+}
+.course-card:hover {
+  transform: scale(1.02);
+  border-color: var(--accent);
+}
+.course-card h3 {
+  margin: 0 0 8px 0;
+  font-size: 18px;
+}
+.course-meta {
+  display: flex;
+  gap: 10px;
+  color: var(--muted);
+  font-size: 13px;
+  margin-top: 10px;
+}
+
+.module {
+  margin: 20px 0 10px 0;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--accent);
+  border-bottom: 1px solid var(--line);
+  padding-bottom: 8px;
+}
+
+.material-item {
+  background: rgba(255,255,255,0.02);
+  border-radius: 12px;
+  padding: 14px;
+  margin-bottom: 8px;
+  border: 1px solid var(--line);
+  transition: all 0.1s ease;
+}
+
+.material-item.active {
+  border-left: 4px solid var(--accent);
+  background: rgba(230, 193, 88, 0.1);
+  cursor: pointer;
+}
+.material-item.active:hover {
+  background: rgba(230, 193, 88, 0.15);
+}
+
+.material-item.inactive {
+  opacity: 0.5;
+  background: var(--inactive);
+  cursor: default;
+  border-left: 4px solid var(--future);
+}
+
+.material-title {
+  font-weight: 500;
+  font-size: 15px;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.material-date-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.material-date {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.material-badge {
+  font-size: 11px;
+  padding: 2px 10px;
+  border-radius: 20px;
+  background: var(--accent);
+  color: #000;
+  font-weight: 600;
+}
+
+.material-badge.future {
+  background: var(--future);
+  color: #fff;
+}
+
+.test-item {
+  background: var(--card);
+  border-radius: 16px;
+  padding: 18px;
+  margin-bottom: 12px;
+  border: 1px solid var(--line);
+  cursor: pointer;
+  transition: all 0.1s ease;
+}
+.test-item:hover {
+  border-color: var(--accent);
+}
+
+.test-item.completed {
+  opacity: 0.8;
+  border-left: 4px solid var(--good);
+}
+
+.test-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+
+.test-title {
+  font-weight: 700;
+  font-size: 16px;
+}
+
+.test-badge {
+  font-size: 11px;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-weight: 600;
+}
+
+.test-badge.free { background: var(--good); color: #000; }
+.test-badge.test { background: var(--test); color: #fff; }
+
+.ans{
+  display:flex;
+  gap:12px;
+  align-items:flex-start;
+}
+.badge{
+  flex:0 0 auto;
+  width:28px;
+  height:28px;
+  border-radius:9px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-weight:800;
+  background:rgba(255,255,255,0.07);
+  border:1px solid rgba(255,255,255,0.08);
+  font-size:14px;
+}
+.ans-text{
+  line-height:1.4;
+  padding-top:2px;
+  flex: 1;
+  font-size:15px;
+}
+
+.test-controls{
+  position:fixed;
+  left:50%;
+  transform: translateX(-50%);
+  bottom:75px;
+  width: 100%;
+  max-width: 480px;
+  padding:10px 14px;
+  background:rgba(28,28,30,0.95);
+  backdrop-filter: blur(10px);
+  border-radius: 30px;
+  border: 1px solid var(--line);
+  display:none;
+  z-index:20;
+}
+.controls-wrap{
+  max-width:720px;
+  margin:0 auto;
+  display:flex;
+  gap:8px;
+}
+.controls-wrap .button{
+  margin-top:0;
+  text-align:center;
+  padding:10px;
+  font-size:13px;
+}
+
+.bottom-nav{
+  position:fixed;
+  left:50%;
+  transform: translateX(-50%);
+  bottom:0;
+  width: 100%;
+  max-width: 480px;
+  background:rgba(28,28,30,0.96);
+  backdrop-filter: blur(10px);
+  display:flex;
+  justify-content:space-around;
+  padding:10px 0 12px;
+  border-top:1px solid var(--line);
+  z-index:25;
+}
+.nav-btn{
+  background:none;
+  border:none;
+  color:#aaa;
+  font-size:22px;
+  cursor:pointer;
+  padding: 5px 10px;
+  border-radius: 30px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+.nav-btn span {
+  font-size: 11px;
+}
+.nav-btn.active{
+  color:var(--accent);
+  font-weight:700;
+  background: rgba(230,193,88,0.1);
+}
+
+.center{ text-align:center; }
+
+.stats-grid{
+  display:grid;
+  grid-template-columns: 120px 1fr;
+  gap:14px;
+  align-items:center;
+}
+
+.statline{
+  display:flex;
+  justify-content:space-between;
+  gap:10px;
+  padding:8px 0;
+  border-bottom:1px solid rgba(255,255,255,0.06);
+  font-size:14px;
+}
+.statline:last-child{ border-bottom:none; }
+.k{ color:var(--muted); }
+.v{ font-weight:800; }
+
+@media (max-width:480px){
   .app-wrapper {
     max-width: 100%;
-    margin: 0 auto;
+  }
+  .test-controls, .bottom-nav {
+    max-width: 100%;
+  }
+}
+
+/* ===== АДАПТАЦИЯ ДЛЯ РАЗНЫХ УСТРОЙСТВ ===== */
+/* Планшеты (481px - 768px) */
+@media (min-width: 481px) and (max-width: 768px) {
+  .app-wrapper {
+    max-width: 90%;
+    margin: 10px auto;
+    border-radius: 24px;
   }
   
   .container {
@@ -17,47 +886,62 @@
     border-radius: 20px;
   }
   
-  .button {
-    padding: 14px;
-    font-size: 15px;
-  }
-  
-  /* Две колонки для курсов/материалов */
-  .courses-grid {
+  /* Сетка для списков */
+  #coursesList,
+  #visualList,
+  #templatesList,
+  #topicsList {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: repeat(2, 1fr);
     gap: 16px;
   }
   
-  .course-card {
+  .course-card,
+  .material-item,
+  .test-item {
     margin-bottom: 0;
+    height: 100%;
   }
   
-  /* Календарь покрупнее */
+  /* Календарь */
+  .calendar-grid {
+    gap: 6px;
+  }
+  
   .calendar-cell {
-    font-size: 16px;
+    font-size: 15px;
   }
   
   .event-dot {
-    width: 8px;
-    height: 8px;
+    width: 7px;
+    height: 7px;
   }
 }
 
-/* Ноутбуки и десктопы (769px - 1200px) */
-@media (min-width: 769px) and (max-width: 1200px) {
+/* Ноутбуки и небольшие десктопы (769px - 1024px) */
+@media (min-width: 769px) and (max-width: 1024px) {
   .app-wrapper {
     max-width: 90%;
     margin: 20px auto;
-    border-radius: 30px;
-    overflow: hidden;
-    box-shadow: 0 0 40px rgba(0,0,0,0.9);
-    min-height: calc(100vh - 40px);
+    border-radius: 28px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.9);
   }
   
   .container {
     padding: 24px;
-    padding-bottom: 100px;
+    padding-bottom: 110px;
+  }
+  
+  .header {
+    padding: 16px 24px;
+  }
+  
+  .logo {
+    font-size: 22px;
+  }
+  
+  .logo-img {
+    height: 36px;
   }
   
   .card {
@@ -67,109 +951,122 @@
   
   h3 {
     font-size: 1.3rem;
-    margin-bottom: 15px;
   }
   
-  .button {
-    padding: 16px;
-    font-size: 16px;
-  }
-  
-  /* Сетка для контента */
-  .courses-grid,
-  .visual-grid,
-  .templates-grid {
+  /* Сетка для списков - 3 колонки */
+  #coursesList,
+  #visualList,
+  #templatesList,
+  #topicsList {
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 20px;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 18px;
   }
   
-  .course-card {
+  .course-card,
+  .material-item,
+  .test-item {
     margin-bottom: 0;
+    height: 100%;
+    transition: transform 0.2s ease, border-color 0.2s ease;
   }
   
-  /* Улучшаем календарь */
+  .course-card:hover,
+  .material-item:hover,
+  .test-item:hover {
+    transform: translateY(-3px);
+    border-color: var(--accent);
+    box-shadow: 0 8px 20px rgba(230, 193, 88, 0.15);
+  }
+  
+  /* Улучшенный календарь */
   .calendar-header {
     margin-bottom: 25px;
   }
   
   .calendar-title {
-    font-size: 22px;
+    font-size: 20px;
   }
   
   .calendar-nav-btn {
-    width: 44px;
-    height: 44px;
+    width: 40px;
+    height: 40px;
     font-size: 20px;
   }
   
   .calendar-weekdays {
-    font-size: 14px;
+    font-size: 13px;
+  }
+  
+  .calendar-grid {
+    gap: 6px;
   }
   
   .calendar-cell {
     font-size: 16px;
+    min-height: 70px;
+    aspect-ratio: auto;
+    padding: 8px 4px;
   }
   
   .event-dot {
-    width: 8px;
-    height: 8px;
-    margin: 0 1px;
+    width: 7px;
+    height: 7px;
   }
   
-  /* Профиль в две колонки */
-  .profile-content {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 20px;
+  /* Профиль */
+  .profile-header {
+    gap: 24px;
   }
   
-  .profile-card {
-    grid-column: span 2;
+  .profile-avatar-large {
+    width: 100px;
+    height: 100px;
+    font-size: 40px;
   }
   
-  .subscription-grid {
-    grid-column: span 2;
+  .profile-name-row h2 {
+    font-size: 24px;
+  }
+  
+  #subscriptionsList {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: 16px;
+    gap: 12px;
   }
   
-  /* Навигация */
+  /* Нижняя навигация */
+  .bottom-nav {
+    padding: 12px 0 16px;
+  }
+  
+  .nav-btn {
+    font-size: 24px;
+  }
+  
   .nav-btn span {
     font-size: 12px;
   }
-  
-  /* Тесты */
-  .test-item {
-    padding: 20px;
-  }
-  
-  .test-title {
-    font-size: 18px;
-  }
 }
 
-/* Большие десктопы (1201px и больше) */
-@media (min-width: 1201px) {
+/* Большие десктопы (1025px - 1440px) */
+@media (min-width: 1025px) and (max-width: 1440px) {
   body {
     background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
-    padding: 40px;
+    padding: 30px;
   }
   
   .app-wrapper {
-    max-width: 1100px;
+    max-width: 1200px;
     margin: 0 auto;
-    border-radius: 40px;
-    overflow: hidden;
-    box-shadow: 0 20px 60px rgba(0,0,0,0.8);
-    min-height: auto;
+    border-radius: 36px;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.8);
     border: 1px solid rgba(255,255,255,0.05);
   }
   
   .container {
     padding: 30px;
-    padding-bottom: 100px;
+    padding-bottom: 120px;
   }
   
   .header {
@@ -177,11 +1074,11 @@
   }
   
   .logo {
-    font-size: 24px;
+    font-size: 26px;
   }
   
   .logo-img {
-    height: 40px;
+    height: 42px;
   }
   
   .profile-icon {
@@ -200,39 +1097,33 @@
     margin-bottom: 20px;
   }
   
-  .button {
-    padding: 16px 20px;
-    font-size: 16px;
-    border-radius: 14px;
-  }
-  
-  /* Основная сетка контента */
-  .content-grid {
+  /* Сетка для списков - 4 колонки */
+  #coursesList,
+  #visualList,
+  #templatesList,
+  #topicsList {
     display: grid;
-    grid-template-columns: 2fr 1fr;
+    grid-template-columns: repeat(4, 1fr);
     gap: 24px;
   }
   
-  .courses-grid,
-  .visual-grid,
-  .templates-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 24px;
-  }
-  
-  .course-card {
+  .course-card,
+  .material-item,
+  .test-item {
     margin-bottom: 0;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    height: 100%;
+    transition: all 0.3s ease;
   }
   
-  .course-card:hover {
+  .course-card:hover,
+  .material-item:hover,
+  .test-item:hover {
     transform: translateY(-5px);
-    box-shadow: 0 10px 30px rgba(230, 193, 88, 0.2);
     border-color: var(--accent);
+    box-shadow: 0 12px 30px rgba(230, 193, 88, 0.2);
   }
   
-  /* Продвинутый календарь */
+  /* Премиум календарь */
   .calendar-container {
     background: rgba(0,0,0,0.2);
     border-radius: 28px;
@@ -244,49 +1135,55 @@
   }
   
   .calendar-title {
-    font-size: 26px;
+    font-size: 24px;
   }
   
   .calendar-nav-btn {
-    width: 48px;
-    height: 48px;
+    width: 44px;
+    height: 44px;
     font-size: 22px;
     border-radius: 14px;
+    transition: all 0.2s ease;
   }
   
   .calendar-nav-btn:hover {
     background: var(--accent);
     color: #000;
+    transform: scale(1.05);
   }
   
   .calendar-weekdays {
-    font-size: 15px;
+    font-size: 14px;
     font-weight: 600;
     margin-bottom: 16px;
   }
   
   .calendar-grid {
-    gap: 6px;
+    gap: 8px;
   }
   
   .calendar-cell {
+    aspect-ratio: auto;
+    min-height: 90px;
     font-size: 17px;
     border-radius: 16px;
-    transition: transform 0.1s ease;
+    padding: 10px 5px;
+    transition: transform 0.2s ease, border-color 0.2s ease;
   }
   
   .calendar-cell:not(.empty):hover {
-    transform: scale(1.05);
+    transform: scale(1.02);
     border-color: var(--accent);
-    box-shadow: 0 5px 15px rgba(230, 193, 88, 0.3);
+    box-shadow: 0 5px 15px rgba(230, 193, 88, 0.2);
   }
   
   .day-number {
     font-weight: 600;
+    margin-bottom: 5px;
   }
   
   .event-dots {
-    margin-top: 4px;
+    margin-top: 5px;
   }
   
   .event-dot {
@@ -295,110 +1192,58 @@
     margin: 0 1px;
   }
   
-  /* Профиль в несколько колонок */
-  .profile-content {
+  /* Профиль с продвинутой сеткой */
+  #profile {
     display: grid;
     grid-template-columns: 1fr 2fr;
     gap: 24px;
   }
   
-  .profile-card {
-    grid-column: span 1;
-    margin-bottom: 0;
-  }
-  
-  .profile-header {
-    flex-direction: column;
-    text-align: center;
-    gap: 20px;
-  }
-  
-  .profile-avatar-large {
-    width: 120px;
-    height: 120px;
-    font-size: 48px;
-  }
-  
-  .profile-name-row {
-    justify-content: center;
+  #profileView {
+    grid-column: 1;
   }
   
   .subscription-grid {
-    grid-column: span 1;
+    grid-column: 2;
+    margin: 0;
+  }
+  
+  #vkAuthSection,
+  #userInfoSection {
+    grid-column: 1 / -1;
+  }
+  
+  #subscriptionsList {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     gap: 16px;
   }
   
-  .vk-section {
-    grid-column: span 2;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 20px;
-    margin-top: 20px;
-  }
-  
-  /* Детальный просмотр материала */
-  .material-detail {
-    display: grid;
-    grid-template-columns: 3fr 1fr;
-    gap: 24px;
-  }
-  
-  .material-content {
-    grid-column: 1;
-  }
-  
-  .material-sidebar {
-    grid-column: 2;
-    background: var(--card);
-    border-radius: 24px;
-    padding: 20px;
-    height: fit-content;
-    position: sticky;
-    top: 20px;
-  }
-  
-  /* Тесты */
-  .tests-layout {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 24px;
-  }
-  
-  .test-item {
-    transition: transform 0.2s ease;
-  }
-  
-  .test-item:hover {
-    transform: translateX(5px);
-    border-color: var(--accent);
-  }
-  
+  /* Тестовая панель */
   .test-controls {
-    max-width: 1100px;
-    bottom: 90px;
-    padding: 12px 20px;
+    max-width: 1200px;
+    bottom: 95px;
+    padding: 14px 20px;
   }
   
   .controls-wrap {
-    gap: 12px;
+    gap: 15px;
   }
   
   .controls-wrap .button {
-    padding: 12px 20px;
-    font-size: 14px;
+    padding: 14px 24px;
+    font-size: 15px;
   }
   
   /* Нижняя навигация */
   .bottom-nav {
-    max-width: 1100px;
-    padding: 12px 0 16px;
+    max-width: 1200px;
+    padding: 14px 0 18px;
   }
   
   .nav-btn {
-    font-size: 24px;
-    padding: 8px 16px;
+    font-size: 26px;
+    padding: 8px 20px;
   }
   
   .nav-btn span {
@@ -410,67 +1255,122 @@
     background: rgba(230, 193, 88, 0.15);
     color: var(--accent);
   }
-  
-  /* Анимации и эффекты */
-  .material-item {
-    transition: all 0.2s ease;
-  }
-  
-  .material-item:hover {
-    transform: translateX(3px);
-    border-left-width: 6px;
-  }
-  
-  .button {
-    transition: all 0.2s ease;
-  }
-  
-  .button:hover {
-    transform: translateY(-2px);
-    opacity: 0.95;
-    box-shadow: 0 5px 15px rgba(230, 193, 88, 0.2);
-  }
-  
-  .button.primary:hover {
-    background: #f5d472;
-  }
 }
 
-/* Очень большие экраны (больше 1600px) */
-@media (min-width: 1601px) {
+/* Очень большие экраны (более 1440px) */
+@media (min-width: 1441px) {
   body {
-    padding: 60px;
+    background: linear-gradient(135deg, #080808 0%, #151515 100%);
+    padding: 50px;
   }
   
   .app-wrapper {
-    max-width: 1400px;
-  }
-  
-  .courses-grid,
-  .visual-grid,
-  .templates-grid {
-    grid-template-columns: repeat(4, 1fr);
+    max-width: 1600px;
+    margin: 0 auto;
+    border-radius: 48px;
+    box-shadow: 0 30px 70px rgba(0,0,0,0.9);
+    border: 1px solid rgba(255,255,255,0.05);
   }
   
   .container {
     padding: 40px;
-    padding-bottom: 120px;
+    padding-bottom: 130px;
   }
   
   .header {
-    padding: 20px 40px;
+    padding: 22px 40px;
   }
   
   .logo {
-    font-size: 28px;
+    font-size: 30px;
   }
   
   .logo-img {
     height: 48px;
   }
+  
+  .profile-icon {
+    width: 56px;
+    height: 56px;
+    font-size: 30px;
+  }
+  
+  .card {
+    padding: 32px;
+    border-radius: 32px;
+  }
+  
+  h3 {
+    font-size: 1.8rem;
+    margin-bottom: 24px;
+  }
+  
+  /* Сетка для списков - 5-6 колонок */
+  #coursesList,
+  #visualList,
+  #templatesList,
+  #topicsList {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 28px;
+  }
+  
+  .course-card,
+  .material-item,
+  .test-item {
+    padding: 24px;
+  }
+  
+  .course-card h3 {
+    font-size: 1.3rem;
+  }
+  
+  .material-title {
+    font-size: 1.1rem;
+  }
+  
+  /* Календарь на всю ширину */
+  .calendar-grid {
+    gap: 10px;
+  }
+  
+  .calendar-cell {
+    min-height: 110px;
+    font-size: 18px;
+    padding: 12px 8px;
+  }
+  
+  .event-dot {
+    width: 10px;
+    height: 10px;
+  }
+  
+  #subscriptionsList {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+  }
+  
+  .test-controls {
+    max-width: 1600px;
+    bottom: 100px;
+    padding: 16px 24px;
+  }
+  
+  .bottom-nav {
+    max-width: 1600px;
+    padding: 16px 0 22px;
+  }
+  
+  .nav-btn {
+    font-size: 28px;
+  }
+  
+  .nav-btn span {
+    font-size: 14px;
+  }
 }
 
-/* Альбомная ориентация на телефонах */
+/* Альбомная ориентация на мобильных */
 @media (max-width: 900px) and (orientation: landscape) {
   .app-wrapper {
     max-width: 100%;
@@ -480,81 +1380,67 @@
     padding-bottom: 80px;
   }
   
-  .courses-grid,
-  .visual-grid,
-  .templates-grid {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 12px;
+  #coursesList,
+  #visualList,
+  #templatesList,
+  #topicsList {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
   }
   
-  .bottom-nav {
-    padding: 6px 0 10px;
-  }
-  
-  .nav-btn span {
-    display: none; /* Убираем текст навигации в ландшафте */
+  .bottom-nav .nav-btn span {
+    display: none;
   }
   
   .nav-btn {
     font-size: 26px;
-    padding: 5px;
+    padding: 5px 15px;
+  }
+  
+  .test-controls {
+    bottom: 65px;
   }
 }
 
-/* Дополнительные классы для сеток (добавьте их в HTML где нужно) */
-.grid-2 {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 16px;
-}
-
-.grid-3 {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 16px;
-}
-
-@media (max-width: 768px) {
-  .grid-2,
-  .grid-3 {
-    grid-template-columns: 1fr;
-  }
-}
-
-/* Улучшенная типографика на больших экранах */
-@media (min-width: 1024px) {
-  .material-title {
+/* Адаптация для очень маленьких экранов */
+@media (max-width: 360px) {
+  .logo {
     font-size: 16px;
   }
   
-  .material-date-row {
+  .logo-img {
+    height: 24px;
+  }
+  
+  .profile-icon {
+    width: 36px;
+    height: 36px;
+    font-size: 20px;
+  }
+  
+  .container {
+    padding: 12px;
+    padding-bottom: 90px;
+  }
+  
+  .card {
+    padding: 14px;
+  }
+  
+  h3 {
+    font-size: 1.1rem;
+  }
+  
+  .button {
+    padding: 10px;
     font-size: 13px;
   }
   
-  .subtle {
-    font-size: 14px;
+  .nav-btn {
+    font-size: 20px;
   }
   
-  .pill {
-    padding: 6px 14px;
-    font-size: 13px;
+  .nav-btn span {
+    font-size: 9px;
   }
-  
-  .badge-free,
-  .badge-course,
-  .badge-visual,
-  .badge-template,
-  .badge-test {
-    font-size: 11px;
-    padding: 3px 12px;
-  }
-}
-
-/* Анимации для плавности */
-.app-wrapper,
-.card,
-.button,
-.calendar-cell,
-.material-item {
-  transition: all 0.3s ease;
 }
