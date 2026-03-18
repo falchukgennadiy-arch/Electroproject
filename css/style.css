@@ -867,66 +867,18 @@ body{
   }
 }
 
-/* ===== АДАПТАЦИЯ ДЛЯ РАЗНЫХ УСТРОЙСТВ ===== */
-/* Планшеты (481px - 768px) */
-@media (min-width: 481px) and (max-width: 768px) {
+/* ===== АДАПТАЦИЯ ТОЛЬКО ДЛЯ ШИРИНЫ ЭКРАНА ===== */
+/* Все устройства больше 480px */
+@media (min-width: 481px) {
+  /* Увеличиваем ширину приложения на больших экранах */
   .app-wrapper {
-    max-width: 90%;
-    margin: 10px auto;
-    border-radius: 24px;
-  }
-  
-  .container {
-    padding: 20px;
-    padding-bottom: 100px;
-  }
-  
-  .card {
-    padding: 20px;
-    border-radius: 20px;
-  }
-  
-  /* Сетка для списков */
-  #coursesList,
-  #visualList,
-  #templatesList,
-  #topicsList {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 16px;
-  }
-  
-  .course-card,
-  .material-item,
-  .test-item {
-    margin-bottom: 0;
-    height: 100%;
-  }
-  
-  /* Календарь */
-  .calendar-grid {
-    gap: 6px;
-  }
-  
-  .calendar-cell {
-    font-size: 15px;
-  }
-  
-  .event-dot {
-    width: 7px;
-    height: 7px;
-  }
-}
-
-/* Ноутбуки и небольшие десктопы (769px - 1024px) */
-@media (min-width: 769px) and (max-width: 1024px) {
-  .app-wrapper {
-    max-width: 90%;
+    max-width: 600px;
     margin: 20px auto;
-    border-radius: 28px;
-    box-shadow: 0 10px 40px rgba(0,0,0,0.9);
+    border-radius: 32px;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.9);
   }
   
+  /* Увеличиваем отступы */
   .container {
     padding: 24px;
     padding-bottom: 110px;
@@ -936,89 +888,47 @@ body{
     padding: 16px 24px;
   }
   
+  .card {
+    padding: 24px;
+    border-radius: 24px;
+  }
+  
+  /* Увеличиваем шрифты для читаемости */
   .logo {
-    font-size: 22px;
+    font-size: 24px;
   }
   
   .logo-img {
     height: 36px;
   }
   
-  .card {
-    padding: 24px;
-    border-radius: 24px;
+  .profile-icon {
+    width: 48px;
+    height: 48px;
+    font-size: 26px;
   }
   
   h3 {
-    font-size: 1.3rem;
+    font-size: 1.4rem;
   }
   
-  /* Сетка для списков - 3 колонки */
-  #coursesList,
-  #visualList,
-  #templatesList,
-  #topicsList {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 18px;
+  .button {
+    padding: 14px;
+    font-size: 16px;
   }
   
-  .course-card,
-  .material-item,
-  .test-item {
-    margin-bottom: 0;
-    height: 100%;
-    transition: transform 0.2s ease, border-color 0.2s ease;
-  }
-  
-  .course-card:hover,
-  .material-item:hover,
-  .test-item:hover {
-    transform: translateY(-3px);
-    border-color: var(--accent);
-    box-shadow: 0 8px 20px rgba(230, 193, 88, 0.15);
-  }
-  
-  /* Улучшенный календарь */
-  .calendar-header {
-    margin-bottom: 25px;
-  }
-  
-  .calendar-title {
-    font-size: 20px;
-  }
-  
-  .calendar-nav-btn {
-    width: 40px;
-    height: 40px;
-    font-size: 20px;
-  }
-  
-  .calendar-weekdays {
-    font-size: 13px;
-  }
-  
-  .calendar-grid {
-    gap: 6px;
-  }
-  
+  /* Увеличиваем календарь */
   .calendar-cell {
     font-size: 16px;
-    min-height: 70px;
-    aspect-ratio: auto;
-    padding: 8px 4px;
+    min-height: 60px;
   }
   
   .event-dot {
-    width: 7px;
-    height: 7px;
+    width: 8px;
+    height: 8px;
   }
   
-  /* Профиль */
-  .profile-header {
-    gap: 24px;
-  }
-  
+  /* Увеличиваем профиль */
   .profile-avatar-large {
     width: 100px;
     height: 100px;
@@ -1028,265 +938,31 @@ body{
   .profile-name-row h2 {
     font-size: 24px;
   }
-  
-  #subscriptionsList {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 12px;
-  }
-  
-  /* Нижняя навигация */
-  .bottom-nav {
-    padding: 12px 0 16px;
-  }
-  
-  .nav-btn {
-    font-size: 24px;
-  }
-  
-  .nav-btn span {
-    font-size: 12px;
-  }
 }
 
-/* Большие десктопы (1025px - 1440px) */
-@media (min-width: 1025px) and (max-width: 1440px) {
-  body {
-    background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
-    padding: 30px;
-  }
-  
+/* Для очень больших экранов */
+@media (min-width: 1024px) {
   .app-wrapper {
-    max-width: 1200px;
-    margin: 0 auto;
-    border-radius: 36px;
-    box-shadow: 0 20px 50px rgba(0,0,0,0.8);
-    border: 1px solid rgba(255,255,255,0.05);
+    max-width: 700px;
+    margin: 30px auto;
+    border-radius: 40px;
   }
   
   .container {
-    padding: 30px;
+    padding: 32px;
     padding-bottom: 120px;
   }
   
   .header {
-    padding: 18px 30px;
+    padding: 20px 32px;
   }
   
   .logo {
-    font-size: 26px;
+    font-size: 28px;
   }
   
   .logo-img {
     height: 42px;
-  }
-  
-  .profile-icon {
-    width: 48px;
-    height: 48px;
-    font-size: 26px;
-  }
-  
-  .card {
-    padding: 28px;
-    border-radius: 28px;
-  }
-  
-  h3 {
-    font-size: 1.5rem;
-    margin-bottom: 20px;
-  }
-  
-  /* Сетка для списков - 4 колонки */
-  #coursesList,
-  #visualList,
-  #templatesList,
-  #topicsList {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 24px;
-  }
-  
-  .course-card,
-  .material-item,
-  .test-item {
-    margin-bottom: 0;
-    height: 100%;
-    transition: all 0.3s ease;
-  }
-  
-  .course-card:hover,
-  .material-item:hover,
-  .test-item:hover {
-    transform: translateY(-5px);
-    border-color: var(--accent);
-    box-shadow: 0 12px 30px rgba(230, 193, 88, 0.2);
-  }
-  
-  /* Премиум календарь */
-  .calendar-container {
-    background: rgba(0,0,0,0.2);
-    border-radius: 28px;
-    padding: 20px;
-  }
-  
-  .calendar-header {
-    margin-bottom: 30px;
-  }
-  
-  .calendar-title {
-    font-size: 24px;
-  }
-  
-  .calendar-nav-btn {
-    width: 44px;
-    height: 44px;
-    font-size: 22px;
-    border-radius: 14px;
-    transition: all 0.2s ease;
-  }
-  
-  .calendar-nav-btn:hover {
-    background: var(--accent);
-    color: #000;
-    transform: scale(1.05);
-  }
-  
-  .calendar-weekdays {
-    font-size: 14px;
-    font-weight: 600;
-    margin-bottom: 16px;
-  }
-  
-  .calendar-grid {
-    gap: 8px;
-  }
-  
-  .calendar-cell {
-    aspect-ratio: auto;
-    min-height: 90px;
-    font-size: 17px;
-    border-radius: 16px;
-    padding: 10px 5px;
-    transition: transform 0.2s ease, border-color 0.2s ease;
-  }
-  
-  .calendar-cell:not(.empty):hover {
-    transform: scale(1.02);
-    border-color: var(--accent);
-    box-shadow: 0 5px 15px rgba(230, 193, 88, 0.2);
-  }
-  
-  .day-number {
-    font-weight: 600;
-    margin-bottom: 5px;
-  }
-  
-  .event-dots {
-    margin-top: 5px;
-  }
-  
-  .event-dot {
-    width: 8px;
-    height: 8px;
-    margin: 0 1px;
-  }
-  
-  /* Профиль с продвинутой сеткой */
-  #profile {
-    display: grid;
-    grid-template-columns: 1fr 2fr;
-    gap: 24px;
-  }
-  
-  #profileView {
-    grid-column: 1;
-  }
-  
-  .subscription-grid {
-    grid-column: 2;
-    margin: 0;
-  }
-  
-  #vkAuthSection,
-  #userInfoSection {
-    grid-column: 1 / -1;
-  }
-  
-  #subscriptionsList {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 16px;
-  }
-  
-  /* Тестовая панель */
-  .test-controls {
-    max-width: 1200px;
-    bottom: 95px;
-    padding: 14px 20px;
-  }
-  
-  .controls-wrap {
-    gap: 15px;
-  }
-  
-  .controls-wrap .button {
-    padding: 14px 24px;
-    font-size: 15px;
-  }
-  
-  /* Нижняя навигация */
-  .bottom-nav {
-    max-width: 1200px;
-    padding: 14px 0 18px;
-  }
-  
-  .nav-btn {
-    font-size: 26px;
-    padding: 8px 20px;
-  }
-  
-  .nav-btn span {
-    font-size: 13px;
-    margin-top: 4px;
-  }
-  
-  .nav-btn:hover {
-    background: rgba(230, 193, 88, 0.15);
-    color: var(--accent);
-  }
-}
-
-/* Очень большие экраны (более 1440px) */
-@media (min-width: 1441px) {
-  body {
-    background: linear-gradient(135deg, #080808 0%, #151515 100%);
-    padding: 50px;
-  }
-  
-  .app-wrapper {
-    max-width: 1600px;
-    margin: 0 auto;
-    border-radius: 48px;
-    box-shadow: 0 30px 70px rgba(0,0,0,0.9);
-    border: 1px solid rgba(255,255,255,0.05);
-  }
-  
-  .container {
-    padding: 40px;
-    padding-bottom: 130px;
-  }
-  
-  .header {
-    padding: 22px 40px;
-  }
-  
-  .logo {
-    font-size: 30px;
-  }
-  
-  .logo-img {
-    height: 48px;
   }
   
   .profile-icon {
@@ -1297,47 +973,95 @@ body{
   
   .card {
     padding: 32px;
+    border-radius: 28px;
+  }
+  
+  h3 {
+    font-size: 1.6rem;
+  }
+  
+  .calendar-cell {
+    min-height: 70px;
+    font-size: 17px;
+  }
+  
+  .profile-avatar-large {
+    width: 120px;
+    height: 120px;
+    font-size: 48px;
+  }
+  
+  .profile-name-row h2 {
+    font-size: 28px;
+  }
+  
+  /* Нижняя навигация */
+  .bottom-nav {
+    padding: 14px 0 18px;
+  }
+  
+  .nav-btn {
+    font-size: 26px;
+  }
+  
+  .nav-btn span {
+    font-size: 13px;
+  }
+  
+  .test-controls {
+    bottom: 95px;
+  }
+}
+
+/* Для огромных экранов */
+@media (min-width: 1440px) {
+  body {
+    background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
+    padding: 40px;
+  }
+  
+  .app-wrapper {
+    max-width: 800px;
+    margin: 0 auto;
+    border-radius: 48px;
+    border: 1px solid rgba(255,255,255,0.05);
+  }
+  
+  .container {
+    padding: 40px;
+    padding-bottom: 130px;
+  }
+  
+  .header {
+    padding: 24px 40px;
+  }
+  
+  .logo {
+    font-size: 32px;
+  }
+  
+  .logo-img {
+    height: 48px;
+  }
+  
+  .profile-icon {
+    width: 64px;
+    height: 64px;
+    font-size: 34px;
+  }
+  
+  .card {
+    padding: 40px;
     border-radius: 32px;
   }
   
   h3 {
     font-size: 1.8rem;
-    margin-bottom: 24px;
-  }
-  
-  /* Сетка для списков - 5-6 колонок */
-  #coursesList,
-  #visualList,
-  #templatesList,
-  #topicsList {
-    display: grid;
-    grid-template-columns: repeat(5, 1fr);
-    gap: 28px;
-  }
-  
-  .course-card,
-  .material-item,
-  .test-item {
-    padding: 24px;
-  }
-  
-  .course-card h3 {
-    font-size: 1.3rem;
-  }
-  
-  .material-title {
-    font-size: 1.1rem;
-  }
-  
-  /* Календарь на всю ширину */
-  .calendar-grid {
-    gap: 10px;
   }
   
   .calendar-cell {
-    min-height: 110px;
+    min-height: 80px;
     font-size: 18px;
-    padding: 12px 8px;
   }
   
   .event-dot {
@@ -1345,28 +1069,14 @@ body{
     height: 10px;
   }
   
-  #subscriptionsList {
-    grid-template-columns: repeat(3, 1fr);
-    gap: 20px;
+  .profile-avatar-large {
+    width: 140px;
+    height: 140px;
+    font-size: 56px;
   }
   
-  .test-controls {
-    max-width: 1600px;
-    bottom: 100px;
-    padding: 16px 24px;
-  }
-  
-  .bottom-nav {
-    max-width: 1600px;
-    padding: 16px 0 22px;
-  }
-  
-  .nav-btn {
-    font-size: 28px;
-  }
-  
-  .nav-btn span {
-    font-size: 14px;
+  .profile-name-row h2 {
+    font-size: 32px;
   }
 }
 
@@ -1374,18 +1084,12 @@ body{
 @media (max-width: 900px) and (orientation: landscape) {
   .app-wrapper {
     max-width: 100%;
+    margin: 0;
+    border-radius: 0;
   }
   
   .container {
     padding-bottom: 80px;
-  }
-  
-  #coursesList,
-  #visualList,
-  #templatesList,
-  #topicsList {
-    grid-template-columns: repeat(3, 1fr);
-    gap: 10px;
   }
   
   .bottom-nav .nav-btn span {
@@ -1402,7 +1106,7 @@ body{
   }
 }
 
-/* Адаптация для очень маленьких экранов */
+/* Для очень маленьких экранов */
 @media (max-width: 360px) {
   .logo {
     font-size: 16px;
