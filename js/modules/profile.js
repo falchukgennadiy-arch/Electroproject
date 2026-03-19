@@ -7,80 +7,115 @@ let userSubscriptions = {
   test: false
 };
 
-// ID вашего сообщества VK (замените на реальный)
-const COMMUNITY_ID = 223389702; // Например: 123456789
+// ID вашего сообщества VK (из ссылки)
+const COMMUNITY_ID = 223389702; 
+const DONUT_LINK = 'https://vk.com/electrocourses?w=donut_payment-223389702&levelId=2499';
 
 // Загрузка данных при старте
 document.addEventListener('DOMContentLoaded', function() {
+  console.log('🔄 Profile.js инициализация...');
+  
   // Если данные VK уже загружены
   if (window.vkUserData) {
+    console.log('✅ Данные VK уже есть:', window.vkUserData);
     handleVKUserData(window.vkUserData);
     checkDonutSubscription();
   }
   
   // Слушаем событие загрузки VK Bridge
   window.addEventListener('vkBridgeReady', function(event) {
+    console.log('🎯 Событие vkBridgeReady получено:', event.detail);
     handleVKUserData(event.detail);
     checkDonutSubscription();
   });
+  
+  // Также пробуем получить данные напрямую из VK Bridge
+  if (window.vkBridge) {
+    window.vkBridge.send('VKWebAppGetUserInfo')
+      .then(userData => {
+        console.log('📦 Данные через прямой запрос:', userData);
+        handleVKUserData(userData);
+        return window.vkBridge.send('VKWebAppGetDonutInfo');
+      })
+      .then(donutInfo => {
+        console.log('🍩 Donut информация:', donutInfo);
+        processDonutInfo(donutInfo);
+      })
+      .catch(error => {
+        console.log('❌ Ошибка прямого запроса:', error);
+        // Если ошибка, показываем подписки как недоступные
+        userSubscriptions = {
+          course: false,
+          visual: false,
+          template: false,
+          test: false
+        };
+        renderSubscriptions();
+      });
+  }
 });
 
 // Обработка данных пользователя VK
 function handleVKUserData(userData) {
+  if (!userData) return;
+  
   currentUser = {
     id: userData.id,
     first_name: userData.first_name,
-    last_name: userData.last_name,
-    photo: userData.photo_200 || userData.photo_100,
+    last_name: userData.last_name || '',
+    photo: userData.photo_200 || userData.photo_100 || userData.photo,
     email: userData.email
   };
   
+  console.log('👤 Текущий пользователь:', currentUser);
   updateProfileDisplay();
-  updateUIBasedOnVK(userData);
 }
 
-// Проверка донат-подписки в сообществе
+// Обработка Donut информации
+function processDonutInfo(donutInfo) {
+  if (!donutInfo) return;
+  
+  console.log('🍩 Обработка Donut:', donutInfo);
+  
+  // Проверяем, есть ли активная подписка
+  const hasDonut = donutInfo.is_donut || false;
+  
+  if (hasDonut) {
+    // Если есть донут, активируем все подписки
+    userSubscriptions = {
+      course: true,
+      visual: true,
+      template: true,
+      test: true
+    };
+    console.log('✅ Есть донат-подписка, все доступно');
+  } else {
+    // Если нет, всё отключаем
+    userSubscriptions = {
+      course: false,
+      visual: false,
+      template: false,
+      test: false
+    };
+    console.log('❌ Нет донат-подписки');
+  }
+  
+  renderSubscriptions();
+}
+
+// Проверка донат-подписки
 async function checkDonutSubscription() {
-  if (!window.vkBridge || !currentUser) return;
+  if (!window.vkBridge) {
+    console.log('⚠️ VK Bridge не доступен');
+    renderSubscriptions(); // Показываем подписки (скорее всего без доступа)
+    return;
+  }
   
   try {
-    // Получаем информацию о донут-подписке
     const donutInfo = await window.vkBridge.send('VKWebAppGetDonutInfo');
-    
-    console.log('🍩 Информация о донат-подписке:', donutInfo);
-    
-    // Проверяем, есть ли активная подписка
-    const hasDonut = donutInfo.is_donut || false;
-    
-    if (hasDonut) {
-      // Если есть донут, активируем все подписки
-      // (можно настроить логику под разные уровни)
-      userSubscriptions = {
-        course: true,
-        visual: true,
-        template: true,
-        test: true
-      };
-      
-      console.log('✅ У пользователя есть донат-подписка');
-    } else {
-      // Если нет донут-подписки, сбрасываем всё
-      userSubscriptions = {
-        course: false,
-        visual: false,
-        template: false,
-        test: false
-      };
-      
-      console.log('❌ У пользователя нет донат-подписки');
-    }
-    
-    // Обновляем отображение подписок
-    renderSubscriptions();
-    
+    processDonutInfo(donutInfo);
   } catch (error) {
-    console.error('Ошибка при проверке донат-подписки:', error);
-    
+    console.error('❌ Ошибка при проверке донат-подписки:', error);
     // Если ошибка, значит подписки нет
     userSubscriptions = {
       course: false,
@@ -94,48 +129,91 @@ async function checkDonutSubscription() {
 
 // Обновление отображения профиля
 function updateProfileDisplay() {
-  if (!currentUser) return;
+  console.log('🖼️ Обновляем отображение профиля');
   
+  // Скрываем блок редактирования если он есть
+  const profileEdit = document.getElementById("profileEdit");
+  if (profileEdit) profileEdit.style.display = "none";
+  
+  // Показываем блок просмотра
+  const profileView = document.getElementById("profileView");
+  if (profileView) profileView.style.display = "block";
+  
+  // Обновляем имя
   const displayName = document.getElementById("displayName");
   if (displayName) {
-    displayName.innerText = `${currentUser.first_name} ${currentUser.last_name}`;
+    if (currentUser) {
+      displayName.innerText = `${currentUser.first_name} ${currentUser.last_name}`.trim();
+    } else {
+      displayName.innerText = "Гость";
+    }
   }
   
+  // Обновляем аватар
   const avatar = document.getElementById("avatar");
   if (avatar) {
-    if (currentUser.photo) {
+    if (currentUser?.photo) {
       avatar.innerHTML = ''; // Очищаем
       avatar.style.background = `url(${currentUser.photo}) center/cover no-repeat`;
       avatar.style.border = '2px solid #e6c158';
-    } else {
+      avatar.style.color = 'transparent'; // Скрываем текст
+    } else if (currentUser) {
       avatar.style.background = '';
+      avatar.style.color = '';
       avatar.innerText = `${currentUser.first_name[0]}${currentUser.last_name?.[0] || ''}`.toUpperCase();
+    } else {
+      avatar.innerText = '👤';
     }
   }
-}
-
-// Обновление UI на основе данных VK (дополняет ваш updateUIWithVKData)
-function updateUIBasedOnVK(userData) {
-  // Ваша функция updateUIWithVKData уже делает основную работу
-  // Здесь добавляем дополнительную логику если нужно
   
-  // Скрываем кнопку "Редактировать" (если она есть)
+  // Скрываем email
+  const userEmail = document.getElementById("userEmail");
+  if (userEmail) {
+    userEmail.style.display = 'none';
+  }
+  
+  // Обновляем количество дней (если есть registrationDate)
+  const daysElement = document.getElementById("daysWithUs");
+  if (daysElement && currentUser) {
+    // Если хотите показывать реальную дату регистрации, нужно получать её с бэка
+    // Пока показываем заглушку
+    daysElement.innerText = '0';
+  }
+  
+  // Скрываем кнопку редактирования
   const editButton = document.querySelector('[onclick="enableNameEdit()"]');
   if (editButton) {
     editButton.style.display = 'none';
   }
   
-  // Скрываем email если он не нужен
-  const emailElements = document.querySelectorAll('#userEmail, .user-email');
-  emailElements.forEach(el => {
-    if (el) el.style.display = 'none';
-  });
+  // Обновляем информацию в блоке VK (если он есть)
+  const userInfoSection = document.getElementById('userInfoSection');
+  if (userInfoSection && currentUser) {
+    const userName = document.getElementById('userName');
+    const userAvatar = document.getElementById('userAvatar');
+    const userEmailVK = document.getElementById('userEmailVK');
+    
+    if (userName) userName.textContent = `${currentUser.first_name} ${currentUser.last_name}`.trim();
+    if (userAvatar) userAvatar.src = currentUser.photo || 'images/default-avatar.png';
+    if (userEmailVK) userEmailVK.textContent = currentUser.email || 'Email не указан';
+    
+    userInfoSection.style.display = 'block';
+  }
+  
+  // Скрываем блок авторизации VK
+  const vkAuthSection = document.getElementById('vkAuthSection');
+  if (vkAuthSection) {
+    vkAuthSection.style.display = 'none';
+  }
 }
 
 // Отображение списка подписок
 function renderSubscriptions() {
   const subsList = document.getElementById("subscriptionsList");
-  if (!subsList) return;
+  if (!subsList) {
+    console.log('❌ Элемент subscriptionsList не найден');
+    return;
+  }
   
   const subscriptionTypes = [
     { key: 'course', name: 'COURSE', icon: '📚', desc: 'Доступ к курсам' },
@@ -176,6 +254,8 @@ function renderSubscriptions() {
           font-weight: bold;
           cursor: pointer;
           transition: transform 0.2s;
+          width: 100%;
+          max-width: 250px;
         " onmouseover="this.style.transform='scale(1.05)'" 
            onmouseout="this.style.transform='scale(1)'">
           Оформить подписку
@@ -186,7 +266,7 @@ function renderSubscriptions() {
   
   // Добавляем FREE подписку
   html += `
-    <div class="sub-card free-card" style="
+    <div class="sub-card" style="
       background: #2a2a2a;
       border-radius: 12px;
       padding: 15px;
@@ -217,6 +297,7 @@ function renderSubscriptions() {
         padding: 5px 12px;
         border-radius: 20px;
         font-size: 12px;
+        font-weight: 500;
       ">Активен</span>
     </div>
   `;
@@ -234,13 +315,13 @@ function renderSubscriptions() {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        opacity: ${isActive ? 1 : 0.6};
+        opacity: ${isActive ? 1 : 0.7};
       ">
         <div style="display: flex; align-items: center; gap: 15px;">
           <div style="
             width: 40px;
             height: 40px;
-            background: var(--${sub.key}, #444);
+            background: ${getColorForKey(sub.key)};
             border-radius: 50%;
             display: flex;
             align-items: center;
@@ -259,6 +340,7 @@ function renderSubscriptions() {
               padding: 5px 12px;
               border-radius: 20px;
               font-size: 12px;
+              font-weight: 500;
             ">Активна</span>` 
           : `<span style="
               background: #444;
@@ -266,6 +348,7 @@ function renderSubscriptions() {
               padding: 5px 12px;
               border-radius: 20px;
               font-size: 12px;
+              font-weight: 500;
             ">Недоступно</span>`
         }
       </div>
@@ -273,39 +356,44 @@ function renderSubscriptions() {
   }
   
   subsList.innerHTML = html;
+  console.log('📋 Список подписок обновлен');
+}
+
+// Получить цвет для ключа подписки
+function getColorForKey(key) {
+  const colors = {
+    course: '#4a90e2',
+    visual: '#e6c158',
+    template: '#9b59b6',
+    test: '#e67e22'
+  };
+  return colors[key] || '#444';
 }
 
 // Открытие страницы донат-подписок сообщества
 function openVKDonut() {
+  console.log('🍩 Открываем страницу подписки:', DONUT_LINK);
+  
   if (window.vkBridge) {
-    // Открываем раздел донут сообщества
-    window.vkBridge.send("VKWebAppOpenApp", {
-      app_id: COMMUNITY_ID, // ID сообщества
-      location: "donut" // Открываем вкладку с донут-подписками
+    // Пробуем открыть через VK Bridge
+    window.vkBridge.send("VKWebAppOpenURL", {
+      url: DONUT_LINK
     }).catch(error => {
-      console.error('Ошибка открытия сообщества:', error);
-      
-      // Если не получилось открыть через bridge, открываем ссылку
-      window.VKBridge?.openLink(`https://vk.com/donut/public${COMMUNITY_ID}`);
+      console.error('Ошибка открытия ссылки через bridge:', error);
+      // Если не получилось, открываем обычным способом
+      window.open(DONUT_LINK, '_blank');
     });
   } else {
-    // Запасной вариант
-    window.open(`https://vk.com/donut/public${COMMUNITY_ID}`, '_blank');
+    // Если VK Bridge не доступен, открываем в новом окне
+    window.open(DONUT_LINK, '_blank');
   }
 }
 
-// Выход (возврат на страницу авторизации)
+// Выход
 function logout() {
-  // В VK Mini Apps пользователь всегда авторизован через ВК
-  // Поэтому просто показываем стартовый экран или перезагружаем
+  console.log('🚪 Выход из профиля');
   
-  const profileView = document.getElementById("profileView");
-  const loginView = document.getElementById("loginView");
-  
-  if (profileView) profileView.style.display = "none";
-  if (loginView) loginView.style.display = "block";
-  
-  // Очищаем данные
+  // В VK Mini Apps просто показываем гостевой режим
   currentUser = null;
   userSubscriptions = {
     course: false,
@@ -314,23 +402,40 @@ function logout() {
     test: false
   };
   
-  // Обновляем отображение аватара
+  // Обновляем отображение
+  const displayName = document.getElementById("displayName");
+  if (displayName) displayName.innerText = 'Гость';
+  
   const avatar = document.getElementById("avatar");
   if (avatar) {
     avatar.style.background = '';
     avatar.innerText = '👤';
   }
   
-  const displayName = document.getElementById("displayName");
-  if (displayName) {
-    displayName.innerText = 'Гость';
-  }
+  const userInfoSection = document.getElementById('userInfoSection');
+  if (userInfoSection) userInfoSection.style.display = 'none';
+  
+  const vkAuthSection = document.getElementById('vkAuthSection');
+  if (vkAuthSection) vkAuthSection.style.display = 'block';
+  
+  renderSubscriptions();
 }
 
-// Принудительная проверка подписок (можно вызвать по кнопке "Обновить")
+// Принудительная проверка подписок
 function refreshSubscriptions() {
   checkDonutSubscription();
 }
+
+// Инициализация при показе профиля (если вызывается из навигации)
+window.navigate = window.navigate || function(section) {
+  if (section === 'profile') {
+    // При переходе в профиль обновляем данные
+    if (window.vkUserData) {
+      handleVKUserData(window.vkUserData);
+    }
+    checkDonutSubscription();
+  }
+};
 
 // Экспорт функций
 window.updateProfileDisplay = updateProfileDisplay;
@@ -339,3 +444,8 @@ window.openVKDonut = openVKDonut;
 window.logout = logout;
 window.refreshSubscriptions = refreshSubscriptions;
 window.checkDonutSubscription = checkDonutSubscription;
+
+// Заглушки для старых функций (чтобы не было ошибок)
+window.enableNameEdit = function() { console.log('Редактирование отключено'); };
+window.cancelNameEdit = function() { console.log('Редактирование отключено'); };
+window.saveName = function() { console.log('Редактирование отключено'); };
