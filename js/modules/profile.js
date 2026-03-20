@@ -7,7 +7,7 @@ let userSubscriptions = {
   test: false
 };
 
-// URL вашего сервера
+// URL вашего сервера - ИСПРАВЛЕНО на HTTPS
 const API_URL = 'https://api.omavisual.ru/api';
 
 // Ссылки на подписки
@@ -82,6 +82,10 @@ async function checkDonutSubscription() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ user_id: currentUser.id })
     });
+    
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}`);
+    }
     
     const data = await response.json();
     console.log('📡 Ответ сервера:', data);
