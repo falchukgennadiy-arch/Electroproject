@@ -8,7 +8,7 @@ let userSubscriptions = {
 };
 
 // URL вашего сервера
-const API_URL = 'http://85.235.205.72:3000/api';
+const API_URL = 'https://api.omavisual.ru/api';
 
 // Ссылки на подписки
 const DONUT_LINKS = {
