@@ -7,13 +7,27 @@ let userSubscriptions = {
   test: false
 };
 
-// ID вашего сообщества VK (из ссылки)
-const COMMUNITY_ID = 223389702; 
-const DONUT_LINK = 'https://vk.com/electrocourses?w=donut_payment-223389702&levelId=2499';
+// Ссылки на подписки для каждого уровня
+const DONUT_LINKS = {
+  course: 'https://vk.com/electrocourses?w=donut_payment-223389702&levelId=2499',
+  visual: 'https://vk.com/electrocourses?w=donut_payment-223389702&levelId=2500',  // замените на реальную
+  template: 'https://vk.com/electrocourses?w=donut_payment-223389702&levelId=2501', // замените на реальную
+  test: 'https://vk.com/electrocourses?w=donut_payment-223389702&levelId=2502'      // замените на реальную
+};
 
 // Загрузка данных при старте
 document.addEventListener('DOMContentLoaded', function() {
   console.log('🔄 Profile.js инициализация...');
+  
+  // Скрываем ненужные блоки сразу
+  const profileEdit = document.getElementById("profileEdit");
+  if (profileEdit) profileEdit.remove(); // Удаляем блок редактирования
+  
+  const vkAuthSection = document.getElementById('vkAuthSection');
+  if (vkAuthSection) vkAuthSection.remove(); // Удаляем блок VK авторизации
+  
+  const userInfoSection = document.getElementById('userInfoSection');
+  if (userInfoSection) userInfoSection.remove(); // Удаляем дублирующий блок
   
   // Если данные VK уже загружены
   if (window.vkUserData) {
@@ -43,7 +57,6 @@ document.addEventListener('DOMContentLoaded', function() {
       })
       .catch(error => {
         console.log('❌ Ошибка прямого запроса:', error);
-        // Если ошибка, показываем подписки как недоступные
         userSubscriptions = {
           course: false,
           visual: false,
@@ -107,7 +120,7 @@ function processDonutInfo(donutInfo) {
 async function checkDonutSubscription() {
   if (!window.vkBridge) {
     console.log('⚠️ VK Bridge не доступен');
-    renderSubscriptions(); // Показываем подписки (скорее всего без доступа)
+    renderSubscriptions();
     return;
   }
   
@@ -116,7 +129,6 @@ async function checkDonutSubscription() {
     processDonutInfo(donutInfo);
   } catch (error) {
     console.error('❌ Ошибка при проверке донат-подписки:', error);
-    // Если ошибка, значит подписки нет
     userSubscriptions = {
       course: false,
       visual: false,
@@ -130,10 +142,6 @@ async function checkDonutSubscription() {
 // Обновление отображения профиля
 function updateProfileDisplay() {
   console.log('🖼️ Обновляем отображение профиля');
-  
-  // Скрываем блок редактирования если он есть
-  const profileEdit = document.getElementById("profileEdit");
-  if (profileEdit) profileEdit.style.display = "none";
   
   // Показываем блок просмотра
   const profileView = document.getElementById("profileView");
@@ -172,38 +180,10 @@ function updateProfileDisplay() {
     userEmail.style.display = 'none';
   }
   
-  // Обновляем количество дней (если есть registrationDate)
-  const daysElement = document.getElementById("daysWithUs");
-  if (daysElement && currentUser) {
-    // Если хотите показывать реальную дату регистрации, нужно получать её с бэка
-    // Пока показываем заглушку
-    daysElement.innerText = '0';
-  }
-  
   // Скрываем кнопку редактирования
   const editButton = document.querySelector('[onclick="enableNameEdit()"]');
   if (editButton) {
-    editButton.style.display = 'none';
-  }
-  
-  // Обновляем информацию в блоке VK (если он есть)
-  const userInfoSection = document.getElementById('userInfoSection');
-  if (userInfoSection && currentUser) {
-    const userName = document.getElementById('userName');
-    const userAvatar = document.getElementById('userAvatar');
-    const userEmailVK = document.getElementById('userEmailVK');
-    
-    if (userName) userName.textContent = `${currentUser.first_name} ${currentUser.last_name}`.trim();
-    if (userAvatar) userAvatar.src = currentUser.photo || 'images/default-avatar.png';
-    if (userEmailVK) userEmailVK.textContent = currentUser.email || 'Email не указан';
-    
-    userInfoSection.style.display = 'block';
-  }
-  
-  // Скрываем блок авторизации VK
-  const vkAuthSection = document.getElementById('vkAuthSection');
-  if (vkAuthSection) {
-    vkAuthSection.style.display = 'none';
+    editButton.remove(); // Удаляем кнопку
   }
 }
 
@@ -222,49 +202,9 @@ function renderSubscriptions() {
     { key: 'test', name: 'TEST', icon: '📝', desc: 'Тесты и проверка знаний' }
   ];
   
-  // Проверяем, есть ли активные подписки
-  const hasAnySubscription = Object.values(userSubscriptions).some(v => v === true);
-  
   let html = '';
   
-  if (!hasAnySubscription) {
-    // Блок с предложением оформить подписку
-    html += `
-      <div class="no-subscription-card" style="
-        background: linear-gradient(135deg, #2a2a2a 0%, #1a1a1a 100%);
-        border-radius: 16px;
-        padding: 30px 20px;
-        text-align: center;
-        margin: 20px 0;
-        border: 1px solid #e6c158;
-      ">
-        <div style="font-size: 48px; margin-bottom: 15px;">💎</div>
-        <h3 style="color: #e6c158; margin-bottom: 10px;">Нет активных подписок</h3>
-        <p style="color: #999; margin-bottom: 20px;">
-          Оформите донат-подписку в нашем сообществе,<br>
-          чтобы получить доступ ко всем материалам
-        </p>
-        <button onclick="openVKDonut()" style="
-          background: #e6c158;
-          color: #1a1a1a;
-          border: none;
-          padding: 12px 30px;
-          border-radius: 30px;
-          font-size: 16px;
-          font-weight: bold;
-          cursor: pointer;
-          transition: transform 0.2s;
-          width: 100%;
-          max-width: 250px;
-        " onmouseover="this.style.transform='scale(1.05)'" 
-           onmouseout="this.style.transform='scale(1)'">
-          Оформить подписку
-        </button>
-      </div>
-    `;
-  }
-  
-  // Добавляем FREE подписку
+  // Добавляем FREE подписку (всегда активна)
   html += `
     <div class="sub-card" style="
       background: #2a2a2a;
@@ -302,7 +242,7 @@ function renderSubscriptions() {
     </div>
   `;
   
-  // Добавляем остальные подписки
+  // Добавляем остальные подписки с кнопками оформления
   for (let sub of subscriptionTypes) {
     const isActive = userSubscriptions[sub.key] || false;
     
@@ -315,7 +255,7 @@ function renderSubscriptions() {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        opacity: ${isActive ? 1 : 0.7};
+        opacity: ${isActive ? 1 : 1};
       ">
         <div style="display: flex; align-items: center; gap: 15px;">
           <div style="
@@ -329,7 +269,7 @@ function renderSubscriptions() {
             font-size: 20px;
           ">${sub.icon}</div>
           <div>
-            <h4 style="margin: 0; color: ${isActive ? '#e6c158' : '#666'};">${sub.name}</h4>
+            <h4 style="margin: 0; color: ${isActive ? '#e6c158' : '#fff'};">${sub.name}</h4>
             <p style="margin: 5px 0 0; color: #999;">${sub.desc}</p>
           </div>
         </div>
@@ -342,14 +282,20 @@ function renderSubscriptions() {
               font-size: 12px;
               font-weight: 500;
             ">Активна</span>` 
-          : `<span style="
-              background: #444;
-              color: #999;
-              padding: 5px 12px;
+          : `<button onclick="openDonatSubscription('${sub.key}')" style="
+              background: #e6c158;
+              color: #1a1a1a;
+              border: none;
+              padding: 8px 20px;
               border-radius: 20px;
-              font-size: 12px;
-              font-weight: 500;
-            ">Недоступно</span>`
+              font-size: 13px;
+              font-weight: bold;
+              cursor: pointer;
+              transition: all 0.2s;
+            " onmouseover="this.style.transform='scale(1.05)'" 
+               onmouseout="this.style.transform='scale(1)'">
+              Оформить
+            </button>`
         }
       </div>
     `;
@@ -370,82 +316,30 @@ function getColorForKey(key) {
   return colors[key] || '#444';
 }
 
-// Открытие страницы донат-подписок сообщества
-function openVKDonut() {
-  console.log('🍩 Открываем страницу подписки:', DONUT_LINK);
+// Открытие донат-подписки для конкретного уровня
+function openDonatSubscription(level) {
+  const link = DONUT_LINKS[level];
+  if (!link) {
+    console.error('❌ Ссылка для подписки не найдена:', level);
+    return;
+  }
+  
+  console.log(`🍩 Открываем подписку ${level}:`, link);
   
   if (window.vkBridge) {
-    // Пробуем открыть через VK Bridge
     window.vkBridge.send("VKWebAppOpenURL", {
-      url: DONUT_LINK
+      url: link
     }).catch(error => {
       console.error('Ошибка открытия ссылки через bridge:', error);
-      // Если не получилось, открываем обычным способом
-      window.open(DONUT_LINK, '_blank');
+      window.open(link, '_blank');
     });
   } else {
-    // Если VK Bridge не доступен, открываем в новом окне
-    window.open(DONUT_LINK, '_blank');
+    window.open(link, '_blank');
   }
 }
-
-// Выход
-function logout() {
-  console.log('🚪 Выход из профиля');
-  
-  // В VK Mini Apps просто показываем гостевой режим
-  currentUser = null;
-  userSubscriptions = {
-    course: false,
-    visual: false,
-    template: false,
-    test: false
-  };
-  
-  // Обновляем отображение
-  const displayName = document.getElementById("displayName");
-  if (displayName) displayName.innerText = 'Гость';
-  
-  const avatar = document.getElementById("avatar");
-  if (avatar) {
-    avatar.style.background = '';
-    avatar.innerText = '👤';
-  }
-  
-  const userInfoSection = document.getElementById('userInfoSection');
-  if (userInfoSection) userInfoSection.style.display = 'none';
-  
-  const vkAuthSection = document.getElementById('vkAuthSection');
-  if (vkAuthSection) vkAuthSection.style.display = 'block';
-  
-  renderSubscriptions();
-}
-
-// Принудительная проверка подписок
-function refreshSubscriptions() {
-  checkDonutSubscription();
-}
-
-// Инициализация при показе профиля (если вызывается из навигации)
-window.navigate = window.navigate || function(section) {
-  if (section === 'profile') {
-    // При переходе в профиль обновляем данные
-    if (window.vkUserData) {
-      handleVKUserData(window.vkUserData);
-    }
-    checkDonutSubscription();
-  }
-};
 
 // Экспорт функций
 window.updateProfileDisplay = updateProfileDisplay;
 window.renderSubscriptions = renderSubscriptions;
-window.openVKDonut = openVKDonut;
-window.logout = logout;
-window.refreshSubscriptions = refreshSubscriptions;
+window.openDonatSubscription = openDonatSubscription;
 window.checkDonutSubscription = checkDonutSubscription;
-
-// Заглушки для старых функций (чтобы не было ошибок)
-window.enableNameEdit = function() { console.log('Редактирование отключено'); };
-window.cancelNameEdit = function() { console.log('Редактирование отключено'); };
-window.saveName = function() { console.log('Редактирование отключено'); };
