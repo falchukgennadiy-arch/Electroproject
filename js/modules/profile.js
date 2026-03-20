@@ -19,7 +19,7 @@ const DONUT_LINKS = {
 };
 
 // Функция сохранения пользователя в базу данных
-async function saveUserToDatabase(userData) {
+async function saveUserToDatabase(userData, hasDonut = false, subscriptions = {}) {
   try {
     const response = await fetch(`${API_URL}/users/save`, {
       method: 'POST',
@@ -28,7 +28,9 @@ async function saveUserToDatabase(userData) {
         vk_id: userData.id,
         first_name: userData.first_name,
         last_name: userData.last_name || '',
-        photo: userData.photo_200 || userData.photo_100
+        photo: userData.photo_200 || userData.photo_100,
+        has_donut: hasDonut,
+        donut_levels: subscriptions
       })
     });
     const result = await response.json();
@@ -85,7 +87,7 @@ function handleVKUserData(userData) {
   
   updateProfileDisplay();
   
-  // Сохраняем пользователя в базу данных
+  // Сохраняем пользователя в базу данных (без подписок, они обновятся в checkDonutSubscription)
   saveUserToDatabase(currentUser);
 }
 
@@ -113,13 +115,16 @@ async function checkDonutSubscription() {
     const data = await response.json();
     console.log('📡 Ответ сервера:', data);
     
+    let subscriptions = {};
+    
     if (data.success && data.has_donut) {
-      userSubscriptions = data.subscriptions || {
+      subscriptions = data.subscriptions || {
         course: true,
         visual: true,
         template: true,
         test: true
       };
+      userSubscriptions = subscriptions;
     } else {
       userSubscriptions = {
         course: false,
@@ -128,6 +133,9 @@ async function checkDonutSubscription() {
         test: false
       };
     }
+    
+    // Сохраняем пользователя с обновлёнными подписками
+    await saveUserToDatabase(currentUser, data.has_donut || false, subscriptions);
     
     renderSubscriptions();
     
