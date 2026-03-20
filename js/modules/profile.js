@@ -7,7 +7,7 @@ let userSubscriptions = {
   test: false
 };
 
-// URL вашего сервера - ИСПРАВЛЕНО на HTTPS
+// URL сервера
 const API_URL = 'https://api.omavisual.ru/api';
 
 // Ссылки на подписки
@@ -17,6 +17,26 @@ const DONUT_LINKS = {
   template: 'https://vk.com/electrocourses?w=donut_payment-223389702&levelId=2501',
   test: 'https://vk.com/electrocourses?w=donut_payment-223389702&levelId=2502'
 };
+
+// Функция сохранения пользователя в базу данных
+async function saveUserToDatabase(userData) {
+  try {
+    const response = await fetch(`${API_URL}/users/save`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        vk_id: userData.id,
+        first_name: userData.first_name,
+        last_name: userData.last_name || '',
+        photo: userData.photo_200 || userData.photo_100
+      })
+    });
+    const result = await response.json();
+    console.log('✅ Пользователь сохранён в БД:', result);
+  } catch (error) {
+    console.error('❌ Ошибка сохранения пользователя:', error);
+  }
+}
 
 // Загрузка данных при старте
 document.addEventListener('DOMContentLoaded', function() {
@@ -64,6 +84,9 @@ function handleVKUserData(userData) {
   };
   
   updateProfileDisplay();
+  
+  // Сохраняем пользователя в базу данных
+  saveUserToDatabase(currentUser);
 }
 
 // Проверка донат-подписки через ваш сервер
