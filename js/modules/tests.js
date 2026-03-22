@@ -33,6 +33,25 @@ const TEST_RULES = {
   quick: { count: 10 }
 };
 
+
+
+// ===== ЗАГРУЗКА ВОПРОСОВ =====
+async function loadQuestions() {
+  try {
+    const response = await fetch(`${API.baseURL}/questions`);
+    if (response.ok) {
+      window.allQuestions = await response.json();
+      console.log(`✅ Загружено вопросов: ${window.allQuestions.length}`);
+      // После загрузки вопросов обновляем статистику и список тестов
+      renderTestsList();
+    } else {
+      console.error('❌ Ошибка загрузки вопросов');
+    }
+  } catch (err) {
+    console.error('❌ Ошибка:', err);
+  }
+}
+
 // ===== ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ =====
 function shuffleArray(arr) {
   for (let i = arr.length - 1; i > 0; i--) {
@@ -823,6 +842,7 @@ async function initUser() {
   if (window.currentUser && window.currentUser.id) {
     currentUserId = window.currentUser.id;
     console.log('👤 Пользователь инициализирован:', currentUserId);
+    await loadQuestions();        // 👈 добавь загрузку вопросов
     await loadTestProgressFromDB();
     renderTestsList();
   } else {
@@ -832,7 +852,9 @@ async function initUser() {
         clearInterval(checkInterval);
         currentUserId = window.currentUser.id;
         console.log('👤 Пользователь загружен:', currentUserId);
-        loadTestProgressFromDB().then(() => renderTestsList());
+        loadQuestions().then(() => {    // 👈 добавь
+          loadTestProgressFromDB().then(() => renderTestsList());
+        });
       }
     }, 500);
     setTimeout(() => clearInterval(checkInterval), 10000);
