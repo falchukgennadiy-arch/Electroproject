@@ -27,7 +27,11 @@ const TEST_RULES = {
 };
 
 // Состояние тестов (кеш для быстрого доступа)
-let testProgress = {};
+// Используем window.testProgress если уже есть, иначе создаём
+if (typeof window.testProgress === 'undefined') {
+  window.testProgress = {};
+}
+let testProgress = window.testProgress;
 
 // ===== ИНИЦИАЛИЗАЦИЯ ПОЛЬЗОВАТЕЛЯ =====
 async function initUser() {
@@ -84,6 +88,7 @@ async function loadTestProgressFromDB() {
       }
     }
     testProgress = progressMap;
+    window.testProgress = progressMap;
     console.log('📊 Прогресс загружен из БД:', testProgress);
   } catch (e) {
     console.error('Ошибка загрузки прогресса из БД:', e);
@@ -138,6 +143,7 @@ async function saveTestProgressToDB(completed = false) {
       attemptId: currentAttemptId,
       questionsIds: currentQuestions.map(q => q.id)
     };
+    window.testProgress = testProgress;
     
     console.log('💾 Прогресс сохранён в БД');
   } catch (e) {
@@ -155,7 +161,7 @@ function shuffleArray(arr) {
 }
 
 function getActiveQuestions() {
-  return allQuestions.filter(q => q.status === 'active');
+  return window.allQuestions ? window.allQuestions.filter(q => q.status === 'active') : [];
 }
 
 async function generateTestByTheme(themeId, themeTitle) {
@@ -284,9 +290,9 @@ async function renderTestsList() {
   `;
   
   // Тесты по темам (только по подписке)
-  if (allThemes && allThemes.length > 0) {
+  if (window.allThemes && window.allThemes.length > 0) {
     html += '<h4 style="margin-top: 20px;">📂 По темам</h4>';
-    for (let theme of allThemes) {
+    for (let theme of window.allThemes) {
       const questionsCount = getActiveQuestions().filter(q => q.theme_id === theme.id).length;
       const progress = testProgress[`theme_${theme.id}`];
       let progressText = '';
@@ -311,9 +317,9 @@ async function renderTestsList() {
   }
   
   // Тесты по уровням сложности (только по подписке)
-  if (allDifficulty && allDifficulty.length > 0) {
+  if (window.allDifficulty && window.allDifficulty.length > 0) {
     html += '<h4 style="margin-top: 20px;">⭐ По уровню сложности</h4>';
-    for (let diff of allDifficulty) {
+    for (let diff of window.allDifficulty) {
       const questionsCount = getActiveQuestions().filter(q => q.difficulty_level_id === diff.id).length;
       
       html += `
@@ -392,6 +398,8 @@ function showQuestion() {
   const q = currentQuestions[currentQuestionIndex];
   const total = currentQuestions.length;
   const progressPct = Math.round(((currentQuestionIndex) / total) * 100);
+  
+  const letters = ['А', 'Б', 'В', 'Г', 'Д', 'Е'];
   
   testArea.innerHTML = `
     <div class="card">
