@@ -7,16 +7,13 @@ let subscriptions = {
 };
 
 let currentView = 'home';
-let testProgress = {};
 let viewModes = {
   visual: 'list',
   templates: 'list'
 };
 
-// Таймер (общий для тестов)
-let startTime = null;
-let timerInterval = null;
-let autoTransitionTimer = null;
+// Прогресс тестов (общий для всех файлов)
+window.testProgress = window.testProgress || {};
 
 // ===== Общие функции навигации =====
 function navigate(section, btn) {
@@ -39,8 +36,8 @@ function navigate(section, btn) {
   }
   
   if (section !== 'tests') {
-    hideTestControls();
-    clearAutoTransition();
+    if (window.hideTestControls) window.hideTestControls();
+    if (window.clearAutoTransition) window.clearAutoTransition();
   }
 }
 
@@ -50,80 +47,13 @@ function setViewMode(section, mode) {
   if (section === 'templates' && window.renderTemplatesList) window.renderTemplatesList();
 }
 
-// ===== Общие функции для тестов =====
-function hideTestControls() {
-  const controls = document.getElementById("testControls");
-  if (controls) controls.style.display = "none";
-  const testArea = document.getElementById("testArea");
-  if (testArea) testArea.style.paddingBottom = "0";
-}
-
-function showTestControls() {
-  const controls = document.getElementById("testControls");
-  if (controls) controls.style.display = "block";
-  const nextBtn = document.getElementById("nextBtn");
-  if (nextBtn) nextBtn.style.display = "none";
-}
-
-function clearAutoTransition() {
-  if (autoTransitionTimer) {
-    clearTimeout(autoTransitionTimer);
-    autoTransitionTimer = null;
-  }
-}
-
-function startTimer() {
-  stopTimer();
-  timerInterval = setInterval(() => {
-    const el = document.getElementById("timer");
-    if (el) el.textContent = "⏱ " + window.formatSeconds(getElapsedSeconds());
-  }, 1000);
-}
-
-function stopTimer() {
-  if (timerInterval) clearInterval(timerInterval);
-  timerInterval = null;
-}
-
-function getElapsedSeconds() {
-  if (!startTime) return 0;
-  return Math.max(0, Math.floor((Date.now() - startTime) / 1000));
-}
-
-// ===== Сохранение прогресса =====
-function saveProgress() {
-  try {
-    localStorage.setItem('testProgress', JSON.stringify(testProgress));
-  } catch (e) {
-    console.error('Ошибка сохранения прогресса:', e);
-  }
-}
-
-// Загружаем прогресс при старте
-try {
-  const saved = localStorage.getItem('testProgress');
-  if (saved) {
-    testProgress = JSON.parse(saved);
-  }
-} catch (e) {
-  console.error('Ошибка загрузки прогресса:', e);
-}
-
 // ===== Экспорт в глобальную область =====
 window.navigate = navigate;
 window.setViewMode = setViewMode;
-window.hideTestControls = hideTestControls;
-window.showTestControls = showTestControls;
-window.clearAutoTransition = clearAutoTransition;
-window.startTimer = startTimer;
-window.stopTimer = stopTimer;
-window.getElapsedSeconds = getElapsedSeconds;
-window.saveProgress = saveProgress;
-window.testProgress = testProgress;
 window.subscriptions = subscriptions;
 window.viewModes = viewModes;
 
-// Инициализация
+// ===== Инициализация =====
 document.addEventListener('DOMContentLoaded', () => {
   if (window.updateProfileDisplay) window.updateProfileDisplay();
   if (window.loadUser) window.loadUser();
