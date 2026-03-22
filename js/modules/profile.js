@@ -89,6 +89,7 @@ function handleVKUserData(userData) {
   
   // Сохраняем пользователя в базу данных (без подписок, они обновятся в checkDonutSubscription)
   saveUserToDatabase(currentUser);
+  window.dispatchEvent(new CustomEvent('userLoaded', { detail: currentUser }));
 }
 
 // Проверка донат-подписки через ваш сервер
