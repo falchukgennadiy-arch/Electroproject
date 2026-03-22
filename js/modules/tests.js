@@ -1,5 +1,5 @@
 // ===== ТЕСТЫ (динамическая генерация из банка вопросов) =====
-// Используется новая структура БД: вопросы отдельно, тесты формируются по правилам
+// Использует window.testProgress из app.js
 
 let currentTestConfig = null;
 let currentQuestions = [];
@@ -7,56 +7,92 @@ let currentQuestionIndex = 0;
 let currentScore = 0;
 let currentAnswered = false;
 let currentAnsweredQuestions = [];
-let startTime = null;
-let timerInterval = null;
-let autoTransitionTimer = null;
 let currentUserId = null;
 let currentAttemptId = null;
+
+// Локальные таймеры (принадлежат только тестам)
+let testStartTime = null;
+let testTimerInterval = null;
+let testAutoTransitionTimer = null;
+
+// Используем глобальный прогресс
+const sharedTestProgress = window.testProgress || {};
+window.testProgress = sharedTestProgress;
 
 // Правила генерации тестов
 const TEST_RULES = {
   exam: [
-    { difficulty_level_id: 1, count: 5 },  // Лёгкий
-    { difficulty_level_id: 2, count: 5 },  // Ниже среднего
-    { difficulty_level_id: 3, count: 5 },  // Средний
-    { difficulty_level_id: 4, count: 5 },  // Выше среднего
-    { difficulty_level_id: 5, count: 5 }   // Сложный
+    { difficulty_level_id: 1, count: 5 },
+    { difficulty_level_id: 2, count: 5 },
+    { difficulty_level_id: 3, count: 5 },
+    { difficulty_level_id: 4, count: 5 },
+    { difficulty_level_id: 5, count: 5 }
   ],
   theme: { count: 15 },
   quick: { count: 10 }
 };
 
-// Состояние тестов (кеш для быстрого доступа)
-// Используем window.testProgress если уже есть, иначе создаём
-if (typeof window.testProgress === 'undefined') {
-  window.testProgress = {};
+// ===== ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ТЕСТОВ =====
+function shuffleArray(arr) {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
 }
-let testProgress = window.testProgress;
 
-// ===== ИНИЦИАЛИЗАЦИЯ ПОЛЬЗОВАТЕЛЯ =====
-async function initUser() {
-  // Получаем user_id из глобальной переменной currentUser
-  if (window.currentUser && window.currentUser.id) {
-    currentUserId = window.currentUser.id;
-    console.log('👤 Пользователь инициализирован:', currentUserId);
-    await loadTestProgressFromDB();
-    renderTestsList();
-  } else {
-    // Ждём загрузки пользователя
-    console.log('⏳ Ожидание загрузки пользователя...');
-    const checkInterval = setInterval(() => {
-      if (window.currentUser && window.currentUser.id) {
-        clearInterval(checkInterval);
-        currentUserId = window.currentUser.id;
-        console.log('👤 Пользователь загружен:', currentUserId);
-        loadTestProgressFromDB().then(() => renderTestsList());
-      }
-    }, 500);
-    setTimeout(() => clearInterval(checkInterval), 10000);
+function getActiveQuestions() {
+  return window.allQuestions ? window.allQuestions.filter(q => q.status === 'active') : [];
+}
+
+function getElapsedSeconds() {
+  if (!testStartTime) return 0;
+  return Math.floor((Date.now() - testStartTime) / 1000);
+}
+
+function formatSeconds(seconds) {
+  const mins = Math.floor(seconds / 60);
+  const secs = seconds % 60;
+  return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+}
+
+function startTestTimer() {
+  stopTestTimer();
+  testTimerInterval = setInterval(() => {
+    const el = document.getElementById("timer");
+    if (el) el.textContent = "⏱ " + formatSeconds(getElapsedSeconds());
+  }, 1000);
+}
+
+function stopTestTimer() {
+  if (testTimerInterval) {
+    clearInterval(testTimerInterval);
+    testTimerInterval = null;
   }
 }
 
-// ===== ЗАГРУЗКА ПРОГРЕССА ИЗ БД =====
+function clearTestAutoTransition() {
+  if (testAutoTransitionTimer) {
+    clearTimeout(testAutoTransitionTimer);
+    testAutoTransitionTimer = null;
+  }
+}
+
+function showTestControls() {
+  const controls = document.getElementById("testControls");
+  if (controls) controls.style.display = "block";
+  const nextBtn = document.getElementById("nextBtn");
+  if (nextBtn) nextBtn.style.display = "none";
+}
+
+function hideTestControls() {
+  const controls = document.getElementById("testControls");
+  if (controls) controls.style.display = "none";
+  const testArea = document.getElementById("testArea");
+  if (testArea) testArea.style.paddingBottom = "0";
+}
+
+// ===== РАБОТА С ПРОГРЕССОМ =====
 async function loadTestProgressFromDB() {
   if (!currentUserId) return;
   
@@ -87,20 +123,20 @@ async function loadTestProgressFromDB() {
         };
       }
     }
-    testProgress = progressMap;
-    window.testProgress = progressMap;
-    console.log('📊 Прогресс загружен из БД:', testProgress);
+    
+    Object.assign(sharedTestProgress, progressMap);
+    window.testProgress = sharedTestProgress;
+    console.log('📊 Прогресс загружен из БД');
   } catch (e) {
     console.error('Ошибка загрузки прогресса из БД:', e);
   }
 }
 
-// ===== СОХРАНЕНИЕ ПРОГРЕССА В БД =====
 async function saveTestProgressToDB(completed = false) {
   if (!currentTestConfig || !currentUserId) return;
   
   const key = `${currentTestConfig.type}_${currentTestConfig.id || 'quick'}`;
-  const existingProgress = testProgress[key];
+  const existingProgress = sharedTestProgress[key];
   
   const attemptData = {
     id: existingProgress?.attemptId || 'att_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6),
@@ -112,7 +148,7 @@ async function saveTestProgressToDB(completed = false) {
     correct_count: currentScore,
     wrong_count: currentQuestions.length - currentScore,
     time_spent: getElapsedSeconds(),
-    started_at: new Date(startTime).toISOString(),
+    started_at: new Date(testStartTime).toISOString(),
     completed_at: completed ? new Date().toISOString() : null,
     status: completed ? 'completed' : 'in_progress'
   };
@@ -133,8 +169,8 @@ async function saveTestProgressToDB(completed = false) {
       currentAttemptId = result.id;
     }
     
-    testProgress[key] = {
-      ...testProgress[key],
+    sharedTestProgress[key] = {
+      ...sharedTestProgress[key],
       score: currentScore,
       answered: currentAnsweredQuestions,
       currentQuestion: currentQuestionIndex,
@@ -143,7 +179,7 @@ async function saveTestProgressToDB(completed = false) {
       attemptId: currentAttemptId,
       questionsIds: currentQuestions.map(q => q.id)
     };
-    window.testProgress = testProgress;
+    window.testProgress = sharedTestProgress;
     
     console.log('💾 Прогресс сохранён в БД');
   } catch (e) {
@@ -152,18 +188,6 @@ async function saveTestProgressToDB(completed = false) {
 }
 
 // ===== ГЕНЕРАЦИЯ ТЕСТОВ =====
-function shuffleArray(arr) {
-  for (let i = arr.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [arr[i], arr[j]] = [arr[j], arr[i]];
-  }
-  return arr;
-}
-
-function getActiveQuestions() {
-  return window.allQuestions ? window.allQuestions.filter(q => q.status === 'active') : [];
-}
-
 async function generateTestByTheme(themeId, themeTitle) {
   let questions = getActiveQuestions().filter(q => q.theme_id === themeId);
   
@@ -208,10 +232,7 @@ async function generateExam() {
   for (let rule of TEST_RULES.exam) {
     const levelQuestions = getActiveQuestions().filter(q => q.difficulty_level_id === rule.difficulty_level_id);
     
-    if (levelQuestions.length === 0) {
-      console.warn(`Нет вопросов для уровня сложности ${rule.difficulty_level_id}`);
-      continue;
-    }
+    if (levelQuestions.length === 0) continue;
     
     const shuffled = shuffleArray(levelQuestions);
     const selected = shuffled.slice(0, rule.count);
@@ -258,16 +279,14 @@ async function renderTestsList() {
   const testArea = document.getElementById("testArea");
   if (testArea) testArea.innerHTML = "";
   hideTestControls();
-  clearAutoTransition();
+  clearTestAutoTransition();
   
   if (!listEl) return;
   
-  // Проверяем доступ к тестам (по подписке)
-  const hasTestAccess = window.userSubscriptions?.test === true;
+  const hasTestAccess = window.subscriptions?.test === true;
   
   let html = '<h3 style="margin-top:0; margin-bottom:12px;">Доступные тесты</h3>';
   
-  // Быстрый тест (всегда бесплатный)
   html += `
     <div class="test-item" onclick="window.startQuickTest()">
       <div class="test-row">
@@ -278,23 +297,21 @@ async function renderTestsList() {
     </div>
   `;
   
-  // Экзамен (только по подписке)
   html += `
     <div class="test-item ${hasTestAccess ? '' : 'locked'}" onclick="${hasTestAccess ? 'window.startExam()' : 'alert(\'Оформите подписку TEST для доступа к экзамену\')'}">
       <div class="test-row">
         <span class="test-title">🎓 Экзамен</span>
         <span class="test-badge ${hasTestAccess ? 'free' : 'locked'}">${hasTestAccess ? 'FREE' : '🔒'}</span>
       </div>
-      <div class="subtle">25 вопросов (5 лёгких, 5 средних, 5 сложных и т.д.)</div>
+      <div class="subtle">25 вопросов (по 5 на каждый уровень сложности)</div>
     </div>
   `;
   
-  // Тесты по темам (только по подписке)
   if (window.allThemes && window.allThemes.length > 0) {
     html += '<h4 style="margin-top: 20px;">📂 По темам</h4>';
     for (let theme of window.allThemes) {
       const questionsCount = getActiveQuestions().filter(q => q.theme_id === theme.id).length;
-      const progress = testProgress[`theme_${theme.id}`];
+      const progress = sharedTestProgress[`theme_${theme.id}`];
       let progressText = '';
       
       if (progress && progress.completed) {
@@ -316,7 +333,6 @@ async function renderTestsList() {
     }
   }
   
-  // Тесты по уровням сложности (только по подписке)
   if (window.allDifficulty && window.allDifficulty.length > 0) {
     html += '<h4 style="margin-top: 20px;">⭐ По уровню сложности</h4>';
     for (let diff of window.allDifficulty) {
@@ -381,9 +397,9 @@ function startTest(testConfig) {
     testArea.style.paddingBottom = "80px";
   }
   
-  startTime = Date.now();
+  testStartTime = Date.now();
   showTestControls();
-  startTimer();
+  startTestTimer();
   showQuestion();
 }
 
@@ -393,7 +409,7 @@ function showQuestion() {
   
   currentAnswered = false;
   document.getElementById("nextBtn").style.display = "none";
-  clearAutoTransition();
+  clearTestAutoTransition();
   
   const q = currentQuestions[currentQuestionIndex];
   const total = currentQuestions.length;
@@ -454,7 +470,7 @@ function selectAnswer(index) {
     
     saveTestProgressToDB();
     
-    autoTransitionTimer = setTimeout(() => {
+    testAutoTransitionTimer = setTimeout(() => {
       nextQuestion();
     }, 1200);
   } else {
@@ -480,7 +496,7 @@ function showComment(text) {
 }
 
 function nextQuestion() {
-  clearAutoTransition();
+  clearTestAutoTransition();
   
   const total = currentQuestions.length;
   let nextQ = currentQuestionIndex + 1;
@@ -498,14 +514,14 @@ function nextQuestion() {
 }
 
 function finishTest() {
-  clearAutoTransition();
+  clearTestAutoTransition();
   saveTestProgressToDB(true);
   showTestResult();
 }
 
 function exitTest() {
-  stopTimer();
-  clearAutoTransition();
+  stopTestTimer();
+  clearTestAutoTransition();
   saveTestProgressToDB();
   currentTestConfig = null;
   const testArea = document.getElementById("testArea");
@@ -514,9 +530,9 @@ function exitTest() {
 }
 
 function showTestResult() {
-  stopTimer();
+  stopTestTimer();
   hideTestControls();
-  clearAutoTransition();
+  clearTestAutoTransition();
   
   const total = currentQuestions.length;
   const wrong = total - currentScore;
@@ -558,53 +574,10 @@ function showTestResult() {
 function restartTest() {
   if (currentTestConfig) {
     const key = `${currentTestConfig.type}_${currentTestConfig.id || 'quick'}`;
-    delete testProgress[key];
+    delete sharedTestProgress[key];
+    window.testProgress = sharedTestProgress;
   }
   startTest(currentTestConfig);
-}
-
-// ===== ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ =====
-function getElapsedSeconds() {
-  if (!startTime) return 0;
-  return Math.floor((Date.now() - startTime) / 1000);
-}
-
-function formatSeconds(seconds) {
-  const mins = Math.floor(seconds / 60);
-  const secs = seconds % 60;
-  return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-}
-
-function startTimer() {
-  if (timerInterval) clearInterval(timerInterval);
-  timerInterval = setInterval(() => {
-    const timerEl = document.getElementById("timer");
-    if (timerEl) timerEl.textContent = `⏱ ${formatSeconds(getElapsedSeconds())}`;
-  }, 1000);
-}
-
-function stopTimer() {
-  if (timerInterval) {
-    clearInterval(timerInterval);
-    timerInterval = null;
-  }
-}
-
-function showTestControls() {
-  const controls = document.getElementById("testControls");
-  if (controls) controls.style.display = "flex";
-}
-
-function hideTestControls() {
-  const controls = document.getElementById("testControls");
-  if (controls) controls.style.display = "none";
-}
-
-function clearAutoTransition() {
-  if (autoTransitionTimer) {
-    clearTimeout(autoTransitionTimer);
-    autoTransitionTimer = null;
-  }
 }
 
 function drawPieChart(canvasId, correct, wrong) {
@@ -640,6 +613,27 @@ function escapeHtml(text) {
   });
 }
 
+// ===== ИНИЦИАЛИЗАЦИЯ ПОЛЬЗОВАТЕЛЯ =====
+async function initUser() {
+  if (window.currentUser && window.currentUser.id) {
+    currentUserId = window.currentUser.id;
+    console.log('👤 Пользователь инициализирован:', currentUserId);
+    await loadTestProgressFromDB();
+    renderTestsList();
+  } else {
+    console.log('⏳ Ожидание загрузки пользователя...');
+    const checkInterval = setInterval(() => {
+      if (window.currentUser && window.currentUser.id) {
+        clearInterval(checkInterval);
+        currentUserId = window.currentUser.id;
+        console.log('👤 Пользователь загружен:', currentUserId);
+        loadTestProgressFromDB().then(() => renderTestsList());
+      }
+    }, 500);
+    setTimeout(() => clearInterval(checkInterval), 10000);
+  }
+}
+
 // ===== ЭКСПОРТ =====
 window.renderTestsList = renderTestsList;
 window.startQuickTest = startQuickTest;
@@ -653,6 +647,9 @@ window.finishTest = finishTest;
 window.exitTest = exitTest;
 window.restartTest = restartTest;
 window.initUser = initUser;
+window.hideTestControls = hideTestControls;
+window.showTestControls = showTestControls;
+window.clearAutoTransition = clearTestAutoTransition;
 
 // Автоматическая инициализация
 if (document.readyState === 'loading') {
