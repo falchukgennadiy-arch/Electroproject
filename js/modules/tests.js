@@ -839,27 +839,44 @@ function escapeHtml(text) {
 
 // ===== ИНИЦИАЛИЗАЦИЯ =====
 async function initUser() {
-  if (window.currentUser && window.currentUser.id) {
-    currentUserId = window.currentUser.id;
-    console.log('👤 Пользователь инициализирован:', currentUserId);
-    await loadQuestions();        // 👈 добавь загрузку вопросов
-    await loadTestProgressFromDB();
+  try {
+    // Вопросы грузим всегда, даже если пользователь ещё не появился
+    if (!window.allQuestions) {
+      await loadQuestions();
+    }
+
+    // Сразу рисуем экран тестов
     renderTestsList();
-  } else {
-    console.log('⏳ Ожидание загрузки пользователя...');
-    const checkInterval = setInterval(() => {
-      if (window.currentUser && window.currentUser.id) {
-        clearInterval(checkInterval);
-        currentUserId = window.currentUser.id;
-        console.log('👤 Пользователь загружен:', currentUserId);
-        loadQuestions().then(() => {    // 👈 добавь
-          loadTestProgressFromDB().then(() => renderTestsList());
-        });
-      }
-    }, 500);
-    setTimeout(() => clearInterval(checkInterval), 10000);
+
+    // Если пользователь уже есть — загружаем прогресс
+    if (window.currentUser?.id) {
+      currentUserId = window.currentUser.id;
+      console.log('👤 Пользователь инициализирован:', currentUserId);
+      await loadTestProgressFromDB();
+      renderTestsList();
+      return;
+    }
+
+    console.log('⏳ Пользователь ещё не загружен, ждём событие userLoaded...');
+  } catch (err) {
+    console.error('❌ Ошибка initUser:', err);
   }
 }
+
+
+window.addEventListener('userLoaded', async (e) => {
+  try {
+    if (!e.detail?.id) return;
+
+    currentUserId = e.detail.id;
+    console.log('👤 Пользователь загружен из события:', currentUserId);
+
+    await loadTestProgressFromDB();
+    renderTestsList();
+  } catch (err) {
+    console.error('❌ Ошибка обработки userLoaded:', err);
+  }
+});
 
 // ===== ЭКСПОРТ =====
 window.loadQuestions = loadQuestions;
