@@ -1,5 +1,5 @@
-// ===== ТЕСТЫ (динамическая генерация из банка вопросов) =====
-// Использует window.testProgress из app.js
+// ===== ТЕСТЫ =====
+// 5 кнопок: Статистика, Случайный тест, Экзамен, По темам, По сложности
 
 let currentTestConfig = null;
 let currentQuestions = [];
@@ -9,17 +9,18 @@ let currentAnswered = false;
 let currentAnsweredQuestions = [];
 let currentUserId = null;
 let currentAttemptId = null;
+let currentTestMode = 'exam'; // 'exam', 'theme', 'difficulty'
 
-// Локальные таймеры (принадлежат только тестам)
+// Локальные таймеры
 let testStartTime = null;
 let testTimerInterval = null;
 let testAutoTransitionTimer = null;
 
-// Используем глобальный прогресс
+// Глобальный прогресс
 const sharedTestProgress = window.testProgress || {};
 window.testProgress = sharedTestProgress;
 
-// Правила генерации тестов
+// Правила генерации
 const TEST_RULES = {
   exam: [
     { difficulty_level_id: 1, count: 5 },
@@ -32,7 +33,7 @@ const TEST_RULES = {
   quick: { count: 10 }
 };
 
-// ===== ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ТЕСТОВ =====
+// ===== ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ =====
 function shuffleArray(arr) {
   for (let i = arr.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
@@ -188,6 +189,53 @@ async function saveTestProgressToDB(completed = false) {
 }
 
 // ===== ГЕНЕРАЦИЯ ТЕСТОВ =====
+async function generateQuickTest() {
+  const activeQuestions = getActiveQuestions();
+  
+  if (activeQuestions.length === 0) {
+    alert('Нет активных вопросов');
+    return null;
+  }
+  
+  const shuffled = shuffleArray(activeQuestions);
+  const questions = shuffled.slice(0, TEST_RULES.quick.count);
+  
+  return {
+    id: 'quick',
+    title: 'Быстрый тест',
+    type: 'quick',
+    questions: questions
+  };
+}
+
+async function generateExam() {
+  let totalQuestions = [];
+  
+  for (let rule of TEST_RULES.exam) {
+    const levelQuestions = getActiveQuestions().filter(q => q.difficulty_level_id === rule.difficulty_level_id);
+    
+    if (levelQuestions.length === 0) continue;
+    
+    const shuffled = shuffleArray(levelQuestions);
+    const selected = shuffled.slice(0, rule.count);
+    totalQuestions.push(...selected);
+  }
+  
+  if (totalQuestions.length === 0) {
+    alert('Недостаточно вопросов для формирования экзамена');
+    return null;
+  }
+  
+  totalQuestions = shuffleArray(totalQuestions);
+  
+  return {
+    id: 'exam',
+    title: 'Экзамен',
+    type: 'exam',
+    questions: totalQuestions
+  };
+}
+
 async function generateTestByTheme(themeId, themeTitle) {
   let questions = getActiveQuestions().filter(q => q.theme_id === themeId);
   
@@ -226,54 +274,7 @@ async function generateTestByDifficulty(difficultyId, difficultyTitle) {
   };
 }
 
-async function generateExam() {
-  let totalQuestions = [];
-  
-  for (let rule of TEST_RULES.exam) {
-    const levelQuestions = getActiveQuestions().filter(q => q.difficulty_level_id === rule.difficulty_level_id);
-    
-    if (levelQuestions.length === 0) continue;
-    
-    const shuffled = shuffleArray(levelQuestions);
-    const selected = shuffled.slice(0, rule.count);
-    totalQuestions.push(...selected);
-  }
-  
-  if (totalQuestions.length === 0) {
-    alert('Недостаточно вопросов для формирования экзамена');
-    return null;
-  }
-  
-  totalQuestions = shuffleArray(totalQuestions);
-  
-  return {
-    id: 'exam',
-    title: 'Экзамен',
-    type: 'exam',
-    questions: totalQuestions
-  };
-}
-
-async function generateQuickTest() {
-  const activeQuestions = getActiveQuestions();
-  
-  if (activeQuestions.length === 0) {
-    alert('Нет активных вопросов');
-    return null;
-  }
-  
-  const shuffled = shuffleArray(activeQuestions);
-  const questions = shuffled.slice(0, TEST_RULES.quick.count);
-  
-  return {
-    id: 'quick',
-    title: 'Быстрый тест',
-    type: 'quick',
-    questions: questions
-  };
-}
-
-// ===== ОТОБРАЖЕНИЕ СПИСКА ТЕСТОВ =====
+// ===== ОТОБРАЖЕНИЕ ГЛАВНОГО ЭКРАНА (5 КНОПОК) =====
 async function renderTestsList() {
   const listEl = document.getElementById("topicsList");
   const testArea = document.getElementById("testArea");
@@ -283,74 +284,278 @@ async function renderTestsList() {
   
   if (!listEl) return;
   
-  const hasTestAccess = window.subscriptions?.test === true;
+  const hasSubscription = window.subscriptions?.test === true;
   
-  let html = '<h3 style="margin-top:0; margin-bottom:12px;">Доступные тесты</h3>';
+  // Статистика (всегда доступна)
+  const stats = await getUserStats();
   
-  html += `
-    <div class="test-item" onclick="window.startQuickTest()">
-      <div class="test-row">
-        <span class="test-title">🎲 Быстрый тест</span>
-        <span class="test-badge free">FREE</span>
-      </div>
-      <div class="subtle">10 случайных вопросов из всех тем</div>
-    </div>
-  `;
-  
-  html += `
-    <div class="test-item ${hasTestAccess ? '' : 'locked'}" onclick="${hasTestAccess ? 'window.startExam()' : 'alert(\'Оформите подписку TEST для доступа к экзамену\')'}">
-      <div class="test-row">
-        <span class="test-title">🎓 Экзамен</span>
-        <span class="test-badge ${hasTestAccess ? 'free' : 'locked'}">${hasTestAccess ? 'FREE' : '🔒'}</span>
-      </div>
-      <div class="subtle">25 вопросов (по 5 на каждый уровень сложности)</div>
-    </div>
-  `;
-  
-  if (window.allThemes && window.allThemes.length > 0) {
-    html += '<h4 style="margin-top: 20px;">📂 По темам</h4>';
-    for (let theme of window.allThemes) {
-      const questionsCount = getActiveQuestions().filter(q => q.theme_id === theme.id).length;
-      const progress = sharedTestProgress[`theme_${theme.id}`];
-      let progressText = '';
-      
-      if (progress && progress.completed) {
-        progressText = `<div style="font-size:12px; margin-top:8px;"><span style="color: #2ecc71;">✅ Пройден: ${progress.score}/${progress.total}</span></div>`;
-      } else if (progress && progress.currentQuestion > 0) {
-        progressText = `<div style="font-size:12px; margin-top:8px;"><span style="color: #f39c12;">⏳ Прогресс: ${progress.currentQuestion}/${progress.total}</span></div>`;
-      }
-      
-      html += `
-        <div class="test-item ${hasTestAccess ? '' : 'locked'}" onclick="${hasTestAccess ? `window.startTestByTheme('${theme.id}', '${escapeHtml(theme.title)}')` : 'alert(\'Оформите подписку TEST для доступа к тестам по темам\')'}">
-          <div class="test-row">
-            <span class="test-title">📂 ${escapeHtml(theme.title)}</span>
-            <span class="test-badge ${hasTestAccess ? 'free' : 'locked'}">${hasTestAccess ? 'FREE' : '🔒'}</span>
+  let html = `
+    <div class="tests-main-screen">
+      <!-- Кнопка 1: СТАТИСТИКА -->
+      <div class="test-card" onclick="window.showStatsScreen()">
+        <div class="test-icon">📊</div>
+        <div class="test-info">
+          <div class="test-title">Статистика</div>
+          <div class="test-stats">
+            <span>📋 ${stats.totalQuestions} вопросов</span>
+            <span>✅ ${stats.completedTests} тестов</span>
+            <span>📈 ${stats.avgScore}% средний</span>
           </div>
-          <div class="subtle">${questionsCount} вопросов</div>
+        </div>
+      </div>
+      
+      <!-- Кнопка 2: СЛУЧАЙНЫЙ ТЕСТ (бесплатно) -->
+      <div class="test-card" onclick="window.startQuickTest()">
+        <div class="test-icon">🎲</div>
+        <div class="test-info">
+          <div class="test-title">Случайный тест</div>
+          <div class="test-subtitle">10 случайных вопросов</div>
+          <div class="test-badge free">БЕСПЛАТНО</div>
+        </div>
+      </div>
+  `;
+  
+  // Кнопка 3: ЭКЗАМЕН (только по подписке)
+  if (hasSubscription) {
+    html += `
+      <div class="test-card" onclick="window.startExam()">
+        <div class="test-icon">🎓</div>
+        <div class="test-info">
+          <div class="test-title">Экзамен</div>
+          <div class="test-subtitle">25 вопросов (по 5 на каждый уровень)</div>
+        </div>
+      </div>
+    `;
+  } else {
+    html += `
+      <div class="test-card locked" onclick="window.showSubscriptionRequired('Экзамен')">
+        <div class="test-icon">🎓</div>
+        <div class="test-info">
+          <div class="test-title">Экзамен</div>
+          <div class="test-subtitle">25 вопросов (по 5 на каждый уровень)</div>
+          <div class="test-badge locked">🔒 Требуется подписка</div>
+        </div>
+        <div class="subscribe-btn" onclick="event.stopPropagation(); window.openDonatSubscription('test')">💎 Оформить</div>
+      </div>
+    `;
+  }
+  
+  // Кнопка 4: ПО ТЕМАМ
+  if (hasSubscription && window.allThemes && window.allThemes.length > 0) {
+    html += `
+      <div class="test-card" onclick="window.showThemesScreen()">
+        <div class="test-icon">📂</div>
+        <div class="test-info">
+          <div class="test-title">По темам</div>
+          <div class="test-subtitle">${window.allThemes.length} тем</div>
+        </div>
+      </div>
+    `;
+  } else {
+    html += `
+      <div class="test-card locked" onclick="window.showSubscriptionRequired('Тесты по темам')">
+        <div class="test-icon">📂</div>
+        <div class="test-info">
+          <div class="test-title">По темам</div>
+          <div class="test-subtitle">Выберите тему для тренировки</div>
+          <div class="test-badge locked">🔒 Требуется подписка</div>
+        </div>
+        <div class="subscribe-btn" onclick="event.stopPropagation(); window.openDonatSubscription('test')">💎 Оформить</div>
+      </div>
+    `;
+  }
+  
+  // Кнопка 5: ПО СЛОЖНОСТИ
+  if (hasSubscription && window.allDifficulty && window.allDifficulty.length > 0) {
+    html += `
+      <div class="test-card" onclick="window.showDifficultyScreen()">
+        <div class="test-icon">⭐</div>
+        <div class="test-info">
+          <div class="test-title">По сложности</div>
+          <div class="test-subtitle">${window.allDifficulty.length} уровней</div>
+        </div>
+      </div>
+    `;
+  } else {
+    html += `
+      <div class="test-card locked" onclick="window.showSubscriptionRequired('Тесты по сложности')">
+        <div class="test-icon">⭐</div>
+        <div class="test-info">
+          <div class="test-title">По сложности</div>
+          <div class="test-subtitle">Выберите уровень сложности</div>
+          <div class="test-badge locked">🔒 Требуется подписка</div>
+        </div>
+        <div class="subscribe-btn" onclick="event.stopPropagation(); window.openDonatSubscription('test')">💎 Оформить</div>
+      </div>
+    `;
+  }
+  
+  html += `</div>`;
+  listEl.innerHTML = html;
+}
+
+// ===== ПОЛУЧЕНИЕ СТАТИСТИКИ ПОЛЬЗОВАТЕЛЯ =====
+async function getUserStats() {
+  const stats = {
+    totalQuestions: 0,
+    completedTests: 0,
+    avgScore: 0
+  };
+  
+  // Всего вопросов в банке
+  stats.totalQuestions = getActiveQuestions().length;
+  
+  // Пройденные тесты и средний балл
+  if (currentUserId) {
+    try {
+      const attempts = await API.getTestAttemptsByUser(currentUserId);
+      const completed = attempts.filter(a => a.status === 'completed');
+      stats.completedTests = completed.length;
+      
+      if (completed.length > 0) {
+        const totalScore = completed.reduce((sum, a) => sum + (a.total_score || 0), 0);
+        const totalQuestions = completed.reduce((sum, a) => {
+          const qIds = a.questions_ids ? JSON.parse(a.questions_ids) : [];
+          return sum + qIds.length;
+        }, 0);
+        stats.avgScore = totalQuestions > 0 ? Math.round((totalScore / totalQuestions) * 100) : 0;
+      }
+    } catch (e) {
+      console.error('Ошибка получения статистики:', e);
+    }
+  }
+  
+  return stats;
+}
+
+// ===== ЭКРАН СТАТИСТИКИ =====
+async function showStatsScreen() {
+  const listEl = document.getElementById("topicsList");
+  if (!listEl) return;
+  
+  const stats = await getUserStats();
+  const attempts = currentUserId ? await API.getTestAttemptsByUser(currentUserId) : [];
+  const completed = attempts.filter(a => a.status === 'completed');
+  
+  let html = `
+    <div class="stats-screen">
+      <button class="back-btn" onclick="window.renderTestsList()">← Назад</button>
+      
+      <div class="stats-header">
+        <div class="stats-card">
+          <div class="stats-number">${stats.totalQuestions}</div>
+          <div class="stats-label">Всего вопросов</div>
+        </div>
+        <div class="stats-card">
+          <div class="stats-number">${stats.completedTests}</div>
+          <div class="stats-label">Пройдено тестов</div>
+        </div>
+        <div class="stats-card">
+          <div class="stats-number">${stats.avgScore}%</div>
+          <div class="stats-label">Средний балл</div>
+        </div>
+      </div>
+      
+      <h4>📋 История прохождения</h4>
+  `;
+  
+  if (completed.length === 0) {
+    html += `<div class="empty-state">Вы ещё не прошли ни одного теста</div>`;
+  } else {
+    html += `<div class="history-list">`;
+    for (let attempt of completed.slice(0, 10)) {
+      const date = new Date(attempt.completed_at).toLocaleDateString('ru');
+      const percent = Math.round((attempt.total_score / (attempt.questions_ids ? JSON.parse(attempt.questions_ids).length : 1)) * 100);
+      html += `
+        <div class="history-item">
+          <div class="history-date">${date}</div>
+          <div class="history-test">${attempt.test_id}</div>
+          <div class="history-score ${percent >= 70 ? 'good' : 'bad'}">${percent}%</div>
+        </div>
+      `;
+    }
+    html += `</div>`;
+  }
+  
+  html += `</div>`;
+  listEl.innerHTML = html;
+}
+
+// ===== ЭКРАН ВЫБОРА ТЕМЫ =====
+async function showThemesScreen() {
+  const listEl = document.getElementById("topicsList");
+  if (!listEl) return;
+  
+  let html = `
+    <div class="themes-screen">
+      <button class="back-btn" onclick="window.renderTestsList()">← Назад</button>
+      <h3>Выберите тему</h3>
+      <div class="themes-list">
+  `;
+  
+  for (let theme of window.allThemes || []) {
+    const questionsCount = getActiveQuestions().filter(q => q.theme_id === theme.id).length;
+    const progress = sharedTestProgress[`theme_${theme.id}`];
+    let progressText = '';
+    
+    if (progress && progress.completed) {
+      progressText = `<span class="progress-completed">✅ Пройден: ${progress.score}/${progress.total}</span>`;
+    } else if (progress && progress.currentQuestion > 0) {
+      progressText = `<span class="progress-inprogress">⏳ Прогресс: ${progress.currentQuestion}/${progress.total}</span>`;
+    }
+    
+    html += `
+      <div class="theme-card" onclick="window.startTestByTheme('${theme.id}', '${escapeHtml(theme.title)}')">
+        <div class="theme-icon">📂</div>
+        <div class="theme-info">
+          <div class="theme-title">${escapeHtml(theme.title)}</div>
+          <div class="theme-count">${questionsCount} вопросов</div>
           ${progressText}
         </div>
-      `;
-    }
+      </div>
+    `;
   }
   
-  if (window.allDifficulty && window.allDifficulty.length > 0) {
-    html += '<h4 style="margin-top: 20px;">⭐ По уровню сложности</h4>';
-    for (let diff of window.allDifficulty) {
-      const questionsCount = getActiveQuestions().filter(q => q.difficulty_level_id === diff.id).length;
-      
-      html += `
-        <div class="test-item ${hasTestAccess ? '' : 'locked'}" onclick="${hasTestAccess ? `window.startTestByDifficulty('${diff.id}', '${escapeHtml(diff.title)}')` : 'alert(\'Оформите подписку TEST для доступа к тестам по сложности\')'}">
-          <div class="test-row">
-            <span class="test-title">${diff.id === 1 ? '🟢' : diff.id === 5 ? '🔴' : '🟡'} ${escapeHtml(diff.title)}</span>
-            <span class="test-badge ${hasTestAccess ? 'free' : 'locked'}">${hasTestAccess ? 'FREE' : '🔒'}</span>
-          </div>
-          <div class="subtle">${questionsCount} вопросов</div>
-        </div>
-      `;
-    }
-  }
-  
+  html += `</div></div>`;
   listEl.innerHTML = html;
+}
+
+// ===== ЭКРАН ВЫБОРА СЛОЖНОСТИ =====
+async function showDifficultyScreen() {
+  const listEl = document.getElementById("topicsList");
+  if (!listEl) return;
+  
+  let html = `
+    <div class="difficulty-screen">
+      <button class="back-btn" onclick="window.renderTestsList()">← Назад</button>
+      <h3>Выберите уровень сложности</h3>
+      <div class="difficulty-list">
+  `;
+  
+  for (let diff of window.allDifficulty || []) {
+    const questionsCount = getActiveQuestions().filter(q => q.difficulty_level_id === diff.id).length;
+    const emoji = diff.id === 1 ? '🟢' : diff.id === 5 ? '🔴' : '🟡';
+    
+    html += `
+      <div class="difficulty-card" onclick="window.startTestByDifficulty('${diff.id}', '${escapeHtml(diff.title)}')">
+        <div class="difficulty-emoji">${emoji}</div>
+        <div class="difficulty-info">
+          <div class="difficulty-title">${escapeHtml(diff.title)}</div>
+          <div class="difficulty-count">${questionsCount} вопросов</div>
+        </div>
+      </div>
+    `;
+  }
+  
+  html += `</div></div>`;
+  listEl.innerHTML = html;
+}
+
+// ===== ПОДПИСКА =====
+function showSubscriptionRequired(testName) {
+  if (confirm(`Для доступа к "${testName}" требуется подписка TEST.\nОформить подписку?`)) {
+    window.openDonatSubscription('test');
+  }
 }
 
 // ===== ЗАПУСК ТЕСТОВ =====
@@ -613,7 +818,7 @@ function escapeHtml(text) {
   });
 }
 
-// ===== ИНИЦИАЛИЗАЦИЯ ПОЛЬЗОВАТЕЛЯ =====
+// ===== ИНИЦИАЛИЗАЦИЯ =====
 async function initUser() {
   if (window.currentUser && window.currentUser.id) {
     currentUserId = window.currentUser.id;
@@ -650,6 +855,10 @@ window.initUser = initUser;
 window.hideTestControls = hideTestControls;
 window.showTestControls = showTestControls;
 window.clearAutoTransition = clearTestAutoTransition;
+window.showStatsScreen = showStatsScreen;
+window.showThemesScreen = showThemesScreen;
+window.showDifficultyScreen = showDifficultyScreen;
+window.showSubscriptionRequired = showSubscriptionRequired;
 
 // Автоматическая инициализация
 if (document.readyState === 'loading') {
