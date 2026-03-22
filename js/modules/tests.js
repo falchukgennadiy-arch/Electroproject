@@ -862,6 +862,7 @@ async function initUser() {
 }
 
 // ===== ЭКСПОРТ =====
+window.loadQuestions = loadQuestions;
 window.renderTestsList = renderTestsList;
 window.startQuickTest = startQuickTest;
 window.startExam = startExam;
