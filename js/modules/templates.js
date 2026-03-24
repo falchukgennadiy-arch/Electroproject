@@ -1,5 +1,4 @@
 // js/modules/templates.js
-// Раздел Templates: анимированная заглушка "Раздел находится в разработке"
 
 let templatesAnimationState = null;
 
@@ -12,21 +11,18 @@ function ensureTemplatesStyle() {
     .templates-dev-wrap {
       position: relative;
       width: 100%;
-      min-height: 420px;
+      min-height: calc(100dvh - 140px);
+      height: calc(100dvh - 140px);
       background: var(--bg, #111);
       border-radius: 16px;
       overflow: hidden;
       border: 1px solid rgba(255,255,255,0.04);
-      box-shadow:
-        0 12px 40px rgba(0,0,0,0.28),
-        0 0 0 1px rgba(255,255,255,0.015) inset;
     }
 
     .templates-dev-canvas {
-      display: block;
       width: 100%;
-      height: 420px;
-      background: var(--bg, #111);
+      height: 100%;
+      display: block;
     }
 
     .templates-dev-overlay {
@@ -44,15 +40,28 @@ function ensureTemplatesStyle() {
       flex-direction: column;
       align-items: center;
       gap: 12px;
+
       width: min(420px, calc(100% - 32px));
       padding: 24px 26px;
+
       border-radius: 16px;
-      background: var(--card, #1c1c1e);
-      border: 1px solid rgba(255,255,255,0.04);
+
+      background: linear-gradient(
+        135deg,
+        rgba(255,255,255,0.06),
+        rgba(255,255,255,0.02)
+      );
+
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+
+      border: 1px solid rgba(255,255,255,0.10);
+
       box-shadow:
         0 12px 40px rgba(0,0,0,0.35),
-        0 0 0 1px rgba(255,255,255,0.015) inset,
-        0 0 28px rgba(230,193,88,0.05);
+        0 0 0 1px rgba(255,255,255,0.04) inset,
+        0 0 32px rgba(155, 89, 182, 0.12);
+
       text-align: center;
     }
 
@@ -63,6 +72,7 @@ function ensureTemplatesStyle() {
       text-transform: uppercase;
       color: #fff;
       margin: 0;
+      text-shadow: 0 2px 8px rgba(0,0,0,0.4);
     }
 
     .templates-dev-subtitle {
@@ -79,7 +89,6 @@ function ensureTemplatesStyle() {
       border-radius: 999px;
       overflow: hidden;
       background: var(--btn, #2e2e2e);
-      box-shadow: 0 0 0 1px rgba(255,255,255,0.03) inset;
     }
 
     .templates-dev-bar-fill {
@@ -88,16 +97,15 @@ function ensureTemplatesStyle() {
       border-radius: inherit;
       background: linear-gradient(
         90deg,
-        rgba(230,193,88,0.18),
-        rgba(230,193,88,1),
-        rgba(255,245,210,0.95)
+        rgba(155,89,182,0.2),
+        rgba(155,89,182,1),
+        rgba(220,200,255,0.95)
       );
-      box-shadow: 0 0 18px rgba(230,193,88,0.65);
-      animation: templatesDevBarMove 2.2s ease-in-out infinite;
-      transform: translateX(-120%);
+      box-shadow: 0 0 18px rgba(155,89,182,0.7);
+      animation: moveBar 2.2s infinite;
     }
 
-    @keyframes templatesDevBarMove {
+    @keyframes moveBar {
       0% { transform: translateX(-120%); }
       100% { transform: translateX(320%); }
     }
@@ -110,258 +118,126 @@ function destroyTemplatesAnimation() {
   if (!templatesAnimationState) return;
 
   templatesAnimationState.destroyed = true;
-
-  if (templatesAnimationState.rafId) {
-    cancelAnimationFrame(templatesAnimationState.rafId);
-  }
-
-  if (templatesAnimationState.resizeHandler) {
-    window.removeEventListener('resize', templatesAnimationState.resizeHandler);
-  }
+  cancelAnimationFrame(templatesAnimationState.raf);
+  window.removeEventListener('resize', templatesAnimationState.resize);
 
   templatesAnimationState = null;
 }
 
 function createTemplatesAnimation(canvas) {
   const ctx = canvas.getContext('2d');
-  if (!ctx) return null;
+  if (!ctx) return;
+
+  const color = '155,89,182';
 
   const state = {
-    canvas,
-    ctx,
-    width: 0,
-    height: 0,
-    dpr: 1,
-    rafId: 0,
     destroyed: false,
-    sparks: [],
-    resizeHandler: null
+    raf: 0,
+    resize: null
   };
 
+  let w = 0, h = 0, dpr = 1;
+
   const nodes = [
-    { x: 0.10, y: 0.25 }, { x: 0.22, y: 0.25 }, { x: 0.22, y: 0.16 }, { x: 0.40, y: 0.16 },
-    { x: 0.40, y: 0.32 }, { x: 0.58, y: 0.32 }, { x: 0.58, y: 0.20 }, { x: 0.78, y: 0.20 },
-    { x: 0.78, y: 0.40 }, { x: 0.92, y: 0.40 }, { x: 0.08, y: 0.58 }, { x: 0.26, y: 0.58 },
-    { x: 0.26, y: 0.74 }, { x: 0.44, y: 0.74 }, { x: 0.44, y: 0.54 }, { x: 0.63, y: 0.54 },
-    { x: 0.63, y: 0.78 }, { x: 0.84, y: 0.78 }, { x: 0.84, y: 0.60 }, { x: 0.94, y: 0.60 },
-    { x: 0.15, y: 0.42 }, { x: 0.32, y: 0.42 }, { x: 0.32, y: 0.50 }, { x: 0.52, y: 0.50 },
-    { x: 0.52, y: 0.66 }, { x: 0.72, y: 0.66 }, { x: 0.72, y: 0.50 }, { x: 0.88, y: 0.50 }
+    {x:0.1,y:0.2},{x:0.25,y:0.2},{x:0.25,y:0.1},{x:0.4,y:0.1},
+    {x:0.4,y:0.3},{x:0.6,y:0.3},{x:0.6,y:0.15},{x:0.8,y:0.15},
+    {x:0.8,y:0.35},{x:0.95,y:0.35},
+
+    {x:0.1,y:0.6},{x:0.3,y:0.6},{x:0.3,y:0.8},{x:0.5,y:0.8},
+    {x:0.5,y:0.55},{x:0.7,y:0.55},{x:0.7,y:0.8},{x:0.9,y:0.8},
+    {x:0.9,y:0.6},{x:0.98,y:0.6},
+
+    {x:0.2,y:0.4},{x:0.35,y:0.4},{x:0.35,y:0.5},{x:0.55,y:0.5},
+    {x:0.55,y:0.7},{x:0.75,y:0.7},{x:0.75,y:0.5},{x:0.9,y:0.5}
   ];
 
   const segments = [
-    [0, 1], [1, 2], [2, 3], [3, 4], [4, 5], [5, 6], [6, 7], [7, 8], [8, 9],
-    [10, 11], [11, 12], [12, 13], [13, 14], [14, 15], [15, 16], [16, 17], [17, 18], [18, 19],
-    [20, 21], [21, 22], [22, 23], [23, 24], [24, 25], [25, 26], [26, 27],
-    [1, 20], [4, 23], [5, 15], [8, 27], [11, 21], [14, 23], [16, 25]
+    [0,1],[1,2],[2,3],[3,4],[4,5],[5,6],[6,7],[7,8],[8,9],
+    [10,11],[11,12],[12,13],[13,14],[14,15],[15,16],[16,17],[17,18],[18,19],
+    [20,21],[21,22],[22,23],[23,24],[24,25],[25,26],[26,27],
+    [1,20],[4,23],[5,15],[8,27]
   ];
 
-  const pulses = segments.map((segment, i) => ({
-    segment,
-    offset: (i * 0.13) % 1,
-    speed: 0.18 + (i % 4) * 0.035
-  }));
-
   function resize() {
-    const rect = canvas.getBoundingClientRect();
-    state.width = Math.max(1, Math.floor(rect.width));
-    state.height = Math.max(1, Math.floor(rect.height));
-    state.dpr = Math.min(window.devicePixelRatio || 1, 2);
+    w = canvas.clientWidth;
+    h = canvas.clientHeight;
+    dpr = window.devicePixelRatio || 1;
 
-    canvas.width = Math.max(1, Math.floor(state.width * state.dpr));
-    canvas.height = Math.max(1, Math.floor(state.height * state.dpr));
+    canvas.width = w * dpr;
+    canvas.height = h * dpr;
 
-    ctx.setTransform(1, 0, 0, 1, 0, 0);
-    ctx.scale(state.dpr, state.dpr);
+    ctx.setTransform(dpr,0,0,dpr,0,0);
   }
 
-  function getPoint(index) {
-    const node = nodes[index];
+  function point(i){
     return {
-      x: node.x * state.width,
-      y: node.y * state.height
-    };
-  }
-
-  function drawGrid() {
-    const gap = Math.max(38, Math.min(64, state.width / 28));
-    ctx.save();
-    ctx.strokeStyle = 'rgba(255,255,255,0.025)';
-    ctx.lineWidth = 1;
-
-    for (let x = 0; x <= state.width; x += gap) {
-      ctx.beginPath();
-      ctx.moveTo(x, 0);
-      ctx.lineTo(x, state.height);
-      ctx.stroke();
+      x:nodes[i].x*w,
+      y:nodes[i].y*h
     }
-
-    for (let y = 0; y <= state.height; y += gap) {
-      ctx.beginPath();
-      ctx.moveTo(0, y);
-      ctx.lineTo(state.width, y);
-      ctx.stroke();
-    }
-
-    ctx.restore();
   }
 
-  function drawCenterGlow(t) {
-    const x = state.width * 0.5;
-    const y = state.height * 0.5;
-    const radius = Math.min(state.width, state.height) * (0.12 + Math.sin(t * 0.0015) * 0.005);
-    const gradient = ctx.createRadialGradient(x, y, 0, x, y, radius);
+  function draw(t){
+    ctx.clearRect(0,0,w,h);
 
-    gradient.addColorStop(0, 'rgba(230,193,88,0.10)');
-    gradient.addColorStop(0.5, 'rgba(230,193,88,0.035)');
-    gradient.addColorStop(1, 'rgba(230,193,88,0)');
+    segments.forEach((s,i)=>{
+      const a = point(s[0]);
+      const b = point(s[1]);
 
-    ctx.beginPath();
-    ctx.fillStyle = gradient;
-    ctx.arc(x, y, radius, 0, Math.PI * 2);
-    ctx.fill();
-  }
-
-  function drawSegments(t) {
-    ctx.save();
-    ctx.lineCap = 'round';
-    ctx.lineJoin = 'round';
-
-    segments.forEach((pair, index) => {
-      const p1 = getPoint(pair[0]);
-      const p2 = getPoint(pair[1]);
-      const glow = 0.18 + 0.12 * Math.sin(t * 0.0018 + index * 0.9);
+      const glow = 0.2 + Math.sin(t*0.002+i)*0.1;
 
       ctx.beginPath();
-      ctx.moveTo(p1.x, p1.y);
-      ctx.lineTo(p2.x, p2.y);
+      ctx.moveTo(a.x,a.y);
+      ctx.lineTo(b.x,b.y);
       ctx.strokeStyle = 'rgba(255,255,255,0.06)';
       ctx.lineWidth = 2;
       ctx.stroke();
 
       ctx.beginPath();
-      ctx.moveTo(p1.x, p1.y);
-      ctx.lineTo(p2.x, p2.y);
-      ctx.strokeStyle = `rgba(230,193,88,${glow})`;
+      ctx.moveTo(a.x,a.y);
+      ctx.lineTo(b.x,b.y);
+      ctx.strokeStyle = `rgba(${color},${glow})`;
       ctx.lineWidth = 1;
       ctx.shadowBlur = 14;
-      ctx.shadowColor = 'rgba(230,193,88,0.35)';
+      ctx.shadowColor = `rgba(${color},0.4)`;
       ctx.stroke();
-    });
-
-    ctx.restore();
-  }
-
-  function drawNodes(t) {
-    nodes.forEach((node, i) => {
-      const x = node.x * state.width;
-      const y = node.y * state.height;
-      const pulse = 0.5 + 0.5 * Math.sin(t * 0.002 + i * 0.6);
-      const r = 2.2 + pulse * 1.4;
-
-      ctx.beginPath();
-      ctx.arc(x, y, r * 2.8, 0, Math.PI * 2);
-      ctx.fillStyle = 'rgba(230,193,88,0.05)';
-      ctx.fill();
-
-      ctx.beginPath();
-      ctx.arc(x, y, r, 0, Math.PI * 2);
-      ctx.fillStyle = 'rgba(255,240,220,0.95)';
-      ctx.shadowBlur = 16;
-      ctx.shadowColor = 'rgba(230,193,88,0.8)';
-      ctx.fill();
       ctx.shadowBlur = 0;
     });
-  }
 
-  function drawPulses(t) {
-    pulses.forEach((pulse) => {
-      const [a, b] = pulse.segment;
-      const p1 = getPoint(a);
-      const p2 = getPoint(b);
-      const progress = (t * 0.00012 * pulse.speed * 60 + pulse.offset) % 1;
-      const x = p1.x + (p2.x - p1.x) * progress;
-      const y = p1.y + (p2.y - p1.y) * progress;
+    nodes.forEach((n,i)=>{
+      const x = n.x*w;
+      const y = n.y*h;
 
       ctx.beginPath();
-      ctx.arc(x, y, 3.2, 0, Math.PI * 2);
-      ctx.fillStyle = 'rgba(255,245,230,0.95)';
-      ctx.shadowBlur = 24;
-      ctx.shadowColor = 'rgba(230,193,88,1)';
-      ctx.fill();
-      ctx.shadowBlur = 0;
-
-      if (Math.random() < 0.008) {
-        state.sparks.push({
-          x,
-          y,
-          vx: (Math.random() - 0.5) * 1.6,
-          vy: (Math.random() - 0.5) * 1.6,
-          life: 1,
-          size: 1 + Math.random() * 2
-        });
-      }
-    });
-  }
-
-  function updateSparks() {
-    for (let i = state.sparks.length - 1; i >= 0; i -= 1) {
-      const spark = state.sparks[i];
-      spark.x += spark.vx;
-      spark.y += spark.vy;
-      spark.life -= 0.025;
-
-      if (spark.life <= 0) {
-        state.sparks.splice(i, 1);
-        continue;
-      }
-
-      ctx.beginPath();
-      ctx.arc(spark.x, spark.y, spark.size * spark.life, 0, Math.PI * 2);
-      ctx.fillStyle = `rgba(255,235,210,${spark.life})`;
+      ctx.arc(x,y,3,0,Math.PI*2);
+      ctx.fillStyle = '#fff';
       ctx.shadowBlur = 10;
-      ctx.shadowColor = `rgba(230,193,88,${spark.life})`;
+      ctx.shadowColor = `rgba(${color},1)`;
       ctx.fill();
       ctx.shadowBlur = 0;
-    }
+    });
+
+    state.raf = requestAnimationFrame(draw);
   }
 
-  function animate(t) {
-    if (state.destroyed || !document.body.contains(canvas)) return;
-
-    ctx.clearRect(0, 0, state.width, state.height);
-    drawGrid();
-    drawCenterGlow(t);
-    drawSegments(t);
-    drawPulses(t);
-    drawNodes(t);
-    updateSparks();
-
-    state.rafId = requestAnimationFrame(animate);
-  }
-
-  state.resizeHandler = resize;
-  window.addEventListener('resize', state.resizeHandler);
+  state.resize = resize;
+  window.addEventListener('resize', resize);
   resize();
-  state.rafId = requestAnimationFrame(animate);
 
-  console.assert(Array.isArray(nodes) && nodes.length > 0, 'templates animation: nodes should exist');
-  console.assert(Array.isArray(segments) && segments.length > 0, 'templates animation: segments should exist');
-  console.assert(pulses.length === segments.length, 'templates animation: pulses count should match segments count');
-  console.assert(typeof renderTemplatesList === 'function' || typeof window.renderTemplatesList === 'function', 'templates render function should exist');
+  state.raf = requestAnimationFrame(draw);
 
   return state;
 }
 
 function renderTemplatesList() {
-  const listEl = document.getElementById('templatesList');
-  if (!listEl) return;
+  const el = document.getElementById('templatesList');
+  if (!el) return;
 
   destroyTemplatesAnimation();
   ensureTemplatesStyle();
 
-  listEl.innerHTML = `
+  el.innerHTML = `
     <div class="templates-dev-wrap">
-      <canvas class="templates-dev-canvas" id="templatesDevCanvas" aria-label="Templates section animation"></canvas>
+      <canvas id="templatesCanvas" class="templates-dev-canvas"></canvas>
       <div class="templates-dev-overlay">
         <div class="templates-dev-panel">
           <h2 class="templates-dev-title">Шаблоны</h2>
@@ -374,33 +250,9 @@ function renderTemplatesList() {
     </div>
   `;
 
-  const canvas = document.getElementById('templatesDevCanvas');
-  if (!canvas) return;
-
+  const canvas = document.getElementById('templatesCanvas');
   templatesAnimationState = createTemplatesAnimation(canvas);
 }
 
-function openTemplateItem() {
-  renderTemplatesList();
-}
-
-function renderTemplateItem() {
-  renderTemplatesList();
-}
-
-function goBackFromTemplate() {
-  renderTemplatesList();
-}
-
-function openCalendarTemplateItem() {
-  renderTemplatesList();
-}
-
-window.addEventListener('beforeunload', destroyTemplatesAnimation);
-
 window.renderTemplatesList = renderTemplatesList;
-window.openTemplateItem = openTemplateItem;
-window.renderTemplateItem = renderTemplateItem;
-window.goBackFromTemplate = goBackFromTemplate;
-window.openCalendarTemplateItem = openCalendarTemplateItem;
 window.destroyTemplatesAnimation = destroyTemplatesAnimation;
