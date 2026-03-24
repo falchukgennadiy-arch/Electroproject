@@ -364,7 +364,7 @@ function renderTemplatesList() {
       <canvas class="templates-dev-canvas" id="templatesDevCanvas" aria-label="Templates section animation"></canvas>
       <div class="templates-dev-overlay">
         <div class="templates-dev-panel">
-          <h2 class="templates-dev-title">Templates</h2>
+          <h2 class="templates-dev-title">Шаблоны</h2>
           <p class="templates-dev-subtitle">Раздел находится в разработке</p>
           <div class="templates-dev-bar">
             <div class="templates-dev-bar-fill"></div>
