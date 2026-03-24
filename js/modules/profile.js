@@ -40,6 +40,19 @@ async function saveUserToDatabase(userData, hasDonut = false, subscriptions = {}
   }
 }
 
+// Получение внутреннего ID пользователя по VK ID
+async function getInternalUserId(vkId) {
+  try {
+    const response = await fetch(`${API_URL}/users/vk/${vkId}`);
+    if (!response.ok) throw new Error('Пользователь не найден');
+    const user = await response.json();
+    return user.id;
+  } catch (err) {
+    console.error('Ошибка получения ID:', err);
+    return null;
+  }
+}
+
 // Загрузка данных при старте
 document.addEventListener('DOMContentLoaded', function() {
   console.log('🔄 Profile.js инициализация...');
@@ -177,11 +190,18 @@ async function activatePromoCode() {
     return;
   }
   
+  // Получаем внутренний ID пользователя
+  const internalUserId = await getInternalUserId(currentUser.id);
+  if (!internalUserId) {
+    alert('Ошибка: пользователь не найден в системе');
+    return;
+  }
+  
   try {
     const response = await fetch(`${API_URL}/users/activate-promo`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ user_id: currentUser.id, promo_code: code })
+      body: JSON.stringify({ user_id: internalUserId, promo_code: code })
     });
     
     const result = await response.json();
@@ -284,4 +304,5 @@ function openDonatSubscription(level) {
 window.checkDonutSubscription = checkDonutSubscription;
 window.openDonatSubscription = openDonatSubscription;
 window.activatePromoCode = activatePromoCode;
+window.getInternalUserId = getInternalUserId;
 window.currentUser = currentUser;
