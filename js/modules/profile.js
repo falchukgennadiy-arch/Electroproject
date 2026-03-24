@@ -50,6 +50,12 @@ async function loadSubscriptionsFromDB() {
     if (!userResponse.ok) throw new Error('Пользователь не найден');
     const user = await userResponse.json();
     
+    // Сохраняем дату регистрации
+    if (user.created_at) {
+      currentUser.created_at = user.created_at;
+      updateDaysWithUs();
+    }
+    
     // Получаем подписки
     const subsResponse = await fetch(`${API_URL}/users/user/${user.id}`);
     if (!subsResponse.ok) throw new Error('Ошибка загрузки подписок');
@@ -63,20 +69,37 @@ async function loadSubscriptionsFromDB() {
       test: false
     };
     
+    // Сохраняем даты окончания
+    window.subscriptionExpiry = {};
+    
     for (const sub of subscriptions) {
       if (sub.active === 1) {
         const type = sub.type;
         if (userSubscriptions.hasOwnProperty(type)) {
           userSubscriptions[type] = true;
         }
+        if (sub.expires_at) {
+          window.subscriptionExpiry[type] = new Date(sub.expires_at);
+        }
       }
     }
     
-    console.log('📋 Подписки загружены из БД:', userSubscriptions);
+    console.log('📋 Подписки загружены:', userSubscriptions);
+    console.log('📅 Даты окончания:', window.subscriptionExpiry);
     renderSubscriptions();
     
   } catch (err) {
     console.error('Ошибка загрузки подписок из БД:', err);
+  }
+}
+
+function updateDaysWithUs() {
+  const daysWithUs = document.getElementById("daysWithUs");
+  if (daysWithUs && currentUser?.created_at) {
+    const created = new Date(currentUser.created_at);
+    const now = new Date();
+    const days = Math.floor((now - created) / (1000 * 60 * 60 * 24));
+    daysWithUs.innerText = days;
   }
 }
 
@@ -122,7 +145,7 @@ function handleVKUserData(userData) {
     id: userData.id,
     first_name: userData.first_name,
     last_name: userData.last_name || '',
-    photo: userData.photo_200 || userData.photo_100,
+    photo: userData.photo_200 || userData.photo_100 || '',
   };
   
   updateProfileDisplay();
@@ -199,6 +222,9 @@ function updateProfileDisplay() {
     avatar.style.background = `url(${currentUser.photo}) center/cover no-repeat`;
     avatar.style.border = '2px solid #e6c158';
     avatar.style.color = 'transparent';
+  } else if (avatar) {
+    avatar.innerHTML = '👤';
+    avatar.style.background = '#333';
   }
   
   const userEmail = document.getElementById("userEmail");
@@ -206,6 +232,9 @@ function updateProfileDisplay() {
   
   const editButton = document.querySelector('[onclick="enableNameEdit()"]');
   if (editButton) editButton.remove();
+  
+  // Обновляем дни с нами
+  updateDaysWithUs();
 }
 
 // ===== АКТИВАЦИЯ ПРОМОКОДА =====
@@ -266,6 +295,8 @@ function renderSubscriptions() {
   
   for (let sub of subscriptionTypes) {
     const isActive = userSubscriptions[sub.key] || false;
+    const expiry = window.subscriptionExpiry?.[sub.key];
+    const expiryText = expiry ? `до ${expiry.toLocaleDateString('ru')}` : 'бессрочно';
     
     html += `
       <div class="sub-card" style="background: #2a2a2a; border-radius: 12px; padding: 15px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center;">
@@ -274,6 +305,7 @@ function renderSubscriptions() {
           <div>
             <h4 style="margin: 0; color: ${isActive ? '#e6c158' : '#fff'};">${sub.name}</h4>
             <p style="margin: 5px 0 0; color: #999;">${sub.desc}</p>
+            ${isActive ? `<p style="margin: 2px 0 0; font-size: 11px; color: #888;">Активна ${expiryText}</p>` : ''}
           </div>
         </div>
         ${isActive 
@@ -284,18 +316,18 @@ function renderSubscriptions() {
     `;
   }
   
-// Кнопка активации промокода
-html += `
-  <div class="sub-card" style="background: #2a2a2a; border-radius: 12px; padding: 15px; margin-top: 15px;">
-    <div style="display: flex; justify-content: space-between; align-items: center;">
-      <div>
-        <h4 style="margin: 0;">🎁 Есть промокод?</h4>
-        <p style="margin: 5px 0 0; color: #999;">Введите код для активации подписки</p>
+  // Кнопка активации промокода
+  html += `
+    <div class="sub-card" style="background: #2a2a2a; border-radius: 12px; padding: 15px; margin-top: 15px;">
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <div>
+          <h4 style="margin: 0;">🎁 Есть промокод?</h4>
+          <p style="margin: 5px 0 0; color: #999;">Введите код для активации подписки</p>
+        </div>
+        <button onclick="activatePromoCode()" class="subscribe-btn" style="background: #e6c158; color: #000; border: none; padding: 8px 20px; border-radius: 20px; cursor: pointer;">Активировать</button>
       </div>
-      <button onclick="activatePromoCode()" class="subscribe-btn" style="background: #e6c158; color: #000; border: none; padding: 8px 20px; border-radius: 20px; cursor: pointer;">Активировать</button>
     </div>
-  </div>
-`;
+  `;
   
   subsList.innerHTML = html;
 }
