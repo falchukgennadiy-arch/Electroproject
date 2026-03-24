@@ -7,21 +7,10 @@ let userSubscriptions = {
   test: false
 };
 
-// URL сервера
-const API_URL = 'https://api.omavisual.ru/api';
-
-// Ссылки на подписки
-const DONUT_LINKS = {
-  course: 'https://vk.com/electrocourses?w=donut_payment-223389702&levelId=2499',
-  visual: 'https://vk.com/electrocourses?w=donut_payment-223389702&levelId=2500',
-  template: 'https://vk.com/electrocourses?w=donut_payment-223389702&levelId=2501',
-  test: 'https://vk.com/electrocourses?w=donut_payment-223389702&levelId=2502'
-};
-
 // Функция сохранения пользователя в базу данных
 async function saveUserToDatabase(userData, hasDonut = false, subscriptions = {}) {
   try {
-    const response = await fetch(`${API_URL}/users/save`, {
+    const response = await fetch(`${CONFIG.API_URL}/users/save`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -45,23 +34,19 @@ async function loadSubscriptionsFromDB() {
   if (!currentUser?.id) return;
   
   try {
-    // Получаем внутренний ID пользователя
-    const userResponse = await fetch(`${API_URL}/users/vk/${currentUser.id}`);
+    const userResponse = await fetch(`${CONFIG.API_URL}/users/vk/${currentUser.id}`);
     if (!userResponse.ok) throw new Error('Пользователь не найден');
     const user = await userResponse.json();
     
-    // Сохраняем дату регистрации
     if (user.created_at) {
       currentUser.created_at = user.created_at;
       updateDaysWithUs();
     }
     
-    // Получаем подписки
-    const subsResponse = await fetch(`${API_URL}/users/user/${user.id}`);
+    const subsResponse = await fetch(`${CONFIG.API_URL}/users/user/${user.id}`);
     if (!subsResponse.ok) throw new Error('Ошибка загрузки подписок');
     const subscriptions = await subsResponse.json();
     
-    // Обновляем userSubscriptions
     userSubscriptions = {
       course: false,
       visual: false,
@@ -69,7 +54,6 @@ async function loadSubscriptionsFromDB() {
       test: false
     };
     
-    // Сохраняем даты окончания
     window.subscriptionExpiry = {};
     
     for (const sub of subscriptions) {
@@ -85,7 +69,6 @@ async function loadSubscriptionsFromDB() {
     }
     
     console.log('📋 Подписки загружены:', userSubscriptions);
-    console.log('📅 Даты окончания:', window.subscriptionExpiry);
     renderSubscriptions();
     
   } catch (err) {
@@ -103,11 +86,9 @@ function updateDaysWithUs() {
   }
 }
 
-// Загрузка данных при старте
 document.addEventListener('DOMContentLoaded', function() {
   console.log('🔄 Profile.js инициализация...');
   
-  // Удаляем ненужные блоки
   const profileEdit = document.getElementById("profileEdit");
   if (profileEdit) profileEdit.remove();
   
@@ -117,7 +98,6 @@ document.addEventListener('DOMContentLoaded', function() {
   const userInfoSection = document.getElementById('userInfoSection');
   if (userInfoSection) userInfoSection.remove();
   
-  // Ждём данные от VK
   if (window.vkUserData) {
     handleVKUserData(window.vkUserData);
     checkDonutSubscription();
@@ -149,13 +129,10 @@ function handleVKUserData(userData) {
   };
   
   updateProfileDisplay();
-  
-  // Сохраняем пользователя в базу данных
   saveUserToDatabase(currentUser);
   window.dispatchEvent(new CustomEvent('userLoaded', { detail: currentUser }));
 }
 
-// Проверка донат-подписки через ваш сервер
 async function checkDonutSubscription() {
   if (!currentUser?.id) {
     console.log('⚠️ Нет ID пользователя');
@@ -166,15 +143,13 @@ async function checkDonutSubscription() {
   console.log(`🔍 Проверяем подписку для ${currentUser.id}...`);
   
   try {
-    const response = await fetch(`${API_URL}/donut/check-donut`, {
+    const response = await fetch(`${CONFIG.API_URL}/donut/check-donut`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ user_id: currentUser.id })
     });
     
-    if (!response.ok) {
-      throw new Error(`HTTP ${response.status}`);
-    }
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
     
     const data = await response.json();
     console.log('📡 Ответ сервера:', data);
@@ -198,10 +173,7 @@ async function checkDonutSubscription() {
       };
     }
     
-    // Сохраняем пользователя с обновлёнными подписками
     await saveUserToDatabase(currentUser, data.has_donut || false, subscriptions);
-    
-    // Загружаем подписки из БД (включая ручные и промо)
     await loadSubscriptionsFromDB();
     
   } catch (error) {
@@ -217,14 +189,15 @@ function updateProfileDisplay() {
   }
   
   const avatar = document.getElementById("avatar");
-  if (avatar && currentUser?.photo) {
-    avatar.innerHTML = '';
-    avatar.style.background = `url(${currentUser.photo}) center/cover no-repeat`;
-    avatar.style.border = '2px solid #e6c158';
-    avatar.style.color = 'transparent';
-  } else if (avatar) {
-    avatar.innerHTML = '👤';
-    avatar.style.background = '#333';
+  if (avatar) {
+    if (currentUser?.photo) {
+      avatar.innerHTML = '';
+      avatar.style.backgroundImage = `url(${currentUser.photo})`;
+      avatar.classList.add('has-avatar');
+    } else {
+      avatar.innerHTML = '👤';
+      avatar.classList.remove('has-avatar');
+    }
   }
   
   const userEmail = document.getElementById("userEmail");
@@ -233,11 +206,9 @@ function updateProfileDisplay() {
   const editButton = document.querySelector('[onclick="enableNameEdit()"]');
   if (editButton) editButton.remove();
   
-  // Обновляем дни с нами
   updateDaysWithUs();
 }
 
-// ===== АКТИВАЦИЯ ПРОМОКОДА =====
 async function activatePromoCode() {
   const code = prompt('Введите промокод:');
   if (!code) return;
@@ -248,7 +219,7 @@ async function activatePromoCode() {
   }
   
   try {
-    const response = await fetch(`${API_URL}/users/activate-promo`, {
+    const response = await fetch(`${CONFIG.API_URL}/users/activate-promo`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ vk_id: currentUser.id, promo_code: code.trim() })
@@ -258,7 +229,6 @@ async function activatePromoCode() {
     
     if (result.success) {
       alert(`Подписка ${result.type} активирована!`);
-      // Загружаем подписки из БД
       await loadSubscriptionsFromDB();
     } else {
       alert(result.error || 'Ошибка активации');
@@ -273,44 +243,39 @@ function renderSubscriptions() {
   const subsList = document.getElementById("subscriptionsList");
   if (!subsList) return;
   
-  const subscriptionTypes = [
-    { key: 'course', name: 'COURSE', icon: '📚', desc: 'Доступ к курсам' },
-    { key: 'visual', name: 'VISUAL', icon: '🎨', desc: 'Блоки визуализации' },
-    { key: 'template', name: 'TEMPLATE', icon: '📁', desc: 'Шаблоны и блоки' },
-    { key: 'test', name: 'TEST', icon: '📝', desc: 'Тесты и проверка знаний' }
-  ];
+  const subscriptionTypes = getAllSubscriptionTypes();
   
   let html = `
-    <div class="sub-card" style="background: #2a2a2a; border-radius: 12px; padding: 15px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center;">
-      <div style="display: flex; align-items: center; gap: 15px;">
-        <div style="width: 40px; height: 40px; background: #333; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px;">🔓</div>
-        <div>
-          <h4 style="margin: 0; color: #e6c158;">FREE (базовый)</h4>
-          <p style="margin: 5px 0 0; color: #999;">Всегда доступен</p>
+    <div class="sub-card">
+      <div class="sub-card-left">
+        <div class="sub-card-icon">🔓</div>
+        <div class="sub-card-info">
+          <h4>FREE (базовый)</h4>
+          <p>Всегда доступен</p>
         </div>
       </div>
-      <span style="background: #00a86b; color: white; padding: 5px 12px; border-radius: 20px;">Активен</span>
+      <div class="sub-card-badge">Активен</div>
     </div>
   `;
   
   for (let sub of subscriptionTypes) {
-    const isActive = userSubscriptions[sub.key] || false;
-    const expiry = window.subscriptionExpiry?.[sub.key];
+    const isActive = userSubscriptions[sub.id] || false;
+    const expiry = window.subscriptionExpiry?.[sub.id];
     const expiryText = expiry ? `до ${expiry.toLocaleDateString('ru')}` : 'бессрочно';
     
     html += `
-      <div class="sub-card" style="background: #2a2a2a; border-radius: 12px; padding: 15px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center;">
-        <div style="display: flex; align-items: center; gap: 15px;">
-          <div style="width: 40px; height: 40px; background: ${getColorForKey(sub.key)}; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px;">${sub.icon}</div>
-          <div>
-            <h4 style="margin: 0; color: ${isActive ? '#e6c158' : '#fff'};">${sub.name}</h4>
-            <p style="margin: 5px 0 0; color: #999;">${sub.desc}</p>
-            ${isActive ? `<p style="margin: 2px 0 0; font-size: 11px; color: #888;">Активна ${expiryText}</p>` : ''}
+      <div class="sub-card">
+        <div class="sub-card-left">
+          <div class="sub-card-icon">${sub.icon}</div>
+          <div class="sub-card-info">
+            <h4 style="color: ${isActive ? '#e6c158' : '#fff'};">${sub.name}</h4>
+            <p>${sub.desc}</p>
+            ${isActive ? `<p class="expiry">Активна ${expiryText}</p>` : ''}
           </div>
         </div>
         ${isActive 
-          ? `<span style="background: #00a86b; color: white; padding: 5px 12px; border-radius: 20px;">Активна</span>`
-          : `<button onclick="openDonatSubscription('${sub.key}')" style="background: #e6c158; color: #1a1a1a; border: none; padding: 8px 20px; border-radius: 20px; cursor: pointer;">Оформить</button>`
+          ? `<div class="sub-card-badge">Активна</div>`
+          : `<button class="sub-card-btn" onclick="openDonatSubscription('${sub.id}')">Оформить</button>`
         }
       </div>
     `;
@@ -318,13 +283,13 @@ function renderSubscriptions() {
   
   // Кнопка активации промокода
   html += `
-    <div class="sub-card" style="background: #2a2a2a; border-radius: 12px; padding: 15px; margin-top: 15px;">
-      <div style="display: flex; justify-content: space-between; align-items: center;">
+    <div class="promo-card">
+      <div class="promo-card-content">
         <div>
-          <h4 style="margin: 0;">🎁 Есть промокод?</h4>
-          <p style="margin: 5px 0 0; color: #999;">Введите код для активации подписки</p>
+          <h4>🎁 Есть промокод?</h4>
+          <p>Введите код для активации подписки</p>
         </div>
-        <button onclick="activatePromoCode()" class="subscribe-btn" style="background: #e6c158; color: #000; border: none; padding: 8px 20px; border-radius: 20px; cursor: pointer;">Активировать</button>
+        <button class="sub-card-btn" onclick="activatePromoCode()">Активировать</button>
       </div>
     </div>
   `;
@@ -332,18 +297,8 @@ function renderSubscriptions() {
   subsList.innerHTML = html;
 }
 
-function getColorForKey(key) {
-  const colors = {
-    course: '#4a90e2',
-    visual: '#e6c158',
-    template: '#9b59b6',
-    test: '#e67e22'
-  };
-  return colors[key] || '#444';
-}
-
 function openDonatSubscription(level) {
-  const link = DONUT_LINKS[level];
+  const link = CONFIG.DONUT_LINKS[level];
   if (!link) return;
   
   if (window.vkBridge) {
