@@ -190,25 +190,17 @@ async function activatePromoCode() {
     return;
   }
   
-  // Получаем внутренний ID пользователя
-  const internalUserId = await getInternalUserId(currentUser.id);
-  if (!internalUserId) {
-    alert('Ошибка: пользователь не найден в системе');
-    return;
-  }
-  
   try {
     const response = await fetch(`${API_URL}/users/activate-promo`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ user_id: internalUserId, promo_code: code })
+      body: JSON.stringify({ vk_id: currentUser.id, promo_code: code.trim() })
     });
     
     const result = await response.json();
     
     if (result.success) {
       alert(`Подписка ${result.type} активирована!`);
-      // Обновляем отображение подписок
       await checkDonutSubscription();
     } else {
       alert(result.error || 'Ошибка активации');
