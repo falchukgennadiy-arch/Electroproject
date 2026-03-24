@@ -313,14 +313,16 @@ async function renderTestsList() {
     html += `<div class="test-card locked" onclick="window.showSubscriptionRequired('Экзамен')"><div class="test-icon">🎓</div><div class="test-info"><div class="test-title">Экзамен</div><div class="test-subtitle">25 вопросов (по 5 на каждый уровень)</div><div class="test-badge locked">🔒 Требуется подписка</div></div><div class="subscribe-btn" onclick="event.stopPropagation(); window.openDonatSubscription('test')">💎 Оформить</div></div>`;
   }
   
-  if (hasTestSub && window.allThemes && window.allThemes.length > 0) {
-    html += `<div class="test-card" onclick="window.showThemesScreen()"><div class="test-icon">📂</div><div class="test-info"><div class="test-title">По темам</div><div class="test-subtitle">${window.allThemes.length} тем</div></div></div>`;
+  // ПО ТЕМАМ
+  if (hasTestSub) {
+    html += `<div class="test-card" onclick="window.showThemesScreen()"><div class="test-icon">📂</div><div class="test-info"><div class="test-title">По темам</div><div class="test-subtitle">Выберите тему для тренировки</div></div></div>`;
   } else {
     html += `<div class="test-card locked" onclick="window.showSubscriptionRequired('Тесты по темам')"><div class="test-icon">📂</div><div class="test-info"><div class="test-title">По темам</div><div class="test-subtitle">Выберите тему для тренировки</div><div class="test-badge locked">🔒 Требуется подписка</div></div><div class="subscribe-btn" onclick="event.stopPropagation(); window.openDonatSubscription('test')">💎 Оформить</div></div>`;
   }
   
-  if (hasTestSub && window.allDifficulty && window.allDifficulty.length > 0) {
-    html += `<div class="test-card" onclick="window.showDifficultyScreen()"><div class="test-icon">⭐</div><div class="test-info"><div class="test-title">По сложности</div><div class="test-subtitle">${window.allDifficulty.length} уровней</div></div></div>`;
+  // ПО СЛОЖНОСТИ
+  if (hasTestSub) {
+    html += `<div class="test-card" onclick="window.showDifficultyScreen()"><div class="test-icon">⭐</div><div class="test-info"><div class="test-title">По сложности</div><div class="test-subtitle">Выберите уровень сложности</div></div></div>`;
   } else {
     html += `<div class="test-card locked" onclick="window.showSubscriptionRequired('Тесты по сложности')"><div class="test-icon">⭐</div><div class="test-info"><div class="test-title">По сложности</div><div class="test-subtitle">Выберите уровень сложности</div><div class="test-badge locked">🔒 Требуется подписка</div></div><div class="subscribe-btn" onclick="event.stopPropagation(); window.openDonatSubscription('test')">💎 Оформить</div></div>`;
   }
@@ -351,7 +353,7 @@ async function getUserStats() {
   return stats;
 }
 
-// ===== ЭКРАНЫ =====
+// ===== ЭКРАН СТАТИСТИКИ =====
 async function showStatsScreen() {
   const listEl = document.getElementById("topicsList");
   if (!listEl) return;
@@ -374,6 +376,7 @@ async function showStatsScreen() {
   listEl.innerHTML = html;
 }
 
+// ===== ЭКРАН ВЫБОРА ТЕМЫ =====
 async function showThemesScreen() {
   const listEl = document.getElementById("topicsList");
   if (!listEl) return;
@@ -390,6 +393,7 @@ async function showThemesScreen() {
   listEl.innerHTML = html;
 }
 
+// ===== ЭКРАН ВЫБОРА СЛОЖНОСТИ =====
 async function showDifficultyScreen() {
   const listEl = document.getElementById("topicsList");
   if (!listEl) return;
