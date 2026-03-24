@@ -1,4 +1,3 @@
-```javascript
 // ===== Профиль для VK Mini Apps =====
 let currentUser = null;
 let userSubscriptions = {
@@ -285,4 +284,3 @@ function openDonatSubscription(level) {
 window.checkDonutSubscription = checkDonutSubscription;
 window.openDonatSubscription = openDonatSubscription;
 window.activatePromoCode = activatePromoCode;
-```
