@@ -40,16 +40,43 @@ async function saveUserToDatabase(userData, hasDonut = false, subscriptions = {}
   }
 }
 
-// Получение внутреннего ID пользователя по VK ID
-async function getInternalUserId(vkId) {
+// Загрузка подписок из БД
+async function loadSubscriptionsFromDB() {
+  if (!currentUser?.id) return;
+  
   try {
-    const response = await fetch(`${API_URL}/users/vk/${vkId}`);
-    if (!response.ok) throw new Error('Пользователь не найден');
-    const user = await response.json();
-    return user.id;
+    // Получаем внутренний ID пользователя
+    const userResponse = await fetch(`${API_URL}/users/vk/${currentUser.id}`);
+    if (!userResponse.ok) throw new Error('Пользователь не найден');
+    const user = await userResponse.json();
+    
+    // Получаем подписки
+    const subsResponse = await fetch(`${API_URL}/users/user/${user.id}`);
+    if (!subsResponse.ok) throw new Error('Ошибка загрузки подписок');
+    const subscriptions = await subsResponse.json();
+    
+    // Обновляем userSubscriptions
+    userSubscriptions = {
+      course: false,
+      visual: false,
+      template: false,
+      test: false
+    };
+    
+    for (const sub of subscriptions) {
+      if (sub.active === 1) {
+        const type = sub.type;
+        if (userSubscriptions.hasOwnProperty(type)) {
+          userSubscriptions[type] = true;
+        }
+      }
+    }
+    
+    console.log('📋 Подписки загружены из БД:', userSubscriptions);
+    renderSubscriptions();
+    
   } catch (err) {
-    console.error('Ошибка получения ID:', err);
-    return null;
+    console.error('Ошибка загрузки подписок из БД:', err);
   }
 }
 
@@ -100,7 +127,7 @@ function handleVKUserData(userData) {
   
   updateProfileDisplay();
   
-  // Сохраняем пользователя в базу данных (без подписок, они обновятся в checkDonutSubscription)
+  // Сохраняем пользователя в базу данных
   saveUserToDatabase(currentUser);
   window.dispatchEvent(new CustomEvent('userLoaded', { detail: currentUser }));
 }
@@ -151,7 +178,8 @@ async function checkDonutSubscription() {
     // Сохраняем пользователя с обновлёнными подписками
     await saveUserToDatabase(currentUser, data.has_donut || false, subscriptions);
     
-    renderSubscriptions();
+    // Загружаем подписки из БД (включая ручные и промо)
+    await loadSubscriptionsFromDB();
     
   } catch (error) {
     console.error('❌ Ошибка проверки подписки:', error);
@@ -201,7 +229,8 @@ async function activatePromoCode() {
     
     if (result.success) {
       alert(`Подписка ${result.type} активирована!`);
-      await checkDonutSubscription();
+      // Загружаем подписки из БД
+      await loadSubscriptionsFromDB();
     } else {
       alert(result.error || 'Ошибка активации');
     }
@@ -296,5 +325,5 @@ function openDonatSubscription(level) {
 window.checkDonutSubscription = checkDonutSubscription;
 window.openDonatSubscription = openDonatSubscription;
 window.activatePromoCode = activatePromoCode;
-window.getInternalUserId = getInternalUserId;
+window.loadSubscriptionsFromDB = loadSubscriptionsFromDB;
 window.currentUser = currentUser;
