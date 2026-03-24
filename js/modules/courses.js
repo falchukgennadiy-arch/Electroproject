@@ -1,5 +1,6 @@
 // js/modules/courses.js
-// Заглушка для раздела "Курсы" с полноэкранной анимированной электрической схемой
+// Раздел Courses: анимированная заглушка в стиле Templates,
+// но с другой схемой дорожек и цветом COURSE
 
 let coursesAnimationState = null;
 
@@ -45,7 +46,7 @@ function ensureCoursesStyle() {
       flex-direction: column;
       align-items: center;
       gap: 12px;
-      width: min(440px, calc(100% - 32px));
+      width: min(420px, calc(100% - 32px));
       padding: 24px 26px;
       border-radius: 16px;
       background: var(--card, #1c1c1e);
@@ -53,7 +54,7 @@ function ensureCoursesStyle() {
       box-shadow:
         0 12px 40px rgba(0,0,0,0.35),
         0 0 0 1px rgba(255,255,255,0.015) inset,
-        0 0 28px rgba(74,144,226,0.08);
+        0 0 28px rgba(74,144,226,0.06);
       text-align: center;
     }
 
@@ -89,9 +90,9 @@ function ensureCoursesStyle() {
       border-radius: inherit;
       background: linear-gradient(
         90deg,
-        rgba(74,144,226,0.15),
+        rgba(74,144,226,0.18),
         rgba(74,144,226,1),
-        rgba(210,232,255,0.95)
+        rgba(220,236,255,0.95)
       );
       box-shadow: 0 0 18px rgba(74,144,226,0.65);
       animation: coursesDevBarMove 2.2s ease-in-out infinite;
@@ -149,7 +150,7 @@ function createCoursesAnimation(canvas) {
   const ctx = canvas.getContext('2d');
   if (!ctx) return null;
 
-  const color = '#4a90e2';
+  const color = '74,144,226';
 
   const state = {
     canvas,
@@ -159,49 +160,56 @@ function createCoursesAnimation(canvas) {
     dpr: 1,
     rafId: 0,
     destroyed: false,
-    resizeHandler: null,
-    sparks: []
+    sparks: [],
+    resizeHandler: null
   };
 
-  // Строгая древовидная схема именно для курсов
-  const blocks = [
-    { x: 0.16, y: 0.18, w: 0.10, h: 0.10 },
-    { x: 0.45, y: 0.18, w: 0.10, h: 0.10 },
-    { x: 0.74, y: 0.18, w: 0.10, h: 0.10 },
+  // Схема похожа по стилю на templates:
+  // много поворотов, узлы, боковые ответвления, но рисунок другой
+  const nodes = [
+    { x: 0.08, y: 0.22 },
+    { x: 0.20, y: 0.22 },
+    { x: 0.20, y: 0.10 },
+    { x: 0.36, y: 0.10 },
+    { x: 0.36, y: 0.28 },
+    { x: 0.54, y: 0.28 },
+    { x: 0.54, y: 0.14 },
+    { x: 0.72, y: 0.14 },
+    { x: 0.72, y: 0.34 },
+    { x: 0.92, y: 0.34 },
 
-    { x: 0.16, y: 0.42, w: 0.10, h: 0.10 },
-    { x: 0.45, y: 0.42, w: 0.10, h: 0.10 },
-    { x: 0.74, y: 0.42, w: 0.10, h: 0.10 },
+    { x: 0.10, y: 0.56 },
+    { x: 0.26, y: 0.56 },
+    { x: 0.26, y: 0.72 },
+    { x: 0.46, y: 0.72 },
+    { x: 0.46, y: 0.50 },
+    { x: 0.66, y: 0.50 },
+    { x: 0.66, y: 0.78 },
+    { x: 0.86, y: 0.78 },
+    { x: 0.86, y: 0.58 },
+    { x: 0.94, y: 0.58 },
 
-    { x: 0.16, y: 0.68, w: 0.10, h: 0.10 },
-    { x: 0.45, y: 0.68, w: 0.10, h: 0.10 },
-    { x: 0.74, y: 0.68, w: 0.10, h: 0.10 }
+    { x: 0.16, y: 0.38 },
+    { x: 0.30, y: 0.38 },
+    { x: 0.30, y: 0.48 },
+    { x: 0.50, y: 0.48 },
+    { x: 0.50, y: 0.62 },
+    { x: 0.74, y: 0.62 },
+    { x: 0.74, y: 0.44 },
+    { x: 0.88, y: 0.44 }
   ];
 
-  const lines = [
-    [0.50, 0.06, 0.50, 0.12],
-    [0.21, 0.12, 0.79, 0.12],
-
-    [0.21, 0.12, 0.21, 0.18],
-    [0.50, 0.12, 0.50, 0.18],
-    [0.79, 0.12, 0.79, 0.18],
-
-    [0.21, 0.28, 0.21, 0.42],
-    [0.50, 0.28, 0.50, 0.42],
-    [0.79, 0.28, 0.79, 0.42],
-
-    [0.21, 0.52, 0.21, 0.68],
-    [0.50, 0.52, 0.50, 0.68],
-    [0.79, 0.52, 0.79, 0.68],
-
-    [0.21, 0.60, 0.50, 0.60],
-    [0.50, 0.60, 0.79, 0.60]
+  const segments = [
+    [0,1],[1,2],[2,3],[3,4],[4,5],[5,6],[6,7],[7,8],[8,9],
+    [10,11],[11,12],[12,13],[13,14],[14,15],[15,16],[16,17],[17,18],[18,19],
+    [20,21],[21,22],[22,23],[23,24],[24,25],[25,26],[26,27],
+    [1,20],[4,23],[5,15],[8,27],[11,21],[14,23],[16,25]
   ];
 
-  const pulses = lines.map((line, i) => ({
-    line,
-    offset: (i * 0.17) % 1,
-    speed: 0.20 + (i % 3) * 0.035
+  const pulses = segments.map((segment, i) => ({
+    segment,
+    offset: (i * 0.13) % 1,
+    speed: 0.18 + (i % 4) * 0.035
   }));
 
   function resize() {
@@ -217,18 +225,18 @@ function createCoursesAnimation(canvas) {
     ctx.scale(state.dpr, state.dpr);
   }
 
-  function pxX(v) {
-    return v * state.width;
-  }
-
-  function pxY(v) {
-    return v * state.height;
+  function getPoint(index) {
+    const node = nodes[index];
+    return {
+      x: node.x * state.width,
+      y: node.y * state.height
+    };
   }
 
   function drawGrid() {
     const gap = Math.max(38, Math.min(64, state.width / 28));
     ctx.save();
-    ctx.strokeStyle = 'rgba(255,255,255,0.02)';
+    ctx.strokeStyle = 'rgba(255,255,255,0.025)';
     ctx.lineWidth = 1;
 
     for (let x = 0; x <= state.width; x += gap) {
@@ -251,12 +259,12 @@ function createCoursesAnimation(canvas) {
   function drawCenterGlow(t) {
     const x = state.width * 0.5;
     const y = state.height * 0.5;
-    const radius = Math.min(state.width, state.height) * (0.22 + Math.sin(t * 0.0015) * 0.01);
+    const radius = Math.min(state.width, state.height) * (0.12 + Math.sin(t * 0.0015) * 0.005);
     const gradient = ctx.createRadialGradient(x, y, 0, x, y, radius);
 
-    gradient.addColorStop(0, 'rgba(74,144,226,0.09)');
-    gradient.addColorStop(0.55, 'rgba(74,144,226,0.03)');
-    gradient.addColorStop(1, 'rgba(74,144,226,0)');
+    gradient.addColorStop(0, `rgba(${color},0.10)`);
+    gradient.addColorStop(0.5, `rgba(${color},0.035)`);
+    gradient.addColorStop(1, `rgba(${color},0)`);
 
     ctx.beginPath();
     ctx.fillStyle = gradient;
@@ -264,125 +272,83 @@ function createCoursesAnimation(canvas) {
     ctx.fill();
   }
 
-  function drawLines(t) {
+  function drawSegments(t) {
     ctx.save();
     ctx.lineCap = 'round';
     ctx.lineJoin = 'round';
 
-    lines.forEach((line, i) => {
-      const x1 = pxX(line[0]);
-      const y1 = pxY(line[1]);
-      const x2 = pxX(line[2]);
-      const y2 = pxY(line[3]);
-      const glow = 0.10 + 0.08 * Math.sin(t * 0.0017 + i * 0.8);
+    segments.forEach((pair, index) => {
+      const p1 = getPoint(pair[0]);
+      const p2 = getPoint(pair[1]);
+      const glow = 0.18 + 0.12 * Math.sin(t * 0.0018 + index * 0.9);
 
       ctx.beginPath();
-      ctx.moveTo(x1, y1);
-      ctx.lineTo(x2, y2);
+      ctx.moveTo(p1.x, p1.y);
+      ctx.lineTo(p2.x, p2.y);
       ctx.strokeStyle = 'rgba(255,255,255,0.06)';
       ctx.lineWidth = 2;
       ctx.stroke();
 
       ctx.beginPath();
-      ctx.moveTo(x1, y1);
-      ctx.lineTo(x2, y2);
-      ctx.strokeStyle = `rgba(74,144,226,${glow})`;
-      ctx.lineWidth = 1.2;
+      ctx.moveTo(p1.x, p1.y);
+      ctx.lineTo(p2.x, p2.y);
+      ctx.strokeStyle = `rgba(${color},${glow})`;
+      ctx.lineWidth = 1;
       ctx.shadowBlur = 14;
-      ctx.shadowColor = 'rgba(74,144,226,0.35)';
+      ctx.shadowColor = `rgba(${color},0.35)`;
       ctx.stroke();
     });
 
     ctx.restore();
   }
 
-  function drawBlocks(t) {
-    blocks.forEach((block, i) => {
-      const x = pxX(block.x);
-      const y = pxY(block.y);
-      const w = pxX(block.w);
-      const h = pxY(block.h);
-      const pulse = 0.5 + 0.5 * Math.sin(t * 0.002 + i * 0.7);
-      const borderAlpha = 0.08 + pulse * 0.10;
-      const glowAlpha = 0.05 + pulse * 0.10;
+  function drawNodes(t) {
+    nodes.forEach((node, i) => {
+      const x = node.x * state.width;
+      const y = node.y * state.height;
+      const pulse = 0.5 + 0.5 * Math.sin(t * 0.002 + i * 0.6);
+      const r = 2.2 + pulse * 1.4;
 
-      ctx.save();
-
-      ctx.fillStyle = 'rgba(255,255,255,0.02)';
-      ctx.strokeStyle = `rgba(255,255,255,${borderAlpha})`;
-      ctx.lineWidth = 1.4;
       ctx.beginPath();
-      ctx.roundRect(x, y, w, h, 12);
+      ctx.arc(x, y, r * 2.8, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(${color},0.05)`;
       ctx.fill();
-      ctx.stroke();
 
       ctx.beginPath();
-      ctx.roundRect(x, y, w, h, 12);
-      ctx.strokeStyle = `rgba(74,144,226,${glowAlpha})`;
-      ctx.lineWidth = 1.1;
-      ctx.shadowBlur = 18;
-      ctx.shadowColor = 'rgba(74,144,226,0.28)';
-      ctx.stroke();
-
-      const line1Y = y + h * 0.30;
-      const line2Y = y + h * 0.52;
-      const line3Y = y + h * 0.72;
-
+      ctx.arc(x, y, r, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(235,245,255,0.95)';
+      ctx.shadowBlur = 16;
+      ctx.shadowColor = `rgba(${color},0.8)`;
+      ctx.fill();
       ctx.shadowBlur = 0;
-      ctx.lineWidth = 2;
-      ctx.strokeStyle = 'rgba(255,255,255,0.10)';
-
-      ctx.beginPath();
-      ctx.moveTo(x + w * 0.16, line1Y);
-      ctx.lineTo(x + w * 0.80, line1Y);
-      ctx.stroke();
-
-      ctx.strokeStyle = 'rgba(255,255,255,0.07)';
-      ctx.beginPath();
-      ctx.moveTo(x + w * 0.16, line2Y);
-      ctx.lineTo(x + w * 0.62, line2Y);
-      ctx.stroke();
-
-      ctx.beginPath();
-      ctx.moveTo(x + w * 0.16, line3Y);
-      ctx.lineTo(x + w * 0.48, line3Y);
-      ctx.stroke();
-
-      ctx.beginPath();
-      ctx.arc(x + w * 0.84, y + h * 0.22, 3 + pulse * 1.2, 0, Math.PI * 2);
-      ctx.fillStyle = 'rgba(220,240,255,0.95)';
-      ctx.shadowBlur = 14;
-      ctx.shadowColor = 'rgba(74,144,226,0.8)';
-      ctx.fill();
-
-      ctx.restore();
     });
   }
 
   function drawPulses(t) {
     pulses.forEach((pulse) => {
-      const line = pulse.line;
+      const [a, b] = pulse.segment;
+      const p1 = getPoint(a);
+      const p2 = getPoint(b);
       const progress = (t * 0.00012 * pulse.speed * 60 + pulse.offset) % 1;
-
-      const x = pxX(line[0] + (line[2] - line[0]) * progress);
-      const y = pxY(line[1] + (line[3] - line[1]) * progress);
+      const x = p1.x + (p2.x - p1.x) * progress;
+      const y = p1.y + (p2.y - p1.y) * progress;
 
       ctx.beginPath();
-      ctx.arc(x, y, 3.4, 0, Math.PI * 2);
-      ctx.fillStyle = 'rgba(230,245,255,0.96)';
+      ctx.arc(x, y, 3.2, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(235,245,255,0.96)';
       ctx.shadowBlur = 24;
-      ctx.shadowColor = 'rgba(74,144,226,1)';
+      ctx.shadowColor = `rgba(${color},1)`;
       ctx.fill();
       ctx.shadowBlur = 0;
 
-      if (Math.random() < 0.006) {
+      if (Math.random() < 0.008) {
         state.sparks.push({
           x,
           y,
-          vx: (Math.random() - 0.5) * 1.2,
-          vy: (Math.random() - 0.5) * 1.2,
+          vx: (Math.random() - 0.5) * 1.6,
+          vy: (Math.random() - 0.5) * 1.6,
           life: 1,
-          size: 1 + Math.random() * 1.7
+          size: 1 + Math.random() * 2
         });
       }
     });
@@ -393,7 +359,7 @@ function createCoursesAnimation(canvas) {
       const spark = state.sparks[i];
       spark.x += spark.vx;
       spark.y += spark.vy;
-      spark.life -= 0.03;
+      spark.life -= 0.025;
 
       if (spark.life <= 0) {
         state.sparks.splice(i, 1);
@@ -402,32 +368,12 @@ function createCoursesAnimation(canvas) {
 
       ctx.beginPath();
       ctx.arc(spark.x, spark.y, spark.size * spark.life, 0, Math.PI * 2);
-      ctx.fillStyle = `rgba(220,240,255,${spark.life})`;
+      ctx.fillStyle = `rgba(235,245,255,${spark.life})`;
       ctx.shadowBlur = 10;
-      ctx.shadowColor = `rgba(74,144,226,${spark.life})`;
+      ctx.shadowColor = `rgba(${color},${spark.life})`;
       ctx.fill();
       ctx.shadowBlur = 0;
     }
-  }
-
-  function drawPowerCore(t) {
-    const x = state.width * 0.5;
-    const y = state.height * 0.06;
-    const pulse = 0.5 + 0.5 * Math.sin(t * 0.0025);
-
-    ctx.beginPath();
-    ctx.arc(x, y, 9 + pulse * 3, 0, Math.PI * 2);
-    ctx.fillStyle = 'rgba(225,242,255,0.95)';
-    ctx.shadowBlur = 24;
-    ctx.shadowColor = 'rgba(74,144,226,0.9)';
-    ctx.fill();
-    ctx.shadowBlur = 0;
-
-    ctx.beginPath();
-    ctx.arc(x, y, 20 + pulse * 5, 0, Math.PI * 2);
-    ctx.strokeStyle = 'rgba(74,144,226,0.18)';
-    ctx.lineWidth = 2;
-    ctx.stroke();
   }
 
   function animate(t) {
@@ -436,11 +382,10 @@ function createCoursesAnimation(canvas) {
     ctx.clearRect(0, 0, state.width, state.height);
     drawGrid();
     drawCenterGlow(t);
-    drawLines(t);
-    drawBlocks(t);
+    drawSegments(t);
     drawPulses(t);
+    drawNodes(t);
     updateSparks();
-    drawPowerCore(t);
 
     state.rafId = requestAnimationFrame(animate);
   }
@@ -450,11 +395,22 @@ function createCoursesAnimation(canvas) {
   resize();
   state.rafId = requestAnimationFrame(animate);
 
-  console.assert(Array.isArray(blocks) && blocks.length > 0, 'courses animation: blocks should exist');
-  console.assert(Array.isArray(lines) && lines.length > 0, 'courses animation: lines should exist');
-  console.assert(pulses.length === lines.length, 'courses animation: pulses count should match lines count');
+  console.assert(Array.isArray(nodes) && nodes.length > 0, 'courses animation: nodes should exist');
+  console.assert(Array.isArray(segments) && segments.length > 0, 'courses animation: segments should exist');
+  console.assert(pulses.length === segments.length, 'courses animation: pulses count should match segments count');
 
   return state;
+}
+
+function hideUnusedCoursesUi() {
+  const toggle = document.getElementById('coursesViewToggle');
+  if (toggle) toggle.style.display = 'none';
+
+  const calendarEl = document.getElementById('coursesCalendar');
+  if (calendarEl) calendarEl.style.display = 'none';
+
+  const contentEl = document.getElementById('courseContent');
+  if (contentEl) contentEl.innerHTML = '';
 }
 
 function renderCoursesList() {
@@ -463,12 +419,7 @@ function renderCoursesList() {
 
   destroyCoursesAnimation();
   ensureCoursesStyle();
-
-  const calendarEl = document.getElementById('coursesCalendar');
-  const contentEl = document.getElementById('courseContent');
-
-  if (calendarEl) calendarEl.style.display = 'none';
-  if (contentEl) contentEl.innerHTML = '';
+  hideUnusedCoursesUi();
 
   listEl.innerHTML = `
     <div class="courses-dev-wrap">
@@ -488,13 +439,7 @@ function renderCoursesList() {
   const canvas = document.getElementById('coursesDevCanvas');
   if (!canvas) return;
 
-  templatesHideUnusedCoursesUi();
   coursesAnimationState = createCoursesAnimation(canvas);
-}
-
-function templatesHideUnusedCoursesUi() {
-  const toggle = document.getElementById('coursesViewToggle');
-  if (toggle) toggle.style.display = 'none';
 }
 
 function openCourseItem() {
