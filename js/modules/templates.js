@@ -23,6 +23,7 @@ function ensureTemplatesStyle() {
       width: 100%;
       height: 100%;
       display: block;
+      background: var(--bg, #111);
     }
 
     .templates-dev-overlay {
@@ -40,28 +41,21 @@ function ensureTemplatesStyle() {
       flex-direction: column;
       align-items: center;
       gap: 12px;
-
       width: min(420px, calc(100% - 32px));
       padding: 24px 26px;
-
       border-radius: 16px;
-
       background: linear-gradient(
         135deg,
         rgba(255,255,255,0.06),
         rgba(255,255,255,0.02)
       );
-
       backdrop-filter: blur(16px);
       -webkit-backdrop-filter: blur(16px);
-
       border: 1px solid rgba(255,255,255,0.10);
-
       box-shadow:
         0 12px 40px rgba(0,0,0,0.35),
         0 0 0 1px rgba(255,255,255,0.04) inset,
         0 0 32px rgba(155, 89, 182, 0.12);
-
       text-align: center;
     }
 
@@ -89,6 +83,7 @@ function ensureTemplatesStyle() {
       border-radius: 999px;
       overflow: hidden;
       background: var(--btn, #2e2e2e);
+      box-shadow: 0 0 0 1px rgba(255,255,255,0.03) inset;
     }
 
     .templates-dev-bar-fill {
@@ -102,12 +97,35 @@ function ensureTemplatesStyle() {
         rgba(220,200,255,0.95)
       );
       box-shadow: 0 0 18px rgba(155,89,182,0.7);
-      animation: moveBar 2.2s infinite;
+      animation: templatesBarMove 2.2s ease-in-out infinite;
+      transform: translateX(-120%);
     }
 
-    @keyframes moveBar {
+    @keyframes templatesBarMove {
       0% { transform: translateX(-120%); }
       100% { transform: translateX(320%); }
+    }
+
+    @media (max-width: 640px) {
+      .templates-dev-wrap {
+        min-height: calc(100dvh - 120px);
+        height: calc(100dvh - 120px);
+        border-radius: 14px;
+      }
+
+      .templates-dev-panel {
+        width: min(92vw, 420px);
+        padding: 22px 18px;
+      }
+
+      .templates-dev-title {
+        font-size: clamp(20px, 6vw, 28px);
+      }
+
+      .templates-dev-subtitle {
+        font-size: 11px;
+        letter-spacing: 0.14em;
+      }
     }
   `;
 
@@ -118,37 +136,45 @@ function destroyTemplatesAnimation() {
   if (!templatesAnimationState) return;
 
   templatesAnimationState.destroyed = true;
-  cancelAnimationFrame(templatesAnimationState.raf);
-  window.removeEventListener('resize', templatesAnimationState.resize);
+
+  if (templatesAnimationState.rafId) {
+    cancelAnimationFrame(templatesAnimationState.rafId);
+  }
+
+  if (templatesAnimationState.resizeHandler) {
+    window.removeEventListener('resize', templatesAnimationState.resizeHandler);
+  }
 
   templatesAnimationState = null;
 }
 
 function createTemplatesAnimation(canvas) {
   const ctx = canvas.getContext('2d');
-  if (!ctx) return;
+  if (!ctx) return null;
 
   const color = '155,89,182';
 
   const state = {
     destroyed: false,
-    raf: 0,
-    resize: null
+    rafId: 0,
+    resizeHandler: null,
+    width: 0,
+    height: 0,
+    dpr: 1,
+    sparks: []
   };
 
-  let w = 0, h = 0, dpr = 1;
-
   const nodes = [
-    {x:0.1,y:0.2},{x:0.25,y:0.2},{x:0.25,y:0.1},{x:0.4,y:0.1},
-    {x:0.4,y:0.3},{x:0.6,y:0.3},{x:0.6,y:0.15},{x:0.8,y:0.15},
-    {x:0.8,y:0.35},{x:0.95,y:0.35},
+    { x: 0.10, y: 0.20 }, { x: 0.25, y: 0.20 }, { x: 0.25, y: 0.10 }, { x: 0.40, y: 0.10 },
+    { x: 0.40, y: 0.30 }, { x: 0.60, y: 0.30 }, { x: 0.60, y: 0.15 }, { x: 0.80, y: 0.15 },
+    { x: 0.80, y: 0.35 }, { x: 0.95, y: 0.35 },
 
-    {x:0.1,y:0.6},{x:0.3,y:0.6},{x:0.3,y:0.8},{x:0.5,y:0.8},
-    {x:0.5,y:0.55},{x:0.7,y:0.55},{x:0.7,y:0.8},{x:0.9,y:0.8},
-    {x:0.9,y:0.6},{x:0.98,y:0.6},
+    { x: 0.10, y: 0.60 }, { x: 0.30, y: 0.60 }, { x: 0.30, y: 0.80 }, { x: 0.50, y: 0.80 },
+    { x: 0.50, y: 0.55 }, { x: 0.70, y: 0.55 }, { x: 0.70, y: 0.80 }, { x: 0.90, y: 0.80 },
+    { x: 0.90, y: 0.60 }, { x: 0.98, y: 0.60 },
 
-    {x:0.2,y:0.4},{x:0.35,y:0.4},{x:0.35,y:0.5},{x:0.55,y:0.5},
-    {x:0.55,y:0.7},{x:0.75,y:0.7},{x:0.75,y:0.5},{x:0.9,y:0.5}
+    { x: 0.20, y: 0.40 }, { x: 0.35, y: 0.40 }, { x: 0.35, y: 0.50 }, { x: 0.55, y: 0.50 },
+    { x: 0.55, y: 0.70 }, { x: 0.75, y: 0.70 }, { x: 0.75, y: 0.50 }, { x: 0.90, y: 0.50 }
   ];
 
   const segments = [
@@ -158,74 +184,207 @@ function createTemplatesAnimation(canvas) {
     [1,20],[4,23],[5,15],[8,27]
   ];
 
+  const pulses = segments.map((segment, i) => ({
+    segment,
+    offset: (i * 0.15) % 1,
+    speed: 0.16 + (i % 4) * 0.035
+  }));
+
   function resize() {
-    w = canvas.clientWidth;
-    h = canvas.clientHeight;
-    dpr = window.devicePixelRatio || 1;
+    const rect = canvas.getBoundingClientRect();
+    state.width = Math.max(1, Math.floor(rect.width));
+    state.height = Math.max(1, Math.floor(rect.height));
+    state.dpr = Math.min(window.devicePixelRatio || 1, 2);
 
-    canvas.width = w * dpr;
-    canvas.height = h * dpr;
+    canvas.width = Math.max(1, Math.floor(state.width * state.dpr));
+    canvas.height = Math.max(1, Math.floor(state.height * state.dpr));
 
-    ctx.setTransform(dpr,0,0,dpr,0,0);
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.scale(state.dpr, state.dpr);
   }
 
-  function point(i){
+  function point(i) {
     return {
-      x:nodes[i].x*w,
-      y:nodes[i].y*h
-    }
+      x: nodes[i].x * state.width,
+      y: nodes[i].y * state.height
+    };
   }
 
-  function draw(t){
-    ctx.clearRect(0,0,w,h);
+  function drawBackgroundGrid() {
+    const gap = Math.max(38, Math.min(64, state.width / 28));
+    ctx.save();
+    ctx.strokeStyle = 'rgba(255,255,255,0.02)';
+    ctx.lineWidth = 1;
 
-    segments.forEach((s,i)=>{
-      const a = point(s[0]);
-      const b = point(s[1]);
+    for (let x = 0; x <= state.width; x += gap) {
+      ctx.beginPath();
+      ctx.moveTo(x, 0);
+      ctx.lineTo(x, state.height);
+      ctx.stroke();
+    }
 
-      const glow = 0.2 + Math.sin(t*0.002+i)*0.1;
+    for (let y = 0; y <= state.height; y += gap) {
+      ctx.beginPath();
+      ctx.moveTo(0, y);
+      ctx.lineTo(state.width, y);
+      ctx.stroke();
+    }
+
+    ctx.restore();
+  }
+
+  function drawCenterGlow(t) {
+    const x = state.width * 0.5;
+    const y = state.height * 0.5;
+    const radius = Math.min(state.width, state.height) * (0.16 + Math.sin(t * 0.0014) * 0.008);
+    const gradient = ctx.createRadialGradient(x, y, 0, x, y, radius);
+
+    gradient.addColorStop(0, `rgba(${color},0.08)`);
+    gradient.addColorStop(0.5, `rgba(${color},0.03)`);
+    gradient.addColorStop(1, `rgba(${color},0)`);
+
+    ctx.beginPath();
+    ctx.fillStyle = gradient;
+    ctx.arc(x, y, radius, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  function drawSegments(t) {
+    ctx.save();
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+
+    segments.forEach((seg, i) => {
+      const a = point(seg[0]);
+      const b = point(seg[1]);
+      const glow = 0.16 + Math.sin(t * 0.0018 + i * 0.7) * 0.08;
 
       ctx.beginPath();
-      ctx.moveTo(a.x,a.y);
-      ctx.lineTo(b.x,b.y);
+      ctx.moveTo(a.x, a.y);
+      ctx.lineTo(b.x, b.y);
       ctx.strokeStyle = 'rgba(255,255,255,0.06)';
       ctx.lineWidth = 2;
       ctx.stroke();
 
       ctx.beginPath();
-      ctx.moveTo(a.x,a.y);
-      ctx.lineTo(b.x,b.y);
+      ctx.moveTo(a.x, a.y);
+      ctx.lineTo(b.x, b.y);
       ctx.strokeStyle = `rgba(${color},${glow})`;
       ctx.lineWidth = 1;
       ctx.shadowBlur = 14;
-      ctx.shadowColor = `rgba(${color},0.4)`;
+      ctx.shadowColor = `rgba(${color},0.42)`;
       ctx.stroke();
-      ctx.shadowBlur = 0;
     });
 
-    nodes.forEach((n,i)=>{
-      const x = n.x*w;
-      const y = n.y*h;
+    ctx.restore();
+  }
+
+  function drawNodes(t) {
+    nodes.forEach((n, i) => {
+      const x = n.x * state.width;
+      const y = n.y * state.height;
+      const pulse = 0.5 + 0.5 * Math.sin(t * 0.002 + i * 0.6);
+      const r = 2.2 + pulse * 1.2;
 
       ctx.beginPath();
-      ctx.arc(x,y,3,0,Math.PI*2);
-      ctx.fillStyle = '#fff';
-      ctx.shadowBlur = 10;
-      ctx.shadowColor = `rgba(${color},1)`;
+      ctx.arc(x, y, r * 2.8, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(${color},0.05)`;
+      ctx.fill();
+
+      ctx.beginPath();
+      ctx.arc(x, y, r, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(255,245,255,0.95)';
+      ctx.shadowBlur = 12;
+      ctx.shadowColor = `rgba(${color},0.95)`;
       ctx.fill();
       ctx.shadowBlur = 0;
     });
-
-    state.raf = requestAnimationFrame(draw);
   }
 
-  state.resize = resize;
+  function drawPulses(t) {
+    pulses.forEach((pulse) => {
+      const a = point(pulse.segment[0]);
+      const b = point(pulse.segment[1]);
+
+      const progress = (t * 0.00012 * pulse.speed * 60 + pulse.offset) % 1;
+      const x = a.x + (b.x - a.x) * progress;
+      const y = a.y + (b.y - a.y) * progress;
+
+      ctx.beginPath();
+      ctx.arc(x, y, 3.2, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(255,245,255,0.98)';
+      ctx.shadowBlur = 24;
+      ctx.shadowColor = `rgba(${color},1)`;
+      ctx.fill();
+      ctx.shadowBlur = 0;
+
+      if (Math.random() < 0.006) {
+        state.sparks.push({
+          x,
+          y,
+          vx: (Math.random() - 0.5) * 1.2,
+          vy: (Math.random() - 0.5) * 1.2,
+          life: 1,
+          size: 1 + Math.random() * 1.4
+        });
+      }
+    });
+  }
+
+  function drawSparks() {
+    for (let i = state.sparks.length - 1; i >= 0; i -= 1) {
+      const spark = state.sparks[i];
+      spark.x += spark.vx;
+      spark.y += spark.vy;
+      spark.life -= 0.03;
+
+      if (spark.life <= 0) {
+        state.sparks.splice(i, 1);
+        continue;
+      }
+
+      ctx.beginPath();
+      ctx.arc(spark.x, spark.y, spark.size * spark.life, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(255,240,255,${spark.life})`;
+      ctx.shadowBlur = 10;
+      ctx.shadowColor = `rgba(${color},${spark.life})`;
+      ctx.fill();
+      ctx.shadowBlur = 0;
+    }
+  }
+
+  function animate(t) {
+    if (state.destroyed || !document.body.contains(canvas)) return;
+
+    ctx.clearRect(0, 0, state.width, state.height);
+    drawBackgroundGrid();
+    drawCenterGlow(t);
+    drawSegments(t);
+    drawPulses(t);
+    drawNodes(t);
+    drawSparks();
+
+    state.rafId = requestAnimationFrame(animate);
+  }
+
+  state.resizeHandler = resize;
   window.addEventListener('resize', resize);
   resize();
 
-  state.raf = requestAnimationFrame(draw);
+  console.assert(Array.isArray(nodes) && nodes.length > 0, 'templates animation: nodes should exist');
+  console.assert(Array.isArray(segments) && segments.length > 0, 'templates animation: segments should exist');
+  console.assert(pulses.length === segments.length, 'templates animation: pulses count should match segments');
 
+  state.rafId = requestAnimationFrame(animate);
   return state;
+}
+
+function hideUnusedTemplatesUi() {
+  const toggle = document.getElementById('templatesViewToggle');
+  if (toggle) toggle.style.display = 'none';
+
+  const calendarEl = document.getElementById('templatesCalendar');
+  if (calendarEl) calendarEl.style.display = 'none';
 }
 
 function renderTemplatesList() {
@@ -234,10 +393,11 @@ function renderTemplatesList() {
 
   destroyTemplatesAnimation();
   ensureTemplatesStyle();
+  hideUnusedTemplatesUi();
 
   el.innerHTML = `
     <div class="templates-dev-wrap">
-      <canvas id="templatesCanvas" class="templates-dev-canvas"></canvas>
+      <canvas id="templatesCanvas" class="templates-dev-canvas" aria-label="Templates section animation"></canvas>
       <div class="templates-dev-overlay">
         <div class="templates-dev-panel">
           <h2 class="templates-dev-title">Шаблоны</h2>
@@ -251,8 +411,12 @@ function renderTemplatesList() {
   `;
 
   const canvas = document.getElementById('templatesCanvas');
+  if (!canvas) return;
+
   templatesAnimationState = createTemplatesAnimation(canvas);
 }
+
+window.addEventListener('beforeunload', destroyTemplatesAnimation);
 
 window.renderTemplatesList = renderTemplatesList;
 window.destroyTemplatesAnimation = destroyTemplatesAnimation;
