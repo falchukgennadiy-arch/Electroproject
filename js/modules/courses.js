@@ -49,12 +49,17 @@ function ensureCoursesStyle() {
       width: min(420px, calc(100% - 32px));
       padding: 24px 26px;
       border-radius: 16px;
-      background: var(--card, #1c1c1e);
-      border: 1px solid rgba(255,255,255,0.04);
+     
+      background: rgba(28, 28, 30, 0.35);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+
+      border: 1px solid rgba(255,255,255,0.08);
+
       box-shadow:
-        0 12px 40px rgba(0,0,0,0.35),
-        0 0 0 1px rgba(255,255,255,0.015) inset,
-        0 0 28px rgba(74,144,226,0.06);
+      0 12px 40px rgba(0,0,0,0.35),
+      0 0 0 1px rgba(255,255,255,0.04) inset,
+      0 0 30px rgba(74,144,226,0.08);      
       text-align: center;
     }
 
