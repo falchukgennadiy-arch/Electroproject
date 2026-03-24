@@ -284,3 +284,4 @@ function openDonatSubscription(level) {
 window.checkDonutSubscription = checkDonutSubscription;
 window.openDonatSubscription = openDonatSubscription;
 window.activatePromoCode = activatePromoCode;
+window.currentUser = currentUser;
