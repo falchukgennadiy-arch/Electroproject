@@ -1,3 +1,4 @@
+```javascript
 // ===== Профиль для VK Mini Apps =====
 let currentUser = null;
 let userSubscriptions = {
@@ -167,6 +168,38 @@ function updateProfileDisplay() {
   if (editButton) editButton.remove();
 }
 
+// ===== АКТИВАЦИЯ ПРОМОКОДА =====
+async function activatePromoCode() {
+  const code = prompt('Введите промокод:');
+  if (!code) return;
+  
+  if (!currentUser?.id) {
+    alert('Ошибка: пользователь не найден');
+    return;
+  }
+  
+  try {
+    const response = await fetch(`${API_URL}/users/activate-promo`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ user_id: currentUser.id, promo_code: code })
+    });
+    
+    const result = await response.json();
+    
+    if (result.success) {
+      alert(`Подписка ${result.type} активирована!`);
+      // Обновляем отображение подписок
+      await checkDonutSubscription();
+    } else {
+      alert(result.error || 'Ошибка активации');
+    }
+  } catch (err) {
+    console.error('Ошибка активации:', err);
+    alert('Ошибка подключения к серверу');
+  }
+}
+
 function renderSubscriptions() {
   const subsList = document.getElementById("subscriptionsList");
   if (!subsList) return;
@@ -211,6 +244,19 @@ function renderSubscriptions() {
     `;
   }
   
+  // Кнопка активации промокода
+  html += `
+    <div class="sub-card" style="background: #2a2a2a; border-radius: 12px; padding: 15px; margin-top: 15px;">
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <div>
+          <h4 style="margin: 0;">🎁 Есть промокод?</h4>
+          <p style="margin: 5px 0 0; color: #999;">Введите код для активации подписки</p>
+        </div>
+        <button onclick="activatePromoCode()" style="background: #e6c158; color: #000; border: none; padding: 8px 20px; border-radius: 20px; cursor: pointer;">Активировать</button>
+      </div>
+    </div>
+  `;
+  
   subsList.innerHTML = html;
 }
 
@@ -238,3 +284,5 @@ function openDonatSubscription(level) {
 
 window.checkDonutSubscription = checkDonutSubscription;
 window.openDonatSubscription = openDonatSubscription;
+window.activatePromoCode = activatePromoCode;
+```
