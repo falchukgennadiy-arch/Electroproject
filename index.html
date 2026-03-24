@@ -4,8 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes" />
   <title>ЭлектроПроект Donuts</title>
-  <link rel="stylesheet" href="css/style.css" />
-  <link rel="stylesheet" href="css/test_style.css" />
+  
 </head>
 <body>
 <div class="app-wrapper">
@@ -137,17 +136,19 @@
   </div>
 </div>
 
+<link rel="stylesheet" href="css/style.css" />
+<link rel="stylesheet" href="css/profile.css" />
+<link rel="stylesheet" href="css/tests.css" />
+
 <!-- Подключение скриптов -->
 <script src="https://unpkg.com/@vkid/sdk@<3.0.0/dist-sdk/umd/index.js"></script>
-
 <!-- 👇 VK Bridge - подключаем библиотеку -->
 <script src="https://unpkg.com/@vkontakte/vk-bridge/dist/browser.min.js"></script>
-
-<!-- 👇 Наш обработчик для VK Bridge (отдельный файл) -->
+<!-- 👇 Обработчик для VK Bridge (отдельный файл) -->
 <script src="js/vk-bridge.js"></script>
-
-<!-- Ваши локальные скрипты -->
+<!-- Локальные скрипты -->
 <script src="js/config.js"></script>
+  <script src="js/config/subscriptions-config.js"></script>
 <script src="js/api.js"></script>
 <script src="js/utils/helpers.js"></script>
 <script src="js/utils/calendar.js"></script>
