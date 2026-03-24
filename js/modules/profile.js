@@ -284,18 +284,18 @@ function renderSubscriptions() {
     `;
   }
   
-  // Кнопка активации промокода
-  html += `
-    <div class="sub-card" style="background: #2a2a2a; border-radius: 12px; padding: 15px; margin-top: 15px;">
-      <div style="display: flex; justify-content: space-between; align-items: center;">
-        <div>
-          <h4 style="margin: 0;">🎁 Есть промокод?</h4>
-          <p style="margin: 5px 0 0; color: #999;">Введите код для активации подписки</p>
-        </div>
-        <button onclick="activatePromoCode()" style="background: #e6c158; color: #000; border: none; padding: 8px 20px; border-radius: 20px; cursor: pointer;">Активировать</button>
+// Кнопка активации промокода
+html += `
+  <div class="sub-card" style="background: #2a2a2a; border-radius: 12px; padding: 15px; margin-top: 15px;">
+    <div style="display: flex; justify-content: space-between; align-items: center;">
+      <div>
+        <h4 style="margin: 0;">🎁 Есть промокод?</h4>
+        <p style="margin: 5px 0 0; color: #999;">Введите код для активации подписки</p>
       </div>
+      <button onclick="activatePromoCode()" class="subscribe-btn" style="background: #e6c158; color: #000; border: none; padding: 8px 20px; border-radius: 20px; cursor: pointer;">Активировать</button>
     </div>
-  `;
+  </div>
+`;
   
   subsList.innerHTML = html;
 }
