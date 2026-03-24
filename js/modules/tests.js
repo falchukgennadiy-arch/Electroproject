@@ -9,7 +9,7 @@ let currentAnswered = false;
 let currentAnsweredQuestions = [];
 let currentUserId = null;
 let currentAttemptId = null;
-let currentTestMode = 'exam'; // 'exam', 'theme', 'difficulty'
+let currentTestMode = 'exam';
 
 // Локальные таймеры
 let testStartTime = null;
@@ -33,8 +33,6 @@ const TEST_RULES = {
   quick: { count: 10 }
 };
 
-
-
 // ===== ЗАГРУЗКА ВОПРОСОВ =====
 async function loadQuestions() {
   try {
@@ -42,7 +40,6 @@ async function loadQuestions() {
     if (response.ok) {
       window.allQuestions = await response.json();
       console.log(`✅ Загружено вопросов: ${window.allQuestions.length}`);
-      // После загрузки вопросов обновляем статистику и список тестов
       renderTestsList();
     } else {
       console.error('❌ Ошибка загрузки вопросов');
@@ -110,6 +107,23 @@ function hideTestControls() {
   if (controls) controls.style.display = "none";
   const testArea = document.getElementById("testArea");
   if (testArea) testArea.style.paddingBottom = "0";
+}
+
+// ===== ПОЛУЧЕНИЕ ПОДПИСКИ ИЗ БД =====
+async function hasTestSubscription() {
+  if (!currentUserId) return false;
+  try {
+    const userRes = await fetch(`${API.baseURL}/users/vk/${currentUserId}`);
+    if (!userRes.ok) return false;
+    const user = await userRes.json();
+    const subsRes = await fetch(`${API.baseURL}/users/user/${user.id}`);
+    if (!subsRes.ok) return false;
+    const subs = await subsRes.json();
+    return subs.some(s => s.type === 'test' && s.active === 1);
+  } catch (err) {
+    console.error('Ошибка проверки подписки:', err);
+    return false;
+  }
 }
 
 // ===== РАБОТА С ПРОГРЕССОМ =====
@@ -210,107 +224,68 @@ async function saveTestProgressToDB(completed = false) {
 // ===== ГЕНЕРАЦИЯ ТЕСТОВ =====
 async function generateQuickTest() {
   const activeQuestions = getActiveQuestions();
-  
   if (activeQuestions.length === 0) {
     alert('Нет активных вопросов');
     return null;
   }
-  
   const shuffled = shuffleArray(activeQuestions);
   const questions = shuffled.slice(0, TEST_RULES.quick.count);
-  
-  return {
-    id: 'quick',
-    title: 'Быстрый тест',
-    type: 'quick',
-    questions: questions
-  };
+  return { id: 'quick', title: 'Быстрый тест', type: 'quick', questions: questions };
 }
 
 async function generateExam() {
   let totalQuestions = [];
-  
   for (let rule of TEST_RULES.exam) {
     const levelQuestions = getActiveQuestions().filter(q => q.difficulty_level_id === rule.difficulty_level_id);
-    
     if (levelQuestions.length === 0) continue;
-    
     const shuffled = shuffleArray(levelQuestions);
     const selected = shuffled.slice(0, rule.count);
     totalQuestions.push(...selected);
   }
-  
   if (totalQuestions.length === 0) {
     alert('Недостаточно вопросов для формирования экзамена');
     return null;
   }
-  
   totalQuestions = shuffleArray(totalQuestions);
-  
-  return {
-    id: 'exam',
-    title: 'Экзамен',
-    type: 'exam',
-    questions: totalQuestions
-  };
+  return { id: 'exam', title: 'Экзамен', type: 'exam', questions: totalQuestions };
 }
 
 async function generateTestByTheme(themeId, themeTitle) {
   let questions = getActiveQuestions().filter(q => q.theme_id === themeId);
-  
   if (questions.length === 0) {
     alert('Нет вопросов по этой теме');
     return null;
   }
-  
   questions = shuffleArray(questions);
   questions = questions.slice(0, TEST_RULES.theme.count);
-  
-  return {
-    id: `theme_${themeId}`,
-    title: `${themeTitle}`,
-    type: 'theme',
-    questions: questions
-  };
+  return { id: `theme_${themeId}`, title: `${themeTitle}`, type: 'theme', questions: questions };
 }
 
 async function generateTestByDifficulty(difficultyId, difficultyTitle) {
   let questions = getActiveQuestions().filter(q => q.difficulty_level_id === difficultyId);
-  
   if (questions.length === 0) {
     alert('Нет вопросов этого уровня сложности');
     return null;
   }
-  
   questions = shuffleArray(questions);
   questions = questions.slice(0, TEST_RULES.quick.count);
-  
-  return {
-    id: `difficulty_${difficultyId}`,
-    title: `${difficultyTitle}`,
-    type: 'difficulty',
-    questions: questions
-  };
+  return { id: `difficulty_${difficultyId}`, title: `${difficultyTitle}`, type: 'difficulty', questions: questions };
 }
 
-// ===== ОТОБРАЖЕНИЕ ГЛАВНОГО ЭКРАНА (5 КНОПОК) =====
+// ===== ОТОБРАЖЕНИЕ ГЛАВНОГО ЭКРАНА =====
 async function renderTestsList() {
   const listEl = document.getElementById("topicsList");
   const testArea = document.getElementById("testArea");
   if (testArea) testArea.innerHTML = "";
   hideTestControls();
   clearTestAutoTransition();
-  
   if (!listEl) return;
   
-  const hasSubscription = window.subscriptions?.test === true;
-  
-  // Статистика (всегда доступна)
+  const hasTestSub = await hasTestSubscription();
   const stats = await getUserStats();
   
   let html = `
     <div class="tests-main-screen">
-      <!-- Кнопка 1: СТАТИСТИКА -->
       <div class="test-card" onclick="window.showStatsScreen()">
         <div class="test-icon">📊</div>
         <div class="test-info">
@@ -322,8 +297,6 @@ async function renderTestsList() {
           </div>
         </div>
       </div>
-      
-      <!-- Кнопка 2: СЛУЧАЙНЫЙ ТЕСТ (бесплатно) -->
       <div class="test-card" onclick="window.startQuickTest()">
         <div class="test-icon">🎲</div>
         <div class="test-info">
@@ -334,79 +307,22 @@ async function renderTestsList() {
       </div>
   `;
   
-  // Кнопка 3: ЭКЗАМЕН (только по подписке)
-  if (hasSubscription) {
-    html += `
-      <div class="test-card" onclick="window.startExam()">
-        <div class="test-icon">🎓</div>
-        <div class="test-info">
-          <div class="test-title">Экзамен</div>
-          <div class="test-subtitle">25 вопросов (по 5 на каждый уровень)</div>
-        </div>
-      </div>
-    `;
+  if (hasTestSub) {
+    html += `<div class="test-card" onclick="window.startExam()"><div class="test-icon">🎓</div><div class="test-info"><div class="test-title">Экзамен</div><div class="test-subtitle">25 вопросов (по 5 на каждый уровень)</div></div></div>`;
   } else {
-    html += `
-      <div class="test-card locked" onclick="window.showSubscriptionRequired('Экзамен')">
-        <div class="test-icon">🎓</div>
-        <div class="test-info">
-          <div class="test-title">Экзамен</div>
-          <div class="test-subtitle">25 вопросов (по 5 на каждый уровень)</div>
-          <div class="test-badge locked">🔒 Требуется подписка</div>
-        </div>
-        <div class="subscribe-btn" onclick="event.stopPropagation(); window.openDonatSubscription('test')">💎 Оформить</div>
-      </div>
-    `;
+    html += `<div class="test-card locked" onclick="window.showSubscriptionRequired('Экзамен')"><div class="test-icon">🎓</div><div class="test-info"><div class="test-title">Экзамен</div><div class="test-subtitle">25 вопросов (по 5 на каждый уровень)</div><div class="test-badge locked">🔒 Требуется подписка</div></div><div class="subscribe-btn" onclick="event.stopPropagation(); window.openDonatSubscription('test')">💎 Оформить</div></div>`;
   }
   
-  // Кнопка 4: ПО ТЕМАМ
-  if (hasSubscription && window.allThemes && window.allThemes.length > 0) {
-    html += `
-      <div class="test-card" onclick="window.showThemesScreen()">
-        <div class="test-icon">📂</div>
-        <div class="test-info">
-          <div class="test-title">По темам</div>
-          <div class="test-subtitle">${window.allThemes.length} тем</div>
-        </div>
-      </div>
-    `;
+  if (hasTestSub && window.allThemes && window.allThemes.length > 0) {
+    html += `<div class="test-card" onclick="window.showThemesScreen()"><div class="test-icon">📂</div><div class="test-info"><div class="test-title">По темам</div><div class="test-subtitle">${window.allThemes.length} тем</div></div></div>`;
   } else {
-    html += `
-      <div class="test-card locked" onclick="window.showSubscriptionRequired('Тесты по темам')">
-        <div class="test-icon">📂</div>
-        <div class="test-info">
-          <div class="test-title">По темам</div>
-          <div class="test-subtitle">Выберите тему для тренировки</div>
-          <div class="test-badge locked">🔒 Требуется подписка</div>
-        </div>
-        <div class="subscribe-btn" onclick="event.stopPropagation(); window.openDonatSubscription('test')">💎 Оформить</div>
-      </div>
-    `;
+    html += `<div class="test-card locked" onclick="window.showSubscriptionRequired('Тесты по темам')"><div class="test-icon">📂</div><div class="test-info"><div class="test-title">По темам</div><div class="test-subtitle">Выберите тему для тренировки</div><div class="test-badge locked">🔒 Требуется подписка</div></div><div class="subscribe-btn" onclick="event.stopPropagation(); window.openDonatSubscription('test')">💎 Оформить</div></div>`;
   }
   
-  // Кнопка 5: ПО СЛОЖНОСТИ
-  if (hasSubscription && window.allDifficulty && window.allDifficulty.length > 0) {
-    html += `
-      <div class="test-card" onclick="window.showDifficultyScreen()">
-        <div class="test-icon">⭐</div>
-        <div class="test-info">
-          <div class="test-title">По сложности</div>
-          <div class="test-subtitle">${window.allDifficulty.length} уровней</div>
-        </div>
-      </div>
-    `;
+  if (hasTestSub && window.allDifficulty && window.allDifficulty.length > 0) {
+    html += `<div class="test-card" onclick="window.showDifficultyScreen()"><div class="test-icon">⭐</div><div class="test-info"><div class="test-title">По сложности</div><div class="test-subtitle">${window.allDifficulty.length} уровней</div></div></div>`;
   } else {
-    html += `
-      <div class="test-card locked" onclick="window.showSubscriptionRequired('Тесты по сложности')">
-        <div class="test-icon">⭐</div>
-        <div class="test-info">
-          <div class="test-title">По сложности</div>
-          <div class="test-subtitle">Выберите уровень сложности</div>
-          <div class="test-badge locked">🔒 Требуется подписка</div>
-        </div>
-        <div class="subscribe-btn" onclick="event.stopPropagation(); window.openDonatSubscription('test')">💎 Оформить</div>
-      </div>
-    `;
+    html += `<div class="test-card locked" onclick="window.showSubscriptionRequired('Тесты по сложности')"><div class="test-icon">⭐</div><div class="test-info"><div class="test-title">По сложности</div><div class="test-subtitle">Выберите уровень сложности</div><div class="test-badge locked">🔒 Требуется подписка</div></div><div class="subscribe-btn" onclick="event.stopPropagation(); window.openDonatSubscription('test')">💎 Оформить</div></div>`;
   }
   
   html += `</div>`;
@@ -415,22 +331,13 @@ async function renderTestsList() {
 
 // ===== ПОЛУЧЕНИЕ СТАТИСТИКИ ПОЛЬЗОВАТЕЛЯ =====
 async function getUserStats() {
-  const stats = {
-    totalQuestions: 0,
-    completedTests: 0,
-    avgScore: 0
-  };
-  
-  // Всего вопросов в банке
+  const stats = { totalQuestions: 0, completedTests: 0, avgScore: 0 };
   stats.totalQuestions = getActiveQuestions().length;
-  
-  // Пройденные тесты и средний балл
   if (currentUserId) {
     try {
       const attempts = await API.getTestAttemptsByUser(currentUserId);
       const completed = attempts.filter(a => a.status === 'completed');
       stats.completedTests = completed.length;
-      
       if (completed.length > 0) {
         const totalScore = completed.reduce((sum, a) => sum + (a.total_score || 0), 0);
         const totalQuestions = completed.reduce((sum, a) => {
@@ -439,45 +346,19 @@ async function getUserStats() {
         }, 0);
         stats.avgScore = totalQuestions > 0 ? Math.round((totalScore / totalQuestions) * 100) : 0;
       }
-    } catch (e) {
-      console.error('Ошибка получения статистики:', e);
-    }
+    } catch (e) { console.error(e); }
   }
-  
   return stats;
 }
 
-// ===== ЭКРАН СТАТИСТИКИ =====
+// ===== ЭКРАНЫ =====
 async function showStatsScreen() {
   const listEl = document.getElementById("topicsList");
   if (!listEl) return;
-  
   const stats = await getUserStats();
   const attempts = currentUserId ? await API.getTestAttemptsByUser(currentUserId) : [];
   const completed = attempts.filter(a => a.status === 'completed');
-  
-  let html = `
-    <div class="stats-screen">
-      <button class="back-btn" onclick="window.renderTestsList()">← Назад</button>
-      
-      <div class="stats-header">
-        <div class="stats-card">
-          <div class="stats-number">${stats.totalQuestions}</div>
-          <div class="stats-label">Всего вопросов</div>
-        </div>
-        <div class="stats-card">
-          <div class="stats-number">${stats.completedTests}</div>
-          <div class="stats-label">Пройдено тестов</div>
-        </div>
-        <div class="stats-card">
-          <div class="stats-number">${stats.avgScore}%</div>
-          <div class="stats-label">Средний балл</div>
-        </div>
-      </div>
-      
-      <h4>📋 История прохождения</h4>
-  `;
-  
+  let html = `<div class="stats-screen"><button class="back-btn" onclick="window.renderTestsList()">← Назад</button><div class="stats-header"><div class="stats-card"><div class="stats-number">${stats.totalQuestions}</div><div class="stats-label">Всего вопросов</div></div><div class="stats-card"><div class="stats-number">${stats.completedTests}</div><div class="stats-label">Пройдено тестов</div></div><div class="stats-card"><div class="stats-number">${stats.avgScore}%</div><div class="stats-label">Средний балл</div></div></div><h4>📋 История прохождения</h4>`;
   if (completed.length === 0) {
     html += `<div class="empty-state">Вы ещё не прошли ни одного теста</div>`;
   } else {
@@ -485,92 +366,43 @@ async function showStatsScreen() {
     for (let attempt of completed.slice(0, 10)) {
       const date = new Date(attempt.completed_at).toLocaleDateString('ru');
       const percent = Math.round((attempt.total_score / (attempt.questions_ids ? JSON.parse(attempt.questions_ids).length : 1)) * 100);
-      html += `
-        <div class="history-item">
-          <div class="history-date">${date}</div>
-          <div class="history-test">${attempt.test_id}</div>
-          <div class="history-score ${percent >= 70 ? 'good' : 'bad'}">${percent}%</div>
-        </div>
-      `;
+      html += `<div class="history-item"><div class="history-date">${date}</div><div class="history-test">${attempt.test_id}</div><div class="history-score ${percent >= 70 ? 'good' : 'bad'}">${percent}%</div></div>`;
     }
     html += `</div>`;
   }
-  
   html += `</div>`;
   listEl.innerHTML = html;
 }
 
-// ===== ЭКРАН ВЫБОРА ТЕМЫ =====
 async function showThemesScreen() {
   const listEl = document.getElementById("topicsList");
   if (!listEl) return;
-  
-  let html = `
-    <div class="themes-screen">
-      <button class="back-btn" onclick="window.renderTestsList()">← Назад</button>
-      <h3>Выберите тему</h3>
-      <div class="themes-list">
-  `;
-  
+  let html = `<div class="themes-screen"><button class="back-btn" onclick="window.renderTestsList()">← Назад</button><h3>Выберите тему</h3><div class="themes-list">`;
   for (let theme of window.allThemes || []) {
     const questionsCount = getActiveQuestions().filter(q => q.theme_id === theme.id).length;
     const progress = sharedTestProgress[`theme_${theme.id}`];
     let progressText = '';
-    
-    if (progress && progress.completed) {
-      progressText = `<span class="progress-completed">✅ Пройден: ${progress.score}/${progress.total}</span>`;
-    } else if (progress && progress.currentQuestion > 0) {
-      progressText = `<span class="progress-inprogress">⏳ Прогресс: ${progress.currentQuestion}/${progress.total}</span>`;
-    }
-    
-    html += `
-      <div class="theme-card" onclick="window.startTestByTheme('${theme.id}', '${escapeHtml(theme.title)}')">
-        <div class="theme-icon">📂</div>
-        <div class="theme-info">
-          <div class="theme-title">${escapeHtml(theme.title)}</div>
-          <div class="theme-count">${questionsCount} вопросов</div>
-          ${progressText}
-        </div>
-      </div>
-    `;
+    if (progress && progress.completed) progressText = `<span class="progress-completed">✅ Пройден: ${progress.score}/${progress.total}</span>`;
+    else if (progress && progress.currentQuestion > 0) progressText = `<span class="progress-inprogress">⏳ Прогресс: ${progress.currentQuestion}/${progress.total}</span>`;
+    html += `<div class="theme-card" onclick="window.startTestByTheme('${theme.id}', '${escapeHtml(theme.title)}')"><div class="theme-icon">📂</div><div class="theme-info"><div class="theme-title">${escapeHtml(theme.title)}</div><div class="theme-count">${questionsCount} вопросов</div>${progressText}</div></div>`;
   }
-  
   html += `</div></div>`;
   listEl.innerHTML = html;
 }
 
-// ===== ЭКРАН ВЫБОРА СЛОЖНОСТИ =====
 async function showDifficultyScreen() {
   const listEl = document.getElementById("topicsList");
   if (!listEl) return;
-  
-  let html = `
-    <div class="difficulty-screen">
-      <button class="back-btn" onclick="window.renderTestsList()">← Назад</button>
-      <h3>Выберите уровень сложности</h3>
-      <div class="difficulty-list">
-  `;
-  
+  let html = `<div class="difficulty-screen"><button class="back-btn" onclick="window.renderTestsList()">← Назад</button><h3>Выберите уровень сложности</h3><div class="difficulty-list">`;
   for (let diff of window.allDifficulty || []) {
     const questionsCount = getActiveQuestions().filter(q => q.difficulty_level_id === diff.id).length;
     const emoji = diff.id === 1 ? '🟢' : diff.id === 5 ? '🔴' : '🟡';
-    
-    html += `
-      <div class="difficulty-card" onclick="window.startTestByDifficulty('${diff.id}', '${escapeHtml(diff.title)}')">
-        <div class="difficulty-emoji">${emoji}</div>
-        <div class="difficulty-info">
-          <div class="difficulty-title">${escapeHtml(diff.title)}</div>
-          <div class="difficulty-count">${questionsCount} вопросов</div>
-        </div>
-      </div>
-    `;
+    html += `<div class="difficulty-card" onclick="window.startTestByDifficulty('${diff.id}', '${escapeHtml(diff.title)}')"><div class="difficulty-emoji">${emoji}</div><div class="difficulty-info"><div class="difficulty-title">${escapeHtml(diff.title)}</div><div class="difficulty-count">${questionsCount} вопросов</div></div></div>`;
   }
-  
   html += `</div></div>`;
   listEl.innerHTML = html;
 }
 
-// ===== ПОДПИСКА =====
 function showSubscriptionRequired(testName) {
   if (confirm(`Для доступа к "${testName}" требуется подписка TEST.\nОформить подписку?`)) {
     window.openDonatSubscription('test');
@@ -578,32 +410,16 @@ function showSubscriptionRequired(testName) {
 }
 
 // ===== ЗАПУСК ТЕСТОВ =====
-async function startQuickTest() {
-  const test = await generateQuickTest();
-  if (test) startTest(test);
-}
-
-async function startExam() {
-  const test = await generateExam();
-  if (test) startTest(test);
-}
-
-async function startTestByTheme(themeId, themeTitle) {
-  const test = await generateTestByTheme(themeId, themeTitle);
-  if (test) startTest(test);
-}
-
-async function startTestByDifficulty(difficultyId, difficultyTitle) {
-  const test = await generateTestByDifficulty(difficultyId, difficultyTitle);
-  if (test) startTest(test);
-}
+async function startQuickTest() { const test = await generateQuickTest(); if (test) startTest(test); }
+async function startExam() { const test = await generateExam(); if (test) startTest(test); }
+async function startTestByTheme(themeId, themeTitle) { const test = await generateTestByTheme(themeId, themeTitle); if (test) startTest(test); }
+async function startTestByDifficulty(difficultyId, difficultyTitle) { const test = await generateTestByDifficulty(difficultyId, difficultyTitle); if (test) startTest(test); }
 
 function startTest(testConfig) {
   if (!testConfig.questions || testConfig.questions.length === 0) {
     alert('В этом тесте пока нет вопросов');
     return;
   }
-  
   currentTestConfig = testConfig;
   currentQuestions = testConfig.questions;
   currentQuestionIndex = 0;
@@ -611,16 +427,13 @@ function startTest(testConfig) {
   currentAnsweredQuestions = [];
   currentAnswered = false;
   currentAttemptId = null;
-  
   const listEl = document.getElementById("topicsList");
   if (listEl) listEl.innerHTML = "";
-  
   const testArea = document.getElementById("testArea");
   if (testArea) {
     testArea.style.display = "block";
     testArea.style.paddingBottom = "80px";
   }
-  
   testStartTime = Date.now();
   showTestControls();
   startTestTimer();
@@ -630,17 +443,13 @@ function startTest(testConfig) {
 function showQuestion() {
   const testArea = document.getElementById("testArea");
   if (!testArea) return;
-  
   currentAnswered = false;
   document.getElementById("nextBtn").style.display = "none";
   clearTestAutoTransition();
-  
   const q = currentQuestions[currentQuestionIndex];
   const total = currentQuestions.length;
   const progressPct = Math.round(((currentQuestionIndex) / total) * 100);
-  
   const letters = ['А', 'Б', 'В', 'Г', 'Д', 'Е'];
-  
   testArea.innerHTML = `
     <div class="card">
       <div class="row">
@@ -650,16 +459,11 @@ function showQuestion() {
       <div class="progress-bar"><div class="progress" style="width:${progressPct}%"></div></div>
       <h3 style="margin:14px 0 10px;">${escapeHtml(q.text)}</h3>
       <div id="answers">
-        ${q.answers.map((ans, i) => `
-          <button class="button" id="ans${i}" onclick="window.selectAnswer(${i})" ${currentAnsweredQuestions.includes(currentQuestionIndex) ? 'disabled' : ''}>
-            <div class="ans"><div class="badge">${letters[i]}</div><div class="ans-text">${escapeHtml(ans.text)}</div></div>
-          </button>
-        `).join("")}
+        ${q.answers.map((ans, i) => `<button class="button" id="ans${i}" onclick="window.selectAnswer(${i})" ${currentAnsweredQuestions.includes(currentQuestionIndex) ? 'disabled' : ''}><div class="ans"><div class="badge">${letters[i]}</div><div class="ans-text">${escapeHtml(ans.text)}</div></div></button>`).join("")}
       </div>
       <div id="commentArea"></div>
     </div>
   `;
-  
   if (currentAnsweredQuestions.includes(currentQuestionIndex)) {
     const correctIndex = q.answers.findIndex(a => a.isCorrect);
     const correctBtn = document.getElementById("ans" + correctIndex);
@@ -671,32 +475,21 @@ function showQuestion() {
 
 function selectAnswer(index) {
   if (currentAnswered || currentAnsweredQuestions.includes(currentQuestionIndex)) return;
-  
   currentAnswered = true;
-  
   const q = currentQuestions[currentQuestionIndex];
   const isCorrect = q.answers[index].isCorrect;
-  
   for (let i = 0; i < q.answers.length; i++) {
     const btn = document.getElementById("ans" + i);
     if (btn) btn.disabled = true;
   }
-  
   if (isCorrect) {
     currentScore++;
     const correctBtn = document.getElementById("ans" + index);
     correctBtn.classList.add("correct-flash");
     showComment(q.explanation);
-    
-    if (!currentAnsweredQuestions.includes(currentQuestionIndex)) {
-      currentAnsweredQuestions.push(currentQuestionIndex);
-    }
-    
+    if (!currentAnsweredQuestions.includes(currentQuestionIndex)) currentAnsweredQuestions.push(currentQuestionIndex);
     saveTestProgressToDB();
-    
-    testAutoTransitionTimer = setTimeout(() => {
-      nextQuestion();
-    }, 1200);
+    testAutoTransitionTimer = setTimeout(() => nextQuestion(), 1200);
   } else {
     const wrongBtn = document.getElementById("ans" + index);
     const correctIndex = q.answers.findIndex(a => a.isCorrect);
@@ -704,11 +497,7 @@ function selectAnswer(index) {
     wrongBtn.classList.add("wrong-permanent");
     correctBtn.classList.add("correct-permanent");
     showComment(q.explanation);
-    
-    if (!currentAnsweredQuestions.includes(currentQuestionIndex)) {
-      currentAnsweredQuestions.push(currentQuestionIndex);
-    }
-    
+    if (!currentAnsweredQuestions.includes(currentQuestionIndex)) currentAnsweredQuestions.push(currentQuestionIndex);
     saveTestProgressToDB();
     document.getElementById("nextBtn").style.display = "inline-block";
   }
@@ -721,14 +510,9 @@ function showComment(text) {
 
 function nextQuestion() {
   clearTestAutoTransition();
-  
   const total = currentQuestions.length;
   let nextQ = currentQuestionIndex + 1;
-  
-  while (nextQ < total && currentAnsweredQuestions.includes(nextQ)) {
-    nextQ++;
-  }
-  
+  while (nextQ < total && currentAnsweredQuestions.includes(nextQ)) nextQ++;
   if (nextQ < total) {
     currentQuestionIndex = nextQ;
     showQuestion();
@@ -757,36 +541,22 @@ function showTestResult() {
   stopTestTimer();
   hideTestControls();
   clearTestAutoTransition();
-  
   const total = currentQuestions.length;
   const wrong = total - currentScore;
   const percent = Math.round((currentScore / total) * 100);
   const timeSpent = getElapsedSeconds();
-  
   const testArea = document.getElementById("testArea");
   if (!testArea) return;
-  
   testArea.innerHTML = `
     <div class="card">
       <div class="row">
-        <div>
-          <div style="font-size:16px; font-weight:900;">Результат</div>
-          <div class="subtle">${currentTestConfig?.title || 'Тест'} завершен</div>
-        </div>
+        <div><div style="font-size:16px; font-weight:900;">Результат</div><div class="subtle">${currentTestConfig?.title || 'Тест'} завершен</div></div>
         <span class="pill">⏱ ${formatSeconds(timeSpent)}</span>
       </div>
       <div style="height:12px;"></div>
       <div class="stats-grid">
-        <div class="center">
-          <canvas id="pie" width="120" height="120" style="width:120px; height:120px;"></canvas>
-          <div style="margin-top:8px; font-size:18px; font-weight:900;">${percent}%</div>
-          <div class="subtle">верных</div>
-        </div>
-        <div>
-          <div class="statline"><span class="k">Правильных</span><span class="v">${currentScore}</span></div>
-          <div class="statline"><span class="k">Неправильных</span><span class="v">${wrong}</span></div>
-          <div class="statline"><span class="k">Всего</span><span class="v">${total}</span></div>
-        </div>
+        <div class="center"><canvas id="pie" width="120" height="120" style="width:120px; height:120px;"></canvas><div style="margin-top:8px; font-size:18px; font-weight:900;">${percent}%</div><div class="subtle">верных</div></div>
+        <div><div class="statline"><span class="k">Правильных</span><span class="v">${currentScore}</span></div><div class="statline"><span class="k">Неправильных</span><span class="v">${wrong}</span></div><div class="statline"><span class="k">Всего</span><span class="v">${total}</span></div></div>
       </div>
       <button class="button primary" onclick="window.restartTest()">Пройти ещё раз</button>
       <button class="button" onclick="window.renderTestsList()">К списку тестов</button>
@@ -810,10 +580,8 @@ function drawPieChart(canvasId, correct, wrong) {
   const ctx = canvas.getContext("2d");
   const total = correct + wrong;
   if (total === 0) return;
-  
   const correctAngle = (correct / total) * 2 * Math.PI;
   const wrongAngle = (wrong / total) * 2 * Math.PI;
-  
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   ctx.beginPath();
   ctx.moveTo(60, 60);
@@ -840,15 +608,8 @@ function escapeHtml(text) {
 // ===== ИНИЦИАЛИЗАЦИЯ =====
 async function initUser() {
   try {
-    // Вопросы грузим всегда, даже если пользователь ещё не появился
-    if (!window.allQuestions) {
-      await loadQuestions();
-    }
-
-    // Сразу рисуем экран тестов
+    if (!window.allQuestions) await loadQuestions();
     renderTestsList();
-
-    // Если пользователь уже есть — загружаем прогресс
     if (window.currentUser?.id) {
       currentUserId = window.currentUser.id;
       console.log('👤 Пользователь инициализирован:', currentUserId);
@@ -856,21 +617,17 @@ async function initUser() {
       renderTestsList();
       return;
     }
-
     console.log('⏳ Пользователь ещё не загружен, ждём событие userLoaded...');
   } catch (err) {
     console.error('❌ Ошибка initUser:', err);
   }
 }
 
-
 window.addEventListener('userLoaded', async (e) => {
   try {
     if (!e.detail?.id) return;
-
     currentUserId = e.detail.id;
     console.log('👤 Пользователь загружен из события:', currentUserId);
-
     await loadTestProgressFromDB();
     renderTestsList();
   } catch (err) {
@@ -899,6 +656,7 @@ window.showStatsScreen = showStatsScreen;
 window.showThemesScreen = showThemesScreen;
 window.showDifficultyScreen = showDifficultyScreen;
 window.showSubscriptionRequired = showSubscriptionRequired;
+window.hasTestSubscription = hasTestSubscription;
 
 // Автоматическая инициализация
 if (document.readyState === 'loading') {
