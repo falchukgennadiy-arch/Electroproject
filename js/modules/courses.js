@@ -1,5 +1,5 @@
 // js/modules/courses.js
-// Раздел Courses: анимированная заглушка "Курсы" в стиле приложения
+// Заглушка для раздела "Курсы" с полноэкранной анимированной электрической схемой
 
 let coursesAnimationState = null;
 
@@ -12,7 +12,8 @@ function ensureCoursesStyle() {
     .courses-dev-wrap {
       position: relative;
       width: 100%;
-      min-height: 420px;
+      min-height: calc(100dvh - 140px);
+      height: calc(100dvh - 140px);
       background: var(--bg, #111);
       border-radius: 16px;
       overflow: hidden;
@@ -25,7 +26,7 @@ function ensureCoursesStyle() {
     .courses-dev-canvas {
       display: block;
       width: 100%;
-      height: 420px;
+      height: 100%;
       background: var(--bg, #111);
     }
 
@@ -52,7 +53,7 @@ function ensureCoursesStyle() {
       box-shadow:
         0 12px 40px rgba(0,0,0,0.35),
         0 0 0 1px rgba(255,255,255,0.015) inset,
-        0 0 28px rgba(230,193,88,0.05);
+        0 0 28px rgba(74,144,226,0.08);
       text-align: center;
     }
 
@@ -88,11 +89,11 @@ function ensureCoursesStyle() {
       border-radius: inherit;
       background: linear-gradient(
         90deg,
-        rgba(230,193,88,0.18),
-        rgba(230,193,88,1),
-        rgba(255,245,210,0.95)
+        rgba(74,144,226,0.15),
+        rgba(74,144,226,1),
+        rgba(210,232,255,0.95)
       );
-      box-shadow: 0 0 18px rgba(230,193,88,0.65);
+      box-shadow: 0 0 18px rgba(74,144,226,0.65);
       animation: coursesDevBarMove 2.2s ease-in-out infinite;
       transform: translateX(-120%);
     }
@@ -100,6 +101,28 @@ function ensureCoursesStyle() {
     @keyframes coursesDevBarMove {
       0% { transform: translateX(-120%); }
       100% { transform: translateX(320%); }
+    }
+
+    @media (max-width: 640px) {
+      .courses-dev-wrap {
+        min-height: calc(100dvh - 120px);
+        height: calc(100dvh - 120px);
+        border-radius: 14px;
+      }
+
+      .courses-dev-panel {
+        width: min(92vw, 420px);
+        padding: 22px 18px;
+      }
+
+      .courses-dev-title {
+        font-size: clamp(20px, 6vw, 28px);
+      }
+
+      .courses-dev-subtitle {
+        font-size: 11px;
+        letter-spacing: 0.14em;
+      }
     }
   `;
 
@@ -126,6 +149,8 @@ function createCoursesAnimation(canvas) {
   const ctx = canvas.getContext('2d');
   if (!ctx) return null;
 
+  const color = '#4a90e2';
+
   const state = {
     canvas,
     ctx,
@@ -134,44 +159,49 @@ function createCoursesAnimation(canvas) {
     dpr: 1,
     rafId: 0,
     destroyed: false,
-    resizeHandler: null
+    resizeHandler: null,
+    sparks: []
   };
 
-  const modules = [
-    { x: 0.18, y: 0.22, w: 0.16, h: 0.09 },
-    { x: 0.42, y: 0.22, w: 0.16, h: 0.09 },
-    { x: 0.66, y: 0.22, w: 0.16, h: 0.09 },
+  // Строгая древовидная схема именно для курсов
+  const blocks = [
+    { x: 0.16, y: 0.18, w: 0.10, h: 0.10 },
+    { x: 0.45, y: 0.18, w: 0.10, h: 0.10 },
+    { x: 0.74, y: 0.18, w: 0.10, h: 0.10 },
 
-    { x: 0.18, y: 0.42, w: 0.16, h: 0.09 },
-    { x: 0.42, y: 0.42, w: 0.16, h: 0.09 },
-    { x: 0.66, y: 0.42, w: 0.16, h: 0.09 },
+    { x: 0.16, y: 0.42, w: 0.10, h: 0.10 },
+    { x: 0.45, y: 0.42, w: 0.10, h: 0.10 },
+    { x: 0.74, y: 0.42, w: 0.10, h: 0.10 },
 
-    { x: 0.18, y: 0.62, w: 0.16, h: 0.09 },
-    { x: 0.42, y: 0.62, w: 0.16, h: 0.09 },
-    { x: 0.66, y: 0.62, w: 0.16, h: 0.09 }
+    { x: 0.16, y: 0.68, w: 0.10, h: 0.10 },
+    { x: 0.45, y: 0.68, w: 0.10, h: 0.10 },
+    { x: 0.74, y: 0.68, w: 0.10, h: 0.10 }
   ];
 
-  const flowLines = [
-    { x1: 0.50, y1: 0.08, x2: 0.50, y2: 0.17 },
-    { x1: 0.26, y1: 0.17, x2: 0.74, y2: 0.17 },
+  const lines = [
+    [0.50, 0.06, 0.50, 0.12],
+    [0.21, 0.12, 0.79, 0.12],
 
-    { x1: 0.26, y1: 0.17, x2: 0.26, y2: 0.22 },
-    { x1: 0.50, y1: 0.17, x2: 0.50, y2: 0.22 },
-    { x1: 0.74, y1: 0.17, x2: 0.74, y2: 0.22 },
+    [0.21, 0.12, 0.21, 0.18],
+    [0.50, 0.12, 0.50, 0.18],
+    [0.79, 0.12, 0.79, 0.18],
 
-    { x1: 0.26, y1: 0.31, x2: 0.26, y2: 0.42 },
-    { x1: 0.50, y1: 0.31, x2: 0.50, y2: 0.42 },
-    { x1: 0.74, y1: 0.31, x2: 0.74, y2: 0.42 },
+    [0.21, 0.28, 0.21, 0.42],
+    [0.50, 0.28, 0.50, 0.42],
+    [0.79, 0.28, 0.79, 0.42],
 
-    { x1: 0.26, y1: 0.51, x2: 0.26, y2: 0.62 },
-    { x1: 0.50, y1: 0.51, x2: 0.50, y2: 0.62 },
-    { x1: 0.74, y1: 0.51, x2: 0.74, y2: 0.62 }
+    [0.21, 0.52, 0.21, 0.68],
+    [0.50, 0.52, 0.50, 0.68],
+    [0.79, 0.52, 0.79, 0.68],
+
+    [0.21, 0.60, 0.50, 0.60],
+    [0.50, 0.60, 0.79, 0.60]
   ];
 
-  const pulses = flowLines.map((line, i) => ({
+  const pulses = lines.map((line, i) => ({
     line,
     offset: (i * 0.17) % 1,
-    speed: 0.22 + (i % 3) * 0.04
+    speed: 0.20 + (i % 3) * 0.035
   }));
 
   function resize() {
@@ -218,15 +248,15 @@ function createCoursesAnimation(canvas) {
     ctx.restore();
   }
 
-  function drawGlow(t) {
+  function drawCenterGlow(t) {
     const x = state.width * 0.5;
-    const y = state.height * 0.48;
-    const radius = Math.min(state.width, state.height) * (0.20 + Math.sin(t * 0.0014) * 0.01);
+    const y = state.height * 0.5;
+    const radius = Math.min(state.width, state.height) * (0.22 + Math.sin(t * 0.0015) * 0.01);
     const gradient = ctx.createRadialGradient(x, y, 0, x, y, radius);
 
-    gradient.addColorStop(0, 'rgba(230,193,88,0.08)');
-    gradient.addColorStop(0.55, 'rgba(230,193,88,0.025)');
-    gradient.addColorStop(1, 'rgba(230,193,88,0)');
+    gradient.addColorStop(0, 'rgba(74,144,226,0.09)');
+    gradient.addColorStop(0.55, 'rgba(74,144,226,0.03)');
+    gradient.addColorStop(1, 'rgba(74,144,226,0)');
 
     ctx.beginPath();
     ctx.fillStyle = gradient;
@@ -239,12 +269,12 @@ function createCoursesAnimation(canvas) {
     ctx.lineCap = 'round';
     ctx.lineJoin = 'round';
 
-    flowLines.forEach((line, i) => {
-      const x1 = pxX(line.x1);
-      const y1 = pxY(line.y1);
-      const x2 = pxX(line.x2);
-      const y2 = pxY(line.y2);
-      const glow = 0.12 + 0.08 * Math.sin(t * 0.0018 + i * 0.8);
+    lines.forEach((line, i) => {
+      const x1 = pxX(line[0]);
+      const y1 = pxY(line[1]);
+      const x2 = pxX(line[2]);
+      const y2 = pxY(line[3]);
+      const glow = 0.10 + 0.08 * Math.sin(t * 0.0017 + i * 0.8);
 
       ctx.beginPath();
       ctx.moveTo(x1, y1);
@@ -256,58 +286,74 @@ function createCoursesAnimation(canvas) {
       ctx.beginPath();
       ctx.moveTo(x1, y1);
       ctx.lineTo(x2, y2);
-      ctx.strokeStyle = `rgba(230,193,88,${glow})`;
-      ctx.lineWidth = 1;
-      ctx.shadowBlur = 10;
-      ctx.shadowColor = 'rgba(230,193,88,0.28)';
+      ctx.strokeStyle = `rgba(74,144,226,${glow})`;
+      ctx.lineWidth = 1.2;
+      ctx.shadowBlur = 14;
+      ctx.shadowColor = 'rgba(74,144,226,0.35)';
       ctx.stroke();
     });
 
     ctx.restore();
   }
 
-  function drawModules(t) {
-    modules.forEach((mod, i) => {
-      const x = pxX(mod.x);
-      const y = pxY(mod.y);
-      const w = pxX(mod.w);
-      const h = pxY(mod.h);
-
+  function drawBlocks(t) {
+    blocks.forEach((block, i) => {
+      const x = pxX(block.x);
+      const y = pxY(block.y);
+      const w = pxX(block.w);
+      const h = pxY(block.h);
       const pulse = 0.5 + 0.5 * Math.sin(t * 0.002 + i * 0.7);
       const borderAlpha = 0.08 + pulse * 0.10;
-      const glowAlpha = 0.03 + pulse * 0.05;
+      const glowAlpha = 0.05 + pulse * 0.10;
 
       ctx.save();
 
       ctx.fillStyle = 'rgba(255,255,255,0.02)';
       ctx.strokeStyle = `rgba(255,255,255,${borderAlpha})`;
-      ctx.lineWidth = 1.5;
+      ctx.lineWidth = 1.4;
       ctx.beginPath();
       ctx.roundRect(x, y, w, h, 12);
       ctx.fill();
       ctx.stroke();
 
-      ctx.strokeStyle = `rgba(230,193,88,${glowAlpha})`;
-      ctx.shadowBlur = 16;
-      ctx.shadowColor = 'rgba(230,193,88,0.18)';
       ctx.beginPath();
       ctx.roundRect(x, y, w, h, 12);
+      ctx.strokeStyle = `rgba(74,144,226,${glowAlpha})`;
+      ctx.lineWidth = 1.1;
+      ctx.shadowBlur = 18;
+      ctx.shadowColor = 'rgba(74,144,226,0.28)';
       ctx.stroke();
 
-      const innerY = y + h * 0.32;
-      ctx.beginPath();
-      ctx.moveTo(x + w * 0.18, innerY);
-      ctx.lineTo(x + w * 0.82, innerY);
+      const line1Y = y + h * 0.30;
+      const line2Y = y + h * 0.52;
+      const line3Y = y + h * 0.72;
+
+      ctx.shadowBlur = 0;
+      ctx.lineWidth = 2;
       ctx.strokeStyle = 'rgba(255,255,255,0.10)';
-      ctx.lineWidth = 2;
+
+      ctx.beginPath();
+      ctx.moveTo(x + w * 0.16, line1Y);
+      ctx.lineTo(x + w * 0.80, line1Y);
+      ctx.stroke();
+
+      ctx.strokeStyle = 'rgba(255,255,255,0.07)';
+      ctx.beginPath();
+      ctx.moveTo(x + w * 0.16, line2Y);
+      ctx.lineTo(x + w * 0.62, line2Y);
       ctx.stroke();
 
       ctx.beginPath();
-      ctx.moveTo(x + w * 0.18, innerY + h * 0.20);
-      ctx.lineTo(x + w * 0.64, innerY + h * 0.20);
-      ctx.strokeStyle = 'rgba(255,255,255,0.06)';
-      ctx.lineWidth = 2;
+      ctx.moveTo(x + w * 0.16, line3Y);
+      ctx.lineTo(x + w * 0.48, line3Y);
       ctx.stroke();
+
+      ctx.beginPath();
+      ctx.arc(x + w * 0.84, y + h * 0.22, 3 + pulse * 1.2, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(220,240,255,0.95)';
+      ctx.shadowBlur = 14;
+      ctx.shadowColor = 'rgba(74,144,226,0.8)';
+      ctx.fill();
 
       ctx.restore();
     });
@@ -315,38 +361,71 @@ function createCoursesAnimation(canvas) {
 
   function drawPulses(t) {
     pulses.forEach((pulse) => {
-      const { line } = pulse;
+      const line = pulse.line;
       const progress = (t * 0.00012 * pulse.speed * 60 + pulse.offset) % 1;
 
-      const x = pxX(line.x1 + (line.x2 - line.x1) * progress);
-      const y = pxY(line.y1 + (line.y2 - line.y1) * progress);
+      const x = pxX(line[0] + (line[2] - line[0]) * progress);
+      const y = pxY(line[1] + (line[3] - line[1]) * progress);
 
       ctx.beginPath();
       ctx.arc(x, y, 3.4, 0, Math.PI * 2);
-      ctx.fillStyle = 'rgba(255,245,230,0.95)';
+      ctx.fillStyle = 'rgba(230,245,255,0.96)';
       ctx.shadowBlur = 24;
-      ctx.shadowColor = 'rgba(230,193,88,1)';
+      ctx.shadowColor = 'rgba(74,144,226,1)';
       ctx.fill();
       ctx.shadowBlur = 0;
+
+      if (Math.random() < 0.006) {
+        state.sparks.push({
+          x,
+          y,
+          vx: (Math.random() - 0.5) * 1.2,
+          vy: (Math.random() - 0.5) * 1.2,
+          life: 1,
+          size: 1 + Math.random() * 1.7
+        });
+      }
     });
   }
 
-  function drawCore(t) {
+  function updateSparks() {
+    for (let i = state.sparks.length - 1; i >= 0; i -= 1) {
+      const spark = state.sparks[i];
+      spark.x += spark.vx;
+      spark.y += spark.vy;
+      spark.life -= 0.03;
+
+      if (spark.life <= 0) {
+        state.sparks.splice(i, 1);
+        continue;
+      }
+
+      ctx.beginPath();
+      ctx.arc(spark.x, spark.y, spark.size * spark.life, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(220,240,255,${spark.life})`;
+      ctx.shadowBlur = 10;
+      ctx.shadowColor = `rgba(74,144,226,${spark.life})`;
+      ctx.fill();
+      ctx.shadowBlur = 0;
+    }
+  }
+
+  function drawPowerCore(t) {
     const x = state.width * 0.5;
-    const y = state.height * 0.08;
-    const pulse = 0.5 + 0.5 * Math.sin(t * 0.0024);
+    const y = state.height * 0.06;
+    const pulse = 0.5 + 0.5 * Math.sin(t * 0.0025);
 
     ctx.beginPath();
-    ctx.arc(x, y, 10 + pulse * 3, 0, Math.PI * 2);
-    ctx.fillStyle = 'rgba(255,240,220,0.95)';
+    ctx.arc(x, y, 9 + pulse * 3, 0, Math.PI * 2);
+    ctx.fillStyle = 'rgba(225,242,255,0.95)';
     ctx.shadowBlur = 24;
-    ctx.shadowColor = 'rgba(230,193,88,0.9)';
+    ctx.shadowColor = 'rgba(74,144,226,0.9)';
     ctx.fill();
     ctx.shadowBlur = 0;
 
     ctx.beginPath();
-    ctx.arc(x, y, 22 + pulse * 5, 0, Math.PI * 2);
-    ctx.strokeStyle = 'rgba(230,193,88,0.16)';
+    ctx.arc(x, y, 20 + pulse * 5, 0, Math.PI * 2);
+    ctx.strokeStyle = 'rgba(74,144,226,0.18)';
     ctx.lineWidth = 2;
     ctx.stroke();
   }
@@ -356,11 +435,12 @@ function createCoursesAnimation(canvas) {
 
     ctx.clearRect(0, 0, state.width, state.height);
     drawGrid();
-    drawGlow(t);
+    drawCenterGlow(t);
     drawLines(t);
-    drawModules(t);
+    drawBlocks(t);
     drawPulses(t);
-    drawCore(t);
+    updateSparks();
+    drawPowerCore(t);
 
     state.rafId = requestAnimationFrame(animate);
   }
@@ -370,9 +450,9 @@ function createCoursesAnimation(canvas) {
   resize();
   state.rafId = requestAnimationFrame(animate);
 
-  console.assert(Array.isArray(modules) && modules.length > 0, 'courses animation: modules should exist');
-  console.assert(Array.isArray(flowLines) && flowLines.length > 0, 'courses animation: flowLines should exist');
-  console.assert(pulses.length === flowLines.length, 'courses animation: pulses count should match lines count');
+  console.assert(Array.isArray(blocks) && blocks.length > 0, 'courses animation: blocks should exist');
+  console.assert(Array.isArray(lines) && lines.length > 0, 'courses animation: lines should exist');
+  console.assert(pulses.length === lines.length, 'courses animation: pulses count should match lines count');
 
   return state;
 }
@@ -408,7 +488,13 @@ function renderCoursesList() {
   const canvas = document.getElementById('coursesDevCanvas');
   if (!canvas) return;
 
+  templatesHideUnusedCoursesUi();
   coursesAnimationState = createCoursesAnimation(canvas);
+}
+
+function templatesHideUnusedCoursesUi() {
+  const toggle = document.getElementById('coursesViewToggle');
+  if (toggle) toggle.style.display = 'none';
 }
 
 function openCourseItem() {
