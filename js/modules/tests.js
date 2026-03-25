@@ -16,7 +16,6 @@ let testStartTime = null;
 let testTimerInterval = null;
 let testAutoTransitionTimer = null;
 
-const nextBtn = document.getElementById("nextBtn");
 // Глобальный прогресс
 const sharedTestProgress = window.testProgress || {};
 window.testProgress = sharedTestProgress;
@@ -502,13 +501,16 @@ function showQuestion() {
       <div class="progress-bar"><div class="progress" style="width:${progressPct}%"></div></div>
       <h3>${escapeHtml(q.text)}</h3>
       <div id="answers">
-        ${q.answers.map((ans, i) => `<button class="button" id="ans${i}" onclick="window.selectAnswer(${i})" ${currentAnsweredQuestions.includes(currentQuestionIndex) ? 'disabled' : ''}><div class="ans"><div class="badge">${letters[i]}</div><div class="ans-text">${escapeHtml(ans.text)}</div></div></button>`).join("")}
+        ${q.answers.map((ans, i) => {
+          const isCorrect = ans.is_correct === 1 || ans.is_correct === true;
+          return `<button class="button" id="ans${i}" onclick="window.selectAnswer(${i})" ${currentAnsweredQuestions.includes(currentQuestionIndex) ? 'disabled' : ''}><div class="ans"><div class="badge">${letters[i]}</div><div class="ans-text">${escapeHtml(ans.text)}</div></div></button>`;
+        }).join("")}
       </div>
       <div id="commentArea"></div>
     </div>
   `;
   if (currentAnsweredQuestions.includes(currentQuestionIndex)) {
-    const correctIndex = q.answers.findIndex(a => a.isCorrect);
+    const correctIndex = q.answers.findIndex(a => a.is_correct === 1 || a.is_correct === true);
     const correctBtn = document.getElementById("ans" + correctIndex);
     if (correctBtn) correctBtn.classList.add("correct-permanent");
     showComment(q.explanation);
@@ -516,14 +518,13 @@ function showQuestion() {
   }
 }
 
-
 function selectAnswer(index) {
   if (currentAnswered || currentAnsweredQuestions.includes(currentQuestionIndex)) return;
   
   currentAnswered = true;
   
   const q = currentQuestions[currentQuestionIndex];
-  const isCorrect = q.answers[index].isCorrect;
+  const isCorrect = q.answers[index].is_correct === 1 || q.answers[index].is_correct === true;
   
   // Отключаем все кнопки ответов
   for (let i = 0; i < q.answers.length; i++) {
@@ -549,7 +550,7 @@ function selectAnswer(index) {
     
   } else {
     const wrongBtn = document.getElementById("ans" + index);
-    const correctIndex = q.answers.findIndex(a => a.isCorrect);
+    const correctIndex = q.answers.findIndex(a => a.is_correct === 1 || a.is_correct === true);
     const correctBtn = document.getElementById("ans" + correctIndex);
     
     if (wrongBtn) wrongBtn.classList.add("wrong-permanent");
@@ -572,7 +573,6 @@ function selectAnswer(index) {
     }
   }
 }
-
 
 function showComment(text) {
   const ca = document.getElementById("commentArea");
