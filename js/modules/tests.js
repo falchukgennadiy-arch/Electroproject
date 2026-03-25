@@ -1,5 +1,5 @@
 // ===== ТЕСТЫ =====
-// 5 кнопок: Статистика, Случайный тест, Экзамен, По темам, По сложности
+// Главный экран: статистика + 4 кнопки (Случайный тест, Экзамен, По темам, По сложности)
 
 let currentTestConfig = null;
 let currentQuestions = [];
@@ -33,16 +33,52 @@ const TEST_RULES = {
   quick: { count: 10 }
 };
 
-// ===== ЗАГРУЗКА ВОПРОСОВ =====
+// ===== ЗАГРУЗКА ВОПРОСОВ, ТЕМ, СЛОЖНОСТЕЙ =====
 async function loadQuestions() {
   try {
     const response = await fetch(`${CONFIG.API_URL}/questions`);
     if (response.ok) {
       window.allQuestions = await response.json();
       console.log(`✅ Загружено вопросов: ${window.allQuestions.length}`);
-      renderTestsList();
     } else {
       console.error('❌ Ошибка загрузки вопросов');
+    }
+  } catch (err) {
+    console.error('❌ Ошибка:', err);
+  }
+}
+
+async function loadThemes() {
+  try {
+    const response = await fetch(`${CONFIG.API_URL}/themes`);
+    if (response.ok) {
+      const themesTree = await response.json();
+      // Превращаем дерево в плоский список для удобства
+      function flatten(items, result = []) {
+        for (const item of items) {
+          result.push({ id: item.id, title: item.title, parent_id: item.parent_id });
+          if (item.children && item.children.length) flatten(item.children, result);
+        }
+        return result;
+      }
+      window.allThemes = flatten(themesTree);
+      console.log(`✅ Загружено тем: ${window.allThemes.length}`);
+    } else {
+      console.error('❌ Ошибка загрузки тем');
+    }
+  } catch (err) {
+    console.error('❌ Ошибка:', err);
+  }
+}
+
+async function loadDifficultyLevels() {
+  try {
+    const response = await fetch(`${CONFIG.API_URL}/difficulty-levels`);
+    if (response.ok) {
+      window.allDifficulty = await response.json();
+      console.log(`✅ Загружено уровней сложности: ${window.allDifficulty.length}`);
+    } else {
+      console.error('❌ Ошибка загрузки уровней сложности');
     }
   } catch (err) {
     console.error('❌ Ошибка:', err);
@@ -59,7 +95,14 @@ function shuffleArray(arr) {
 }
 
 function getActiveQuestions() {
-  return window.allQuestions ? window.allQuestions.filter(q => q.status === 'active') : [];
+  if (!window.allQuestions) return [];
+  // Фильтрация по подписке: без подписки — только бесплатные (is_paid = 0)
+  const hasSubscription = window.userSubscriptions?.test === true;
+  return window.allQuestions.filter(q => {
+    if (q.status !== 'active') return false;
+    if (!hasSubscription && q.is_paid === 1) return false;
+    return true;
+  });
 }
 
 function getElapsedSeconds() {
@@ -221,11 +264,11 @@ async function saveTestProgressToDB(completed = false) {
   }
 }
 
-// ===== ГЕНЕРАЦИЯ ТЕСТОВ =====
+// ===== ГЕНЕРАЦИЯ ТЕСТОВ (с учётом подписки) =====
 async function generateQuickTest() {
   const activeQuestions = getActiveQuestions();
   if (activeQuestions.length === 0) {
-    alert('Нет активных вопросов');
+    alert('Нет доступных вопросов');
     return null;
   }
   const shuffled = shuffleArray(activeQuestions);
@@ -234,9 +277,14 @@ async function generateQuickTest() {
 }
 
 async function generateExam() {
+  const activeQuestions = getActiveQuestions();
+  if (activeQuestions.length === 0) {
+    alert('Нет доступных вопросов');
+    return null;
+  }
   let totalQuestions = [];
   for (let rule of TEST_RULES.exam) {
-    const levelQuestions = getActiveQuestions().filter(q => q.difficulty_level_id === rule.difficulty_level_id);
+    const levelQuestions = activeQuestions.filter(q => q.difficulty_level_id === rule.difficulty_level_id);
     if (levelQuestions.length === 0) continue;
     const shuffled = shuffleArray(levelQuestions);
     const selected = shuffled.slice(0, rule.count);
@@ -251,7 +299,8 @@ async function generateExam() {
 }
 
 async function generateTestByTheme(themeId, themeTitle) {
-  let questions = getActiveQuestions().filter(q => q.theme_id === themeId);
+  const activeQuestions = getActiveQuestions();
+  let questions = activeQuestions.filter(q => q.theme_id === themeId);
   if (questions.length === 0) {
     alert('Нет вопросов по этой теме');
     return null;
@@ -262,7 +311,8 @@ async function generateTestByTheme(themeId, themeTitle) {
 }
 
 async function generateTestByDifficulty(difficultyId, difficultyTitle) {
-  let questions = getActiveQuestions().filter(q => q.difficulty_level_id === difficultyId);
+  const activeQuestions = getActiveQuestions();
+  let questions = activeQuestions.filter(q => q.difficulty_level_id === difficultyId);
   if (questions.length === 0) {
     alert('Нет вопросов этого уровня сложности');
     return null;
@@ -272,7 +322,42 @@ async function generateTestByDifficulty(difficultyId, difficultyTitle) {
   return { id: `difficulty_${difficultyId}`, title: `${difficultyTitle}`, type: 'difficulty', questions: questions };
 }
 
-// ===== ОТОБРАЖЕНИЕ ГЛАВНОГО ЭКРАНА =====
+// ===== СТАТИСТИКА =====
+async function getUserStats() {
+  const activeQuestions = getActiveQuestions();
+  const stats = {
+    totalQuestions: activeQuestions.length,
+    completedTests: 0,
+    avgScore: 0,
+    totalCorrect: 0,
+    totalAnswered: 0
+  };
+  
+  if (currentUserId) {
+    try {
+      const attempts = await API.getTestAttemptsByUser(currentUserId);
+      const completed = attempts.filter(a => a.status === 'completed');
+      stats.completedTests = completed.length;
+      
+      if (completed.length > 0) {
+        let totalScore = 0;
+        let totalQuestions = 0;
+        for (const a of completed) {
+          totalScore += a.total_score || 0;
+          const qIds = a.questions_ids ? JSON.parse(a.questions_ids) : [];
+          totalQuestions += qIds.length;
+        }
+        stats.avgScore = totalQuestions > 0 ? Math.round((totalScore / totalQuestions) * 100) : 0;
+        stats.totalCorrect = totalScore;
+        stats.totalAnswered = totalQuestions;
+      }
+    } catch (e) { console.error(e); }
+  }
+  
+  return stats;
+}
+
+// ===== ОТОБРАЖЕНИЕ ГЛАВНОГО ЭКРАНА (со статистикой) =====
 async function renderTestsList() {
   const listEl = document.getElementById("topicsList");
   const testArea = document.getElementById("testArea");
@@ -285,21 +370,45 @@ async function renderTestsList() {
   if (!listEl) return;
   
   const hasTestSub = await hasTestSubscription();
+  // Обновляем глобальную переменную подписки для фильтрации
+  window.userSubscriptions = window.userSubscriptions || {};
+  window.userSubscriptions.test = hasTestSub;
+  
   const stats = await getUserStats();
+  const progressPercent = stats.totalAnswered > 0 ? Math.round((stats.totalCorrect / stats.totalAnswered) * 100) : 0;
   
   let html = `
     <div class="tests-main-screen">
-      <div class="test-card" onclick="window.showStatsScreen()">
-        <div class="test-icon">📊</div>
-        <div class="test-info">
-          <div class="test-title">Статистика</div>
-          <div class="test-stats">
-            <span>📋 ${stats.totalQuestions} вопросов</span>
-            <span>✅ ${stats.completedTests} тестов</span>
-            <span>📈 ${stats.avgScore}% средний</span>
+      <!-- БЛОК СТАТИСТИКИ -->
+      <div class="stats-block">
+        <div class="stats-header-cards">
+          <div class="stat-card">
+            <div class="stat-number">${stats.totalQuestions}</div>
+            <div class="stat-label">всего вопросов</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-number">${stats.completedTests}</div>
+            <div class="stat-label">пройдено тестов</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-number">${stats.avgScore}%</div>
+            <div class="stat-label">средний балл</div>
+          </div>
+        </div>
+        <div class="stats-progress">
+          <div class="progress-circle">
+            <canvas id="statsPie" width="80" height="80"></canvas>
+            <div class="progress-percent">${progressPercent}%</div>
+          </div>
+          <div class="progress-text">
+            <div>✅ правильно: ${stats.totalCorrect}</div>
+            <div>❌ неправильно: ${stats.totalAnswered - stats.totalCorrect}</div>
+            <div>📊 всего ответов: ${stats.totalAnswered}</div>
           </div>
         </div>
       </div>
+      
+      <!-- КНОПКИ ТЕСТОВ -->
       <div class="test-card" onclick="window.startQuickTest()">
         <div class="test-icon">🎲</div>
         <div class="test-info">
@@ -330,63 +439,32 @@ async function renderTestsList() {
   
   html += `</div>`;
   listEl.innerHTML = html;
+  
+  // Рисуем круговую диаграмму
+  setTimeout(() => drawStatsPie(progressPercent), 50);
 }
 
-// ===== ПОЛУЧЕНИЕ СТАТИСТИКИ ПОЛЬЗОВАТЕЛЯ =====
-async function getUserStats() {
-  const stats = { totalQuestions: 0, completedTests: 0, avgScore: 0 };
-  stats.totalQuestions = getActiveQuestions().length;
-  if (currentUserId) {
-    try {
-      const attempts = await API.getTestAttemptsByUser(currentUserId);
-      const completed = attempts.filter(a => a.status === 'completed');
-      stats.completedTests = completed.length;
-      if (completed.length > 0) {
-        const totalScore = completed.reduce((sum, a) => sum + (a.total_score || 0), 0);
-        const totalQuestions = completed.reduce((sum, a) => {
-          const qIds = a.questions_ids ? JSON.parse(a.questions_ids) : [];
-          return sum + qIds.length;
-        }, 0);
-        stats.avgScore = totalQuestions > 0 ? Math.round((totalScore / totalQuestions) * 100) : 0;
-      }
-    } catch (e) { console.error(e); }
-  }
-  return stats;
+function drawStatsPie(percent) {
+  const canvas = document.getElementById("statsPie");
+  if (!canvas) return;
+  const ctx = canvas.getContext("2d");
+  const correctAngle = (percent / 100) * 2 * Math.PI;
+  const wrongAngle = 2 * Math.PI - correctAngle;
+  
+  ctx.clearRect(0, 0, 80, 80);
+  ctx.beginPath();
+  ctx.moveTo(40, 40);
+  ctx.arc(40, 40, 35, 0, correctAngle);
+  ctx.fillStyle = "#2ecc71";
+  ctx.fill();
+  ctx.beginPath();
+  ctx.moveTo(40, 40);
+  ctx.arc(40, 40, 35, correctAngle, correctAngle + wrongAngle);
+  ctx.fillStyle = "#e74c3c";
+  ctx.fill();
 }
 
-// ===== ЭКРАН СТАТИСТИКИ =====
-async function showStatsScreen() {
-  const listEl = document.getElementById("topicsList");
-  if (!listEl) return;
-  const stats = await getUserStats();
-  const attempts = currentUserId ? await API.getTestAttemptsByUser(currentUserId) : [];
-  const completed = attempts.filter(a => a.status === 'completed');
-  let html = `
-    <div class="stats-screen">
-      <button class="back-btn" onclick="window.renderTestsList()">← Назад</button>
-      <div class="stats-header">
-        <div class="stats-card"><div class="stats-number">${stats.totalQuestions}</div><div class="stats-label">Всего вопросов</div></div>
-        <div class="stats-card"><div class="stats-number">${stats.completedTests}</div><div class="stats-label">Пройдено тестов</div></div>
-        <div class="stats-card"><div class="stats-number">${stats.avgScore}%</div><div class="stats-label">Средний балл</div></div>
-      </div>
-      <h4>📋 История прохождения</h4>
-  `;
-  if (completed.length === 0) {
-    html += `<div class="empty-state">Вы ещё не прошли ни одного теста</div>`;
-  } else {
-    html += `<div class="history-list">`;
-    for (let attempt of completed.slice(0, 10)) {
-      const date = new Date(attempt.completed_at).toLocaleDateString('ru');
-      const percent = Math.round((attempt.total_score / (attempt.questions_ids ? JSON.parse(attempt.questions_ids).length : 1)) * 100);
-      html += `<div class="history-item"><div class="history-date">${date}</div><div class="history-test">${attempt.test_id}</div><div class="history-score ${percent >= 70 ? 'good' : 'bad'}">${percent}%</div></div>`;
-    }
-    html += `</div>`;
-  }
-  html += `</div>`;
-  listEl.innerHTML = html;
-}
-
-// ===== ЭКРАН ВЫБОРА ТЕМЫ =====
+// ===== ЭКРАНЫ =====
 async function showThemesScreen() {
   const listEl = document.getElementById("topicsList");
   if (!listEl) return;
@@ -397,6 +475,7 @@ async function showThemesScreen() {
       <div class="themes-list">
   `;
   for (let theme of window.allThemes || []) {
+    if (theme.parent_id) continue; // показываем только корневые темы
     const questionsCount = getActiveQuestions().filter(q => q.theme_id === theme.id).length;
     const progress = sharedTestProgress[`theme_${theme.id}`];
     let progressText = '';
@@ -417,7 +496,6 @@ async function showThemesScreen() {
   listEl.innerHTML = html;
 }
 
-// ===== ЭКРАН ВЫБОРА СЛОЖНОСТИ =====
 async function showDifficultyScreen() {
   const listEl = document.getElementById("topicsList");
   if (!listEl) return;
@@ -502,7 +580,6 @@ function showQuestion() {
       <h3>${escapeHtml(q.text)}</h3>
       <div id="answers">
         ${q.answers.map((ans, i) => {
-          const isCorrect = ans.is_correct === 1 || ans.is_correct === true;
           return `<button class="button" id="ans${i}" onclick="window.selectAnswer(${i})" ${currentAnsweredQuestions.includes(currentQuestionIndex) ? 'disabled' : ''}><div class="ans"><div class="badge">${letters[i]}</div><div class="ans-text">${escapeHtml(ans.text)}</div></div></button>`;
         }).join("")}
       </div>
@@ -526,7 +603,6 @@ function selectAnswer(index) {
   const q = currentQuestions[currentQuestionIndex];
   const isCorrect = q.answers[index].is_correct === 1 || q.answers[index].is_correct === true;
   
-  // Отключаем все кнопки ответов
   for (let i = 0; i < q.answers.length; i++) {
     const btn = document.getElementById("ans" + i);
     if (btn) btn.disabled = true;
@@ -563,13 +639,9 @@ function selectAnswer(index) {
     
     saveTestProgressToDB();
     
-    // Показываем кнопку "Далее"
     const nextBtn = document.getElementById("nextBtn");
     if (nextBtn) {
       nextBtn.classList.remove('hidden');
-      console.log('Next button shown');
-    } else {
-      console.error('Next button not found');
     }
   }
 }
@@ -678,8 +750,15 @@ function escapeHtml(text) {
 // ===== ИНИЦИАЛИЗАЦИЯ =====
 async function initUser() {
   try {
-    if (!window.allQuestions) await loadQuestions();
+    // Загружаем всё необходимое
+    await Promise.all([
+      loadQuestions(),
+      loadThemes(),
+      loadDifficultyLevels()
+    ]);
+    
     renderTestsList();
+    
     if (window.currentUser?.id) {
       currentUserId = window.currentUser.id;
       console.log('👤 Пользователь инициализирован:', currentUserId);
@@ -722,7 +801,6 @@ window.initUser = initUser;
 window.hideTestControls = hideTestControls;
 window.showTestControls = showTestControls;
 window.clearAutoTransition = clearTestAutoTransition;
-window.showStatsScreen = showStatsScreen;
 window.showThemesScreen = showThemesScreen;
 window.showDifficultyScreen = showDifficultyScreen;
 window.showSubscriptionRequired = showSubscriptionRequired;
