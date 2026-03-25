@@ -517,30 +517,53 @@ function showQuestion() {
 
 function selectAnswer(index) {
   if (currentAnswered || currentAnsweredQuestions.includes(currentQuestionIndex)) return;
+  
   currentAnswered = true;
+  
   const q = currentQuestions[currentQuestionIndex];
   const isCorrect = q.answers[index].isCorrect;
+  
+  // Отключаем все кнопки ответов
   for (let i = 0; i < q.answers.length; i++) {
     const btn = document.getElementById("ans" + i);
     if (btn) btn.disabled = true;
   }
+  
   if (isCorrect) {
+    // ПРАВИЛЬНЫЙ ОТВЕТ
     currentScore++;
     const correctBtn = document.getElementById("ans" + index);
     correctBtn.classList.add("correct-flash");
     showComment(q.explanation);
-    if (!currentAnsweredQuestions.includes(currentQuestionIndex)) currentAnsweredQuestions.push(currentQuestionIndex);
+    
+    if (!currentAnsweredQuestions.includes(currentQuestionIndex)) {
+      currentAnsweredQuestions.push(currentQuestionIndex);
+    }
+    
     saveTestProgressToDB();
-    testAutoTransitionTimer = setTimeout(() => nextQuestion(), 1200);
+    
+    // АВТО-ПЕРЕХОД через 1.2 сек
+    testAutoTransitionTimer = setTimeout(() => {
+      nextQuestion();
+    }, 1200);
+    
   } else {
+    // НЕПРАВИЛЬНЫЙ ОТВЕТ
     const wrongBtn = document.getElementById("ans" + index);
     const correctIndex = q.answers.findIndex(a => a.isCorrect);
     const correctBtn = document.getElementById("ans" + correctIndex);
+    
     wrongBtn.classList.add("wrong-permanent");
     correctBtn.classList.add("correct-permanent");
     showComment(q.explanation);
-    if (!currentAnsweredQuestions.includes(currentQuestionIndex)) currentAnsweredQuestions.push(currentQuestionIndex);
+    
+    if (!currentAnsweredQuestions.includes(currentQuestionIndex)) {
+      currentAnsweredQuestions.push(currentQuestionIndex);
+    }
+    
     saveTestProgressToDB();
+    
+    // ПОКАЗЫВАЕМ КНОПКУ "ДАЛЕЕ"
     const nextBtn = document.getElementById("nextBtn");
     if (nextBtn) nextBtn.classList.remove('hidden');
   }
