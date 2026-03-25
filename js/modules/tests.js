@@ -515,6 +515,7 @@ function showQuestion() {
   }
 }
 
+
 function selectAnswer(index) {
   if (currentAnswered || currentAnsweredQuestions.includes(currentQuestionIndex)) return;
   
@@ -530,10 +531,9 @@ function selectAnswer(index) {
   }
   
   if (isCorrect) {
-    // ПРАВИЛЬНЫЙ ОТВЕТ
     currentScore++;
     const correctBtn = document.getElementById("ans" + index);
-    correctBtn.classList.add("correct-flash");
+    if (correctBtn) correctBtn.classList.add("correct-flash");
     showComment(q.explanation);
     
     if (!currentAnsweredQuestions.includes(currentQuestionIndex)) {
@@ -542,19 +542,17 @@ function selectAnswer(index) {
     
     saveTestProgressToDB();
     
-    // АВТО-ПЕРЕХОД через 1.2 сек
     testAutoTransitionTimer = setTimeout(() => {
       nextQuestion();
     }, 1200);
     
   } else {
-    // НЕПРАВИЛЬНЫЙ ОТВЕТ
     const wrongBtn = document.getElementById("ans" + index);
     const correctIndex = q.answers.findIndex(a => a.isCorrect);
     const correctBtn = document.getElementById("ans" + correctIndex);
     
-    wrongBtn.classList.add("wrong-permanent");
-    correctBtn.classList.add("correct-permanent");
+    if (wrongBtn) wrongBtn.classList.add("wrong-permanent");
+    if (correctBtn) correctBtn.classList.add("correct-permanent");
     showComment(q.explanation);
     
     if (!currentAnsweredQuestions.includes(currentQuestionIndex)) {
@@ -563,11 +561,17 @@ function selectAnswer(index) {
     
     saveTestProgressToDB();
     
-    // ПОКАЗЫВАЕМ КНОПКУ "ДАЛЕЕ"
+    // Показываем кнопку "Далее"
     const nextBtn = document.getElementById("nextBtn");
-    if (nextBtn) nextBtn.classList.remove('hidden');
+    if (nextBtn) {
+      nextBtn.classList.remove('hidden');
+      console.log('Next button shown');
+    } else {
+      console.error('Next button not found');
+    }
   }
 }
+
 
 function showComment(text) {
   const ca = document.getElementById("commentArea");
