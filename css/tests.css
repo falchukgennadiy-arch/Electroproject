@@ -472,3 +472,83 @@
 .padding-bottom {
   padding-bottom: 80px;
 }
+
+/* ===== СТАТИСТИКА НА ГЛАВНОМ ЭКРАНЕ ===== */
+.stats-block {
+  background: #1a1a1a;
+  border: 1px solid #2a2a2a;
+  border-radius: 16px;
+  padding: 16px;
+  margin-bottom: 20px;
+}
+
+.stats-header-cards {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.stat-card {
+  background: #2a2a2a;
+  border-radius: 12px;
+  padding: 12px;
+  text-align: center;
+}
+
+.stat-number {
+  font-size: 24px;
+  font-weight: bold;
+  color: #e6c158;
+  line-height: 1.2;
+}
+
+.stat-label {
+  font-size: 11px;
+  color: #888;
+  margin-top: 4px;
+}
+
+.stats-progress {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding-top: 8px;
+  border-top: 1px solid #2a2a2a;
+}
+
+.progress-circle {
+  position: relative;
+  width: 80px;
+  height: 80px;
+  flex-shrink: 0;
+}
+
+.progress-circle canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 80px;
+  height: 80px;
+}
+
+.progress-percent {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 14px;
+  font-weight: bold;
+  color: #e6c158;
+}
+
+.progress-text {
+  flex: 1;
+  font-size: 12px;
+  color: #aaa;
+  line-height: 1.6;
+}
+
+.progress-text div {
+  margin: 2px 0;
+}
