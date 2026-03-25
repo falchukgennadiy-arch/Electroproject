@@ -16,6 +16,12 @@ let testStartTime = null;
 let testTimerInterval = null;
 let testAutoTransitionTimer = null;
 
+const nextBtn = document.getElementById("nextBtn");
+if (nextBtn) {
+  nextBtn.style.display = 'inline-block';  // или 'block', 'flex'
+  nextBtn.classList.remove('hidden');
+}
+
 // Глобальный прогресс
 const sharedTestProgress = window.testProgress || {};
 window.testProgress = sharedTestProgress;
