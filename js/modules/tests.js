@@ -33,6 +33,21 @@ const TEST_RULES = {
   quick: { count: 10 }
 };
 
+// ===== УПРАВЛЕНИЕ НИЖНЕЙ НАВИГАЦИЕЙ =====
+function hideBottomNav() {
+  const bottomNav = document.querySelector('.bottom-nav');
+  if (bottomNav) {
+    bottomNav.style.display = 'none';
+  }
+}
+
+function showBottomNav() {
+  const bottomNav = document.querySelector('.bottom-nav');
+  if (bottomNav) {
+    bottomNav.style.display = 'flex';
+  }
+}
+
 // ===== ЗАГРУЗКА ВОПРОСОВ, ТЕМ, СЛОЖНОСТЕЙ =====
 async function loadQuestions() {
   try {
@@ -557,6 +572,9 @@ function startTest(testConfig) {
   showTestControls();
   startTestTimer();
   showQuestion();
+  
+  // Скрываем нижнюю навигацию при начале теста
+  hideBottomNav();
 }
 
 function showQuestion() {
@@ -602,7 +620,9 @@ function selectAnswer(index) {
   
   const q = currentQuestions[currentQuestionIndex];
   const isCorrect = q.answers[index].is_correct === 1 || q.answers[index].is_correct === true;
+  const selectedBtn = document.getElementById("ans" + index);
   
+  // Отключаем все кнопки
   for (let i = 0; i < q.answers.length; i++) {
     const btn = document.getElementById("ans" + i);
     if (btn) btn.disabled = true;
@@ -610,8 +630,15 @@ function selectAnswer(index) {
   
   if (isCorrect) {
     currentScore++;
-    const correctBtn = document.getElementById("ans" + index);
-    if (correctBtn) correctBtn.classList.add("correct-flash");
+    // Добавляем анимацию для правильного ответа
+    if (selectedBtn) {
+      selectedBtn.classList.add("correct-flash");
+      // Убираем класс анимации после её завершения
+      setTimeout(() => {
+        selectedBtn.classList.remove("correct-flash");
+        selectedBtn.classList.add("correct-permanent");
+      }, 500);
+    }
     showComment(q.explanation);
     
     if (!currentAnsweredQuestions.includes(currentQuestionIndex)) {
@@ -620,17 +647,26 @@ function selectAnswer(index) {
     
     saveTestProgressToDB();
     
+    // Автоматический переход к следующему вопросу
     testAutoTransitionTimer = setTimeout(() => {
       nextQuestion();
     }, 1200);
     
   } else {
-    const wrongBtn = document.getElementById("ans" + index);
+    // Находим правильный ответ
     const correctIndex = q.answers.findIndex(a => a.is_correct === 1 || a.is_correct === true);
     const correctBtn = document.getElementById("ans" + correctIndex);
     
-    if (wrongBtn) wrongBtn.classList.add("wrong-permanent");
-    if (correctBtn) correctBtn.classList.add("correct-permanent");
+    // Подсвечиваем неправильный ответ
+    if (selectedBtn) {
+      selectedBtn.classList.add("wrong-permanent");
+    }
+    
+    // Подсвечиваем правильный ответ
+    if (correctBtn) {
+      correctBtn.classList.add("correct-permanent");
+    }
+    
     showComment(q.explanation);
     
     if (!currentAnsweredQuestions.includes(currentQuestionIndex)) {
@@ -676,8 +712,14 @@ function exitTest() {
   saveTestProgressToDB();
   currentTestConfig = null;
   const testArea = document.getElementById("testArea");
-  if (testArea) testArea.innerHTML = "";
+  if (testArea) {
+    testArea.innerHTML = "";
+    testArea.classList.remove('test-active');
+  }
   renderTestsList();
+  
+  // Показываем нижнюю навигацию при выходе из теста
+  showBottomNav();
 }
 
 function showTestResult() {
@@ -705,6 +747,9 @@ function showTestResult() {
     </div>
   `;
   drawPieChart("pie", currentScore, wrong);
+  
+  // Показываем нижнюю навигацию на экране результатов
+  showBottomNav();
 }
 
 function restartTest() {
@@ -714,6 +759,7 @@ function restartTest() {
     window.testProgress = sharedTestProgress;
   }
   startTest(currentTestConfig);
+  // При рестарте нижняя навигация скроется в startTest
 }
 
 function drawPieChart(canvasId, correct, wrong) {
