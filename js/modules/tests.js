@@ -372,6 +372,59 @@ async function getUserStats() {
   return stats;
 }
 
+// ===== ФУНКЦИИ ДЛЯ РАБОТЫ С ИЗОБРАЖЕНИЯМИ =====
+function getQuestionImageUrl(imagePath) {
+  if (!imagePath) return '';
+  
+  // Если это уже полный URL (http или https)
+  if (imagePath.startsWith('http://') || imagePath.startsWith('https://')) {
+    return imagePath;
+  }
+  
+  // Если путь начинается с /, убираем его, чтобы не было двойного слеша
+  const cleanPath = imagePath.startsWith('/') ? imagePath.substring(1) : imagePath;
+  
+  // Используем baseURL из конфига
+  const baseURL = CONFIG?.API_URL || '';
+  return `${baseURL}/${cleanPath}`;
+}
+
+function openImageModal(imageUrl) {
+  if (!imageUrl) return;
+  
+  // Создаем модальное окно для просмотра изображения
+  const modal = document.createElement('div');
+  modal.className = 'image-modal';
+  modal.style.cssText = `
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.9);
+    z-index: 2000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+  `;
+  
+  const img = document.createElement('img');
+  img.src = imageUrl;
+  img.style.cssText = `
+    max-width: 90%;
+    max-height: 90%;
+    object-fit: contain;
+    border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  `;
+  
+  modal.appendChild(img);
+  modal.onclick = () => modal.remove();
+  
+  document.body.appendChild(modal);
+}
+
 // ===== ОТОБРАЖЕНИЕ ГЛАВНОГО ЭКРАНА (со статистикой) =====
 async function renderTestsList() {
   const listEl = document.getElementById("topicsList");
@@ -588,6 +641,17 @@ function showQuestion() {
   const total = currentQuestions.length;
   const progressPct = Math.round(((currentQuestionIndex) / total) * 100);
   const letters = ['А', 'Б', 'В', 'Г', 'Д', 'Е'];
+  
+  // Проверяем наличие изображения у вопроса
+  const hasImage = q.image && q.image.trim() !== '';
+  const imageUrl = hasImage ? getQuestionImageUrl(q.image) : '';
+  const imageHtml = hasImage ? `
+    <div class="question-image-container">
+      <img src="${imageUrl}" class="question-image" alt="Изображение к вопросу" onclick="window.openImageModal('${imageUrl}')" onerror="this.style.display='none'; this.nextSibling.style.display='none';">
+      <div class="image-hint">🔍 Нажмите для увеличения</div>
+    </div>
+  ` : '';
+  
   testArea.innerHTML = `
     <div class="card">
       <div class="row">
@@ -596,6 +660,7 @@ function showQuestion() {
       </div>
       <div class="progress-bar"><div class="progress" style="width:${progressPct}%"></div></div>
       <h3>${escapeHtml(q.text)}</h3>
+      ${imageHtml}
       <div id="answers">
         ${q.answers.map((ans, i) => {
           return `<button class="button" id="ans${i}" onclick="window.selectAnswer(${i})" ${currentAnsweredQuestions.includes(currentQuestionIndex) ? 'disabled' : ''}><div class="ans"><div class="badge">${letters[i]}</div><div class="ans-text">${escapeHtml(ans.text)}</div></div></button>`;
@@ -604,6 +669,7 @@ function showQuestion() {
       <div id="commentArea"></div>
     </div>
   `;
+  
   if (currentAnsweredQuestions.includes(currentQuestionIndex)) {
     const correctIndex = q.answers.findIndex(a => a.is_correct === 1 || a.is_correct === true);
     const correctBtn = document.getElementById("ans" + correctIndex);
@@ -851,6 +917,8 @@ window.showThemesScreen = showThemesScreen;
 window.showDifficultyScreen = showDifficultyScreen;
 window.showSubscriptionRequired = showSubscriptionRequired;
 window.hasTestSubscription = hasTestSubscription;
+window.getQuestionImageUrl = getQuestionImageUrl;
+window.openImageModal = openImageModal;
 
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', initUser);
