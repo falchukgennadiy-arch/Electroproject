@@ -376,9 +376,9 @@ async function getUserStats() {
 function getQuestionImageUrl(imagePath) {
   if (!imagePath) return '';
 
-  // Если это уже полный URL (http или https)
+  // Если это уже полный URL — сразу исправляем /api/uploads/ -> /uploads/
   if (imagePath.startsWith('http://') || imagePath.startsWith('https://')) {
-    return imagePath;
+    return imagePath.replace('/api/uploads/', '/uploads/');
   }
 
   // Получаем базовый URL API из конфига
