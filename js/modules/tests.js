@@ -375,18 +375,28 @@ async function getUserStats() {
 // ===== ФУНКЦИИ ДЛЯ РАБОТЫ С ИЗОБРАЖЕНИЯМИ =====
 function getQuestionImageUrl(imagePath) {
   if (!imagePath) return '';
-  
+
   // Если это уже полный URL (http или https)
   if (imagePath.startsWith('http://') || imagePath.startsWith('https://')) {
     return imagePath;
   }
+
+  // Получаем базовый URL API из конфига
+  let baseURL = CONFIG?.API_URL || '';
   
-  // Если путь начинается с /, убираем его
-  const cleanPath = imagePath.startsWith('/') ? imagePath.substring(1) : imagePath;
+  // Убираем /api из baseURL, если он есть
+  baseURL = baseURL.replace(/\/api$/, '');
   
-  // Используем baseURL из конфига
-  const baseURL = CONFIG?.API_URL || '';
-  return `${baseURL}/${cleanPath}`;
+  // Убираем возможный слеш в начале пути
+  let cleanPath = imagePath.startsWith('/') ? imagePath : `/${imagePath}`;
+  
+  // Если путь не начинается с /uploads/, добавляем /uploads
+  if (!cleanPath.startsWith('/uploads/')) {
+    cleanPath = `/uploads${cleanPath}`;
+  }
+  
+  // Возвращаем полный URL
+  return `${baseURL}${cleanPath}`;
 }
 
 // ===== ОТОБРАЖЕНИЕ ГЛАВНОГО ЭКРАНА (со статистикой) =====
@@ -611,7 +621,7 @@ function showQuestion() {
   const imageUrl = hasImage ? getQuestionImageUrl(q.image) : '';
   const imageHtml = hasImage ? `
     <div class="question-image-container">
-      <img src="${imageUrl}" class="question-image" alt="Изображение к вопросу" onerror="this.style.display='none'; if(this.parentElement) this.parentElement.style.display='none';">
+      <img src="${imageUrl}" class="question-image" alt="Изображение к вопросу" onerror="console.log('Ошибка загрузки изображения:', this.src); this.style.display='none'; if(this.parentElement) this.parentElement.style.display='none';">
     </div>
   ` : '';
   
