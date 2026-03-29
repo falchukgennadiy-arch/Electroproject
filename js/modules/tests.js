@@ -131,7 +131,7 @@ async function checkFavoriteStatus(questionId) {
 
 async function toggleFavorite(questionId) {
   if (!currentUserId) {
-    alert('Войдите в аккаунт, чтобы добавлять в избранное');
+    showNotification('Войдите в аккаунт, чтобы добавлять в избранное', 'warning');
     return false;
   }
   
@@ -141,17 +141,17 @@ async function toggleFavorite(questionId) {
     if (isCurrentlyFavorite) {
       await API.removeFavorite(currentUserId, questionId);
       currentFavoriteStatus[questionId] = false;
-      console.log('Удалено из избранного');
+      showNotification('Вопрос удалён из избранного', 'info');
       return false;
     } else {
       await API.addFavorite(currentUserId, questionId);
       currentFavoriteStatus[questionId] = true;
-      console.log('Добавлено в избранное');
+      showNotification('Вопрос добавлен в избранное', 'success');
       return true;
     }
   } catch (err) {
     console.error('Ошибка переключения избранного:', err);
-    alert('Не удалось изменить статус избранного');
+    showNotification('Не удалось изменить статус избранного', 'error');
     return isCurrentlyFavorite;
   }
 }
@@ -227,6 +227,14 @@ function showTestControls() {
   if (controls) controls.classList.add('active');
   const nextBtn = document.getElementById("nextBtn");
   if (nextBtn) nextBtn.classList.add('hidden');
+  
+  // Показываем кнопку флага только если пользователь авторизован
+  const favBtn = document.getElementById("favoriteBtn");
+  if (favBtn && currentUserId) {
+    favBtn.style.display = 'inline-flex';
+  } else if (favBtn) {
+    favBtn.style.display = 'none';
+  }
   
   if (currentQuestions[currentQuestionIndex]?.type === 'multiple' && !currentAnswered) {
     const submitBtn = document.getElementById("submitMultipleBtn");
@@ -357,7 +365,7 @@ async function saveTestProgressToDB(completed = false) {
 async function generateQuickTest() {
   const activeQuestions = getActiveQuestions();
   if (activeQuestions.length === 0) {
-    alert('Нет доступных вопросов');
+    showNotification('Нет доступных вопросов', 'error');
     return null;
   }
   const shuffled = shuffleArray(activeQuestions);
@@ -368,7 +376,7 @@ async function generateQuickTest() {
 async function generateExam() {
   const activeQuestions = getActiveQuestions();
   if (activeQuestions.length === 0) {
-    alert('Нет доступных вопросов');
+    showNotification('Нет доступных вопросов', 'error');
     return null;
   }
   let totalQuestions = [];
@@ -380,7 +388,7 @@ async function generateExam() {
     totalQuestions.push(...selected);
   }
   if (totalQuestions.length === 0) {
-    alert('Недостаточно вопросов для формирования экзамена');
+    showNotification('Недостаточно вопросов для формирования экзамена', 'error');
     return null;
   }
   totalQuestions = shuffleArray(totalQuestions);
@@ -391,7 +399,7 @@ async function generateTestByTheme(themeId, themeTitle) {
   const activeQuestions = getActiveQuestions();
   let questions = activeQuestions.filter(q => q.theme_id === themeId);
   if (questions.length === 0) {
-    alert('Нет вопросов по этой теме');
+    showNotification('Нет вопросов по этой теме', 'error');
     return null;
   }
   questions = shuffleArray(questions);
@@ -403,7 +411,7 @@ async function generateTestByDifficulty(difficultyId, difficultyTitle) {
   const activeQuestions = getActiveQuestions();
   let questions = activeQuestions.filter(q => q.difficulty_level_id === difficultyId);
   if (questions.length === 0) {
-    alert('Нет вопросов этого уровня сложности');
+    showNotification('Нет вопросов этого уровня сложности', 'error');
     return null;
   }
   questions = shuffleArray(questions);
@@ -413,13 +421,13 @@ async function generateTestByDifficulty(difficultyId, difficultyTitle) {
 
 async function generateFavoriteTest() {
   if (!currentUserId) {
-    alert('Войдите в аккаунт, чтобы использовать избранное');
+    showNotification('Войдите в аккаунт, чтобы использовать избранное', 'warning');
     return null;
   }
   
   const favoriteIds = await loadFavorites();
   if (favoriteIds.length === 0) {
-    alert('У вас нет избранных вопросов. Добавьте вопросы в избранное через кнопку 🚩 во время тестирования');
+    showNotification('У вас нет избранных вопросов. Добавьте вопросы в избранное через кнопку 🚩 во время тестирования', 'warning');
     return null;
   }
   
@@ -427,7 +435,7 @@ async function generateFavoriteTest() {
   let questions = activeQuestions.filter(q => favoriteIds.includes(q.id));
   
   if (questions.length === 0) {
-    alert('Избранные вопросы не найдены или недоступны по подписке');
+    showNotification('Избранные вопросы не найдены или недоступны по подписке', 'error');
     return null;
   }
   
@@ -499,6 +507,54 @@ function checkMultipleAnswer(question, selectedIds) {
   const correctIds = getCorrectAnswerIds(question);
   if (selectedIds.length !== correctIds.length) return false;
   return selectedIds.every(id => correctIds.includes(id));
+}
+
+// ===== КАСТОМНЫЕ УВЕДОМЛЕНИЯ =====
+function showNotification(message, type = 'info') {
+  const existing = document.querySelector('.custom-notification');
+  if (existing) existing.remove();
+  
+  const notification = document.createElement('div');
+  notification.className = `custom-notification ${type}`;
+  
+  let icon = 'ℹ️';
+  if (type === 'error') icon = '❌';
+  if (type === 'warning') icon = '⚠️';
+  if (type === 'success') icon = '✅';
+  
+  notification.innerHTML = `
+    <div class="notification-content">
+      <span class="notification-icon">${icon}</span>
+      <span class="notification-message">${escapeHtml(message)}</span>
+    </div>
+  `;
+  
+  notification.style.cssText = `
+    position: fixed;
+    bottom: 80px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: ${type === 'error' ? 'rgba(231, 76, 60, 0.95)' : type === 'warning' ? 'rgba(243, 156, 18, 0.95)' : type === 'success' ? 'rgba(46, 204, 113, 0.95)' : 'rgba(52, 152, 219, 0.95)'};
+    color: white;
+    padding: 12px 20px;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 500;
+    z-index: 1000;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    backdrop-filter: blur(8px);
+    max-width: 80%;
+    text-align: center;
+    animation: slideUp 0.3s ease;
+  `;
+  
+  document.body.appendChild(notification);
+  
+  setTimeout(() => {
+    notification.style.opacity = '0';
+    notification.style.transition = 'opacity 0.3s';
+    setTimeout(() => notification.remove(), 300);
+  }, 2500);
 }
 
 // ===== ОТОБРАЖЕНИЕ ГЛАВНОГО ЭКРАНА =====
@@ -578,7 +634,7 @@ async function renderTestsList() {
     html += `<div class="test-card locked" onclick="window.showSubscriptionRequired('Тесты по сложности')"><div class="test-icon">⭐</div><div class="test-info"><div class="test-title">По сложности</div><div class="test-subtitle">Выберите уровень сложности</div><div class="test-badge locked">🔒 Требуется подписка</div></div><div class="subscribe-btn" onclick="event.stopPropagation(); window.openDonatSubscription('test')">💎 Оформить</div></div>`;
   }
   
-  // Кнопка "Избранное" (всегда доступна, но требует входа)
+  // Кнопка "Избранное"
   html += `
     <div class="test-card" onclick="window.startFavoriteTest()">
       <div class="test-icon">🚩</div>
@@ -689,7 +745,7 @@ async function startFavoriteTest() { const test = await generateFavoriteTest(); 
 
 function startTest(testConfig) {
   if (!testConfig.questions || testConfig.questions.length === 0) {
-    alert('В этом тесте пока нет вопросов');
+    showNotification('В этом тесте пока нет вопросов', 'error');
     return;
   }
   currentTestConfig = testConfig;
@@ -858,7 +914,6 @@ function showQuestion() {
   
   updateSubmitButtonVisibility();
   
-  // Обновляем кнопку избранного после загрузки вопроса
   setTimeout(() => updateFavoriteButton(q.id), 50);
 }
 
@@ -1181,6 +1236,7 @@ window.hasTestSubscription = hasTestSubscription;
 window.getQuestionImageUrl = getQuestionImageUrl;
 window.toggleFavorite = toggleFavorite;
 window.updateFavoriteButton = updateFavoriteButton;
+window.showNotification = showNotification;
 
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', initUser);
