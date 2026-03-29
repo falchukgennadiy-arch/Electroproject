@@ -141,12 +141,10 @@ async function toggleFavorite(questionId) {
     if (isCurrentlyFavorite) {
       await API.removeFavorite(currentUserId, questionId);
       currentFavoriteStatus[questionId] = false;
-      showNotification('Вопрос удалён из избранного', 'info');
       return false;
     } else {
       await API.addFavorite(currentUserId, questionId);
       currentFavoriteStatus[questionId] = true;
-      showNotification('Вопрос добавлен в избранное', 'success');
       return true;
     }
   } catch (err) {
@@ -162,10 +160,10 @@ async function updateFavoriteButton(questionId) {
   
   const isFavorite = await checkFavoriteStatus(questionId);
   if (isFavorite) {
-    favBtn.innerHTML = '🏁';
+    favBtn.innerHTML = '★';
     favBtn.classList.add('active');
   } else {
-    favBtn.innerHTML = '🚩';
+    favBtn.innerHTML = '☆';
     favBtn.classList.remove('active');
   }
 }
@@ -228,7 +226,7 @@ function showTestControls() {
   const nextBtn = document.getElementById("nextBtn");
   if (nextBtn) nextBtn.classList.add('hidden');
   
-  // Показываем кнопку флага только если пользователь авторизован
+  // Показываем кнопку звезды только если пользователь авторизован
   const favBtn = document.getElementById("favoriteBtn");
   if (favBtn && currentUserId) {
     favBtn.style.display = 'inline-flex';
@@ -427,7 +425,7 @@ async function generateFavoriteTest() {
   
   const favoriteIds = await loadFavorites();
   if (favoriteIds.length === 0) {
-    showNotification('У вас нет избранных вопросов. Добавьте вопросы в избранное через кнопку 🚩 во время тестирования', 'warning');
+    showNotification('У вас нет избранных вопросов. Добавьте вопросы в избранное через кнопку ☆ во время тестирования', 'warning');
     return null;
   }
   
@@ -637,7 +635,7 @@ async function renderTestsList() {
   // Кнопка "Избранное"
   html += `
     <div class="test-card" onclick="window.startFavoriteTest()">
-      <div class="test-icon">🚩</div>
+      <div class="test-icon">★</div>
       <div class="test-info">
         <div class="test-title">Избранное</div>
         <div class="test-subtitle">Только ваши избранные вопросы</div>
