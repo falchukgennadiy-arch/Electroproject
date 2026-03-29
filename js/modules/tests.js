@@ -159,6 +159,12 @@ function showTestControls() {
   if (controls) controls.classList.add('active');
   const nextBtn = document.getElementById("nextBtn");
   if (nextBtn) nextBtn.classList.add('hidden');
+  
+  // Для multiple показываем кнопку подтверждения
+  if (currentQuestions[currentQuestionIndex]?.type === 'multiple' && !currentAnswered) {
+    const submitBtn = document.getElementById("submitMultipleBtn");
+    if (submitBtn) submitBtn.classList.remove('hidden');
+  }
 }
 
 function hideTestControls() {
@@ -659,22 +665,21 @@ function showQuestion() {
   let answersHtml = '';
   if (isMultiple) {
     answersHtml = `
-      <div class="multiple-hint" style="background: #2c3e50; padding: 8px 12px; border-radius: 8px; margin-bottom: 12px; font-size: 14px; color: #ffd966;">
+      <div class="multiple-hint" style="background: #f39c12; padding: 8px 12px; border-radius: 8px; margin-bottom: 12px; font-size: 14px; color: #fff; font-weight: 500;">
         ✓ Выберите несколько вариантов ответа
       </div>
       <div id="answers">
         ${q.answers.map((ans, i) => {
-          const isChecked = alreadyAnswered && restoredSelectedIds.includes(ans.id) ? 'checked' : '';
+          const isSelected = alreadyAnswered && restoredSelectedIds.includes(ans.id);
+          const selectedClass = isSelected ? 'multiple-selected' : '';
           return `
-            <label class="answer-checkbox" id="ansLabel${i}" style="display: flex; align-items: center; padding: 10px; margin: 5px 0; background: #1e1e2e; border-radius: 8px; cursor: pointer; transition: all 0.2s;">
-              <input type="checkbox" id="ans${i}" value="${ans.id}" ${isChecked} ${alreadyAnswered ? 'disabled' : ''} style="margin-right: 12px; width: 18px; height: 18px;">
+            <div class="answer-multiple ${selectedClass}" id="ansMultiple${i}" data-answer-id="${ans.id}" data-index="${i}" style="display: flex; align-items: center; padding: 12px; margin: 8px 0; background: #1e1e2e; border-radius: 8px; cursor: pointer; transition: all 0.2s; border: 2px solid transparent;">
               <div class="badge" style="margin-right: 12px;">${letters[i]}</div>
               <div class="ans-text">${escapeHtml(ans.text)}</div>
-            </label>
+            </div>
           `;
         }).join("")}
       </div>
-      ${!alreadyAnswered ? '<button class="button primary" id="submitMultipleBtn" style="margin-top: 16px;">✅ Подтвердить</button>' : ''}
     `;
   } else {
     answersHtml = `
@@ -708,22 +713,20 @@ function showQuestion() {
     if (isMultiple) {
       // Подсвечиваем правильные и неправильные ответы
       q.answers.forEach((ans, i) => {
-        const label = document.getElementById(`ansLabel${i}`);
-        const checkbox = document.getElementById(`ans${i}`);
-        if (!label) return;
+        const answerDiv = document.getElementById(`ansMultiple${i}`);
+        if (!answerDiv) return;
         
         const isCorrectAnswer = correctIds.includes(ans.id);
         const wasSelected = restoredSelectedIds.includes(ans.id);
         
         if (isCorrectAnswer) {
-          label.style.background = 'rgba(46, 204, 113, 0.3)';
-          label.style.border = '1px solid #2ecc71';
+          answerDiv.style.background = 'rgba(46, 204, 113, 0.3)';
+          answerDiv.style.border = '2px solid #2ecc71';
         }
         if (wasSelected && !isCorrectAnswer) {
-          label.style.background = 'rgba(231, 76, 60, 0.3)';
-          label.style.border = '1px solid #e74c3c';
+          answerDiv.style.background = 'rgba(231, 76, 60, 0.3)';
+          answerDiv.style.border = '2px solid #e74c3c';
         }
-        if (checkbox) checkbox.disabled = true;
       });
     } else {
       // Для single подсветка
@@ -734,90 +737,132 @@ function showQuestion() {
     
     showComment(q.explanation);
     if (nextBtn) nextBtn.classList.remove('hidden');
-  } else if (isMultiple) {
-    // Добавляем обработчик для кнопки подтверждения
+    
+    // Скрываем кнопку подтверждения если есть
     const submitBtn = document.getElementById("submitMultipleBtn");
-    if (submitBtn) {
-      // Сначала делаем кнопку неактивной
-      submitBtn.disabled = true;
-      submitBtn.style.opacity = '0.5';
-      
-      // Добавляем обработчики на чекбоксы
-      q.answers.forEach((ans, i) => {
-        const checkbox = document.getElementById(`ans${i}`);
-        if (checkbox) {
-          checkbox.addEventListener('change', () => {
-            // Обновляем currentMultipleSelected
-            if (checkbox.checked) {
-              if (!currentMultipleSelected.includes(checkbox.value)) {
-                currentMultipleSelected.push(checkbox.value);
-              }
-            } else {
-              currentMultipleSelected = currentMultipleSelected.filter(id => id !== checkbox.value);
-            }
-            // Активируем кнопку, если выбран хотя бы один вариант
+    if (submitBtn) submitBtn.classList.add('hidden');
+  } else if (isMultiple) {
+    // Добавляем обработчики на варианты ответов
+    q.answers.forEach((ans, i) => {
+      const answerDiv = document.getElementById(`ansMultiple${i}`);
+      if (answerDiv) {
+        answerDiv.addEventListener('click', () => {
+          if (currentAnswered) return;
+          
+          const answerId = ans.id;
+          const wasSelected = currentMultipleSelected.includes(answerId);
+          
+          if (wasSelected) {
+            // Убираем выделение
+            currentMultipleSelected = currentMultipleSelected.filter(id => id !== answerId);
+            answerDiv.classList.remove('multiple-selected');
+            answerDiv.style.background = '#1e1e2e';
+            answerDiv.style.border = '2px solid transparent';
+          } else {
+            // Добавляем выделение
+            currentMultipleSelected.push(answerId);
+            answerDiv.classList.add('multiple-selected');
+            answerDiv.style.background = 'rgba(243, 156, 18, 0.3)';
+            answerDiv.style.border = '2px solid #f39c12';
+          }
+          
+          // Активируем/деактивируем кнопку подтверждения
+          const submitBtn = document.getElementById("submitMultipleBtn");
+          if (submitBtn) {
             if (currentMultipleSelected.length > 0) {
               submitBtn.disabled = false;
               submitBtn.style.opacity = '1';
+              submitBtn.style.cursor = 'pointer';
             } else {
               submitBtn.disabled = true;
               submitBtn.style.opacity = '0.5';
+              submitBtn.style.cursor = 'not-allowed';
             }
-          });
-          
-          // Восстанавливаем состояние если есть
-          if (restoredSelectedIds.includes(checkbox.value)) {
-            checkbox.checked = true;
           }
+        });
+        
+        // Восстанавливаем состояние если есть
+        if (restoredSelectedIds.includes(ans.id)) {
+          answerDiv.classList.add('multiple-selected');
+          answerDiv.style.background = 'rgba(243, 156, 18, 0.3)';
+          answerDiv.style.border = '2px solid #f39c12';
         }
-      });
-      
-      // Если были восстановленные ответы, активируем кнопку
+      }
+    });
+    
+    // Активируем кнопку если есть восстановленные ответы
+    const submitBtn = document.getElementById("submitMultipleBtn");
+    if (submitBtn) {
       if (restoredSelectedIds.length > 0) {
         submitBtn.disabled = false;
         submitBtn.style.opacity = '1';
+        submitBtn.style.cursor = 'pointer';
+      } else {
+        submitBtn.disabled = true;
+        submitBtn.style.opacity = '0.5';
+        submitBtn.style.cursor = 'not-allowed';
       }
-      
-      submitBtn.onclick = () => submitMultipleAnswer();
+    }
+  }
+  
+  // Обновляем отображение кнопки подтверждения в нижней панели
+  updateSubmitButtonVisibility();
+}
+
+function updateSubmitButtonVisibility() {
+  const q = currentQuestions[currentQuestionIndex];
+  const isMultiple = q?.type === 'multiple';
+  const alreadyAnswered = currentAnsweredQuestions.some(a => a.index === currentQuestionIndex);
+  const submitBtn = document.getElementById("submitMultipleBtn");
+  
+  if (submitBtn) {
+    if (isMultiple && !alreadyAnswered && !currentAnswered) {
+      submitBtn.classList.remove('hidden');
+    } else {
+      submitBtn.classList.add('hidden');
     }
   }
 }
 
 function submitMultipleAnswer() {
   if (currentAnswered) return;
+  if (currentMultipleSelected.length === 0) return;
   
   const q = currentQuestions[currentQuestionIndex];
   const isCorrect = checkMultipleAnswer(q, currentMultipleSelected);
   
   currentAnswered = true;
   
-  // Отключаем все чекбоксы
+  // Отключаем клики на варианты
   for (let i = 0; i < q.answers.length; i++) {
-    const checkbox = document.getElementById(`ans${i}`);
-    if (checkbox) checkbox.disabled = true;
+    const answerDiv = document.getElementById(`ansMultiple${i}`);
+    if (answerDiv) {
+      answerDiv.style.cursor = 'default';
+      answerDiv.style.pointerEvents = 'none';
+    }
   }
   
   // Скрываем кнопку подтверждения
   const submitBtn = document.getElementById("submitMultipleBtn");
-  if (submitBtn) submitBtn.style.display = 'none';
+  if (submitBtn) submitBtn.classList.add('hidden');
   
   // Подсвечиваем ответы
   const correctIds = getCorrectAnswerIds(q);
   
   q.answers.forEach((ans, i) => {
-    const label = document.getElementById(`ansLabel${i}`);
-    if (!label) return;
+    const answerDiv = document.getElementById(`ansMultiple${i}`);
+    if (!answerDiv) return;
     
     const isCorrectAnswer = correctIds.includes(ans.id);
     const wasSelected = currentMultipleSelected.includes(ans.id);
     
     if (isCorrectAnswer) {
-      label.style.background = 'rgba(46, 204, 113, 0.3)';
-      label.style.border = '1px solid #2ecc71';
+      answerDiv.style.background = 'rgba(46, 204, 113, 0.3)';
+      answerDiv.style.border = '2px solid #2ecc71';
     }
     if (wasSelected && !isCorrectAnswer) {
-      label.style.background = 'rgba(231, 76, 60, 0.3)';
-      label.style.border = '1px solid #e74c3c';
+      answerDiv.style.background = 'rgba(231, 76, 60, 0.3)';
+      answerDiv.style.border = '2px solid #e74c3c';
     }
   });
   
