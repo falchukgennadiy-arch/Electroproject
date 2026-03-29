@@ -54,6 +54,44 @@ const API = {
     });
     if (!response.ok) throw new Error('Ошибка обновления попытки');
     return response.json();
+  },
+
+  // ===== ВОПРОСЫ (для тестов) =====
+  async getQuestions() {
+    const response = await fetch(`${this.baseURL}/questions`);
+    if (!response.ok) throw new Error('Ошибка загрузки вопросов');
+    return response.json();
+  },
+
+  // ===== ИЗБРАННОЕ =====
+  async getFavorites(userId) {
+    const response = await fetch(`${this.baseURL}/favorites?user_id=${userId}`);
+    if (!response.ok) throw new Error('Ошибка загрузки избранного');
+    return response.json();
+  },
+
+  async checkFavorite(userId, questionId) {
+    const response = await fetch(`${this.baseURL}/favorites/check?user_id=${userId}&question_id=${questionId}`);
+    if (!response.ok) throw new Error('Ошибка проверки избранного');
+    return response.json();
+  },
+
+  async addFavorite(userId, questionId) {
+    const response = await fetch(`${this.baseURL}/favorites`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ user_id: userId, question_id: questionId })
+    });
+    if (!response.ok) throw new Error('Ошибка добавления в избранное');
+    return response.json();
+  },
+
+  async removeFavorite(userId, questionId) {
+    const response = await fetch(`${this.baseURL}/favorites/${questionId}?user_id=${userId}`, {
+      method: 'DELETE'
+    });
+    if (!response.ok) throw new Error('Ошибка удаления из избранного');
+    return response.json();
   }
 };
 
