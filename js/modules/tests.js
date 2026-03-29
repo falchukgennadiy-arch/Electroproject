@@ -1,5 +1,5 @@
 // ===== ТЕСТЫ =====
-// Главный экран: статистика + 4 кнопки (Случайный тест, Экзамен, По темам, По сложности)
+// Главный экран: статистика + 5 кнопок (Случайный тест, Экзамен, По темам, По сложности, Избранное)
 
 let currentTestConfig = null;
 let currentQuestions = [];
@@ -11,6 +11,7 @@ let currentUserId = null;
 let currentAttemptId = null;
 let currentTestMode = 'exam';
 let currentMultipleSelected = [];
+let currentFavoriteStatus = {}; // Кэш статусов избранного
 
 // Локальные таймеры
 let testStartTime = null;
@@ -31,7 +32,8 @@ const TEST_RULES = {
     { difficulty_level_id: 5, count: 5 }
   ],
   theme: { count: 15 },
-  quick: { count: 10 }
+  quick: { count: 10 },
+  favorite: { count: 999 } // все избранные
 };
 
 // ===== УПРАВЛЕНИЕ НИЖНЕЙ НАВИГАЦИЕЙ =====
@@ -97,6 +99,74 @@ async function loadDifficultyLevels() {
     }
   } catch (err) {
     console.error('❌ Ошибка:', err);
+  }
+}
+
+// ===== ИЗБРАННОЕ =====
+async function loadFavorites() {
+  if (!currentUserId) return [];
+  try {
+    const favorites = await API.getFavorites(currentUserId);
+    return favorites.map(q => q.id);
+  } catch (err) {
+    console.error('Ошибка загрузки избранного:', err);
+    return [];
+  }
+}
+
+async function checkFavoriteStatus(questionId) {
+  if (!currentUserId) return false;
+  if (currentFavoriteStatus[questionId] !== undefined) {
+    return currentFavoriteStatus[questionId];
+  }
+  try {
+    const result = await API.checkFavorite(currentUserId, questionId);
+    currentFavoriteStatus[questionId] = result.is_favorite;
+    return result.is_favorite;
+  } catch (err) {
+    console.error('Ошибка проверки избранного:', err);
+    return false;
+  }
+}
+
+async function toggleFavorite(questionId) {
+  if (!currentUserId) {
+    alert('Войдите в аккаунт, чтобы добавлять в избранное');
+    return false;
+  }
+  
+  const isCurrentlyFavorite = await checkFavoriteStatus(questionId);
+  
+  try {
+    if (isCurrentlyFavorite) {
+      await API.removeFavorite(currentUserId, questionId);
+      currentFavoriteStatus[questionId] = false;
+      console.log('Удалено из избранного');
+      return false;
+    } else {
+      await API.addFavorite(currentUserId, questionId);
+      currentFavoriteStatus[questionId] = true;
+      console.log('Добавлено в избранное');
+      return true;
+    }
+  } catch (err) {
+    console.error('Ошибка переключения избранного:', err);
+    alert('Не удалось изменить статус избранного');
+    return isCurrentlyFavorite;
+  }
+}
+
+async function updateFavoriteButton(questionId) {
+  const favBtn = document.getElementById("favoriteBtn");
+  if (!favBtn) return;
+  
+  const isFavorite = await checkFavoriteStatus(questionId);
+  if (isFavorite) {
+    favBtn.innerHTML = '🏁';
+    favBtn.classList.add('active');
+  } else {
+    favBtn.innerHTML = '🚩';
+    favBtn.classList.remove('active');
   }
 }
 
@@ -292,7 +362,7 @@ async function generateQuickTest() {
   }
   const shuffled = shuffleArray(activeQuestions);
   const questions = shuffled.slice(0, TEST_RULES.quick.count);
-  return { id: 'quick', title: 'Быстрый тест', type: 'quick', questions: questions };
+  return { id: 'quick', title: 'Случайный тест', type: 'quick', questions: questions };
 }
 
 async function generateExam() {
@@ -339,6 +409,30 @@ async function generateTestByDifficulty(difficultyId, difficultyTitle) {
   questions = shuffleArray(questions);
   questions = questions.slice(0, TEST_RULES.quick.count);
   return { id: `difficulty_${difficultyId}`, title: `${difficultyTitle}`, type: 'difficulty', questions: questions };
+}
+
+async function generateFavoriteTest() {
+  if (!currentUserId) {
+    alert('Войдите в аккаунт, чтобы использовать избранное');
+    return null;
+  }
+  
+  const favoriteIds = await loadFavorites();
+  if (favoriteIds.length === 0) {
+    alert('У вас нет избранных вопросов. Добавьте вопросы в избранное через кнопку 🚩 во время тестирования');
+    return null;
+  }
+  
+  const activeQuestions = getActiveQuestions();
+  let questions = activeQuestions.filter(q => favoriteIds.includes(q.id));
+  
+  if (questions.length === 0) {
+    alert('Избранные вопросы не найдены или недоступны по подписке');
+    return null;
+  }
+  
+  questions = shuffleArray(questions);
+  return { id: 'favorite', title: 'Избранное', type: 'favorite', questions: questions };
 }
 
 // ===== СТАТИСТИКА =====
@@ -484,6 +578,18 @@ async function renderTestsList() {
     html += `<div class="test-card locked" onclick="window.showSubscriptionRequired('Тесты по сложности')"><div class="test-icon">⭐</div><div class="test-info"><div class="test-title">По сложности</div><div class="test-subtitle">Выберите уровень сложности</div><div class="test-badge locked">🔒 Требуется подписка</div></div><div class="subscribe-btn" onclick="event.stopPropagation(); window.openDonatSubscription('test')">💎 Оформить</div></div>`;
   }
   
+  // Кнопка "Избранное" (всегда доступна, но требует входа)
+  html += `
+    <div class="test-card" onclick="window.startFavoriteTest()">
+      <div class="test-icon">🚩</div>
+      <div class="test-info">
+        <div class="test-title">Избранное</div>
+        <div class="test-subtitle">Только ваши избранные вопросы</div>
+        <div class="test-badge free">БЕСПЛАТНО</div>
+      </div>
+    </div>
+  `;
+  
   html += `</div>`;
   listEl.innerHTML = html;
   
@@ -579,6 +685,7 @@ async function startQuickTest() { const test = await generateQuickTest(); if (te
 async function startExam() { const test = await generateExam(); if (test) startTest(test); }
 async function startTestByTheme(themeId, themeTitle) { const test = await generateTestByTheme(themeId, themeTitle); if (test) startTest(test); }
 async function startTestByDifficulty(difficultyId, difficultyTitle) { const test = await generateTestByDifficulty(difficultyId, difficultyTitle); if (test) startTest(test); }
+async function startFavoriteTest() { const test = await generateFavoriteTest(); if (test) startTest(test); }
 
 function startTest(testConfig) {
   if (!testConfig.questions || testConfig.questions.length === 0) {
@@ -750,6 +857,9 @@ function showQuestion() {
   }
   
   updateSubmitButtonVisibility();
+  
+  // Обновляем кнопку избранного после загрузки вопроса
+  setTimeout(() => updateFavoriteButton(q.id), 50);
 }
 
 function updateSubmitButtonVisibility() {
@@ -1022,6 +1132,7 @@ async function initUser() {
       currentUserId = window.currentUser.id;
       console.log('👤 Пользователь инициализирован:', currentUserId);
       await loadTestProgressFromDB();
+      await loadFavorites();
       renderTestsList();
       return;
     }
@@ -1037,6 +1148,7 @@ window.addEventListener('userLoaded', async (e) => {
     currentUserId = e.detail.id;
     console.log('👤 Пользователь загружен из события:', currentUserId);
     await loadTestProgressFromDB();
+    await loadFavorites();
     renderTestsList();
   } catch (err) {
     console.error('❌ Ошибка обработки userLoaded:', err);
@@ -1050,6 +1162,7 @@ window.startQuickTest = startQuickTest;
 window.startExam = startExam;
 window.startTestByTheme = startTestByTheme;
 window.startTestByDifficulty = startTestByDifficulty;
+window.startFavoriteTest = startFavoriteTest;
 window.startTest = startTest;
 window.selectAnswer = selectAnswer;
 window.submitMultipleAnswer = submitMultipleAnswer;
@@ -1066,6 +1179,8 @@ window.showDifficultyScreen = showDifficultyScreen;
 window.showSubscriptionRequired = showSubscriptionRequired;
 window.hasTestSubscription = hasTestSubscription;
 window.getQuestionImageUrl = getQuestionImageUrl;
+window.toggleFavorite = toggleFavorite;
+window.updateFavoriteButton = updateFavoriteButton;
 
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', initUser);
