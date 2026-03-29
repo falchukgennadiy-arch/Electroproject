@@ -6,10 +6,11 @@ let currentQuestions = [];
 let currentQuestionIndex = 0;
 let currentScore = 0;
 let currentAnswered = false;
-let currentAnsweredQuestions = [];
+let currentAnsweredQuestions = []; // Для single хранит индексы, для multiple хранит { index, selectedAnswers }
 let currentUserId = null;
 let currentAttemptId = null;
 let currentTestMode = 'exam';
+let currentMultipleSelected = []; // Временно хранит выбранные ID ответов для текущего multiple вопроса
 
 // Локальные таймеры
 let testStartTime = null;
@@ -399,6 +400,20 @@ function getQuestionImageUrl(imagePath) {
   return `${baseURL}${cleanPath}`;
 }
 
+// ===== ПОЛУЧЕНИЕ ПРАВИЛЬНЫХ ID ОТВЕТОВ =====
+function getCorrectAnswerIds(question) {
+  return question.answers
+    .filter(a => a.is_correct === 1 || a.is_correct === true)
+    .map(a => a.id);
+}
+
+// ===== ПРОВЕРКА MULTIPLE ВОПРОСА =====
+function checkMultipleAnswer(question, selectedIds) {
+  const correctIds = getCorrectAnswerIds(question);
+  if (selectedIds.length !== correctIds.length) return false;
+  return selectedIds.every(id => correctIds.includes(id));
+}
+
 // ===== ОТОБРАЖЕНИЕ ГЛАВНОГО ЭКРАНА (со статистикой) =====
 async function renderTestsList() {
   const listEl = document.getElementById("topicsList");
@@ -587,6 +602,7 @@ function startTest(testConfig) {
   currentScore = 0;
   currentAnsweredQuestions = [];
   currentAnswered = false;
+  currentMultipleSelected = [];
   currentAttemptId = null;
   const listEl = document.getElementById("topicsList");
   if (listEl) listEl.innerHTML = "";
@@ -608,13 +624,27 @@ function showQuestion() {
   const testArea = document.getElementById("testArea");
   if (!testArea) return;
   currentAnswered = false;
+  currentMultipleSelected = [];
   const nextBtn = document.getElementById("nextBtn");
   if (nextBtn) nextBtn.classList.add('hidden');
   clearTestAutoTransition();
+  
   const q = currentQuestions[currentQuestionIndex];
   const total = currentQuestions.length;
   const progressPct = Math.round(((currentQuestionIndex) / total) * 100);
   const letters = ['А', 'Б', 'В', 'Г', 'Д', 'Е'];
+  
+  // Определяем тип вопроса
+  const isMultiple = q.type === 'multiple';
+  
+  // Проверяем, был ли вопрос уже отвечен (восстанавливаем выбранные ответы)
+  const existingAnswer = currentAnsweredQuestions.find(a => a.index === currentQuestionIndex);
+  const alreadyAnswered = !!existingAnswer;
+  let restoredSelectedIds = [];
+  if (alreadyAnswered && isMultiple) {
+    restoredSelectedIds = existingAnswer.selectedAnswers || [];
+    currentMultipleSelected = [...restoredSelectedIds];
+  }
   
   // Проверяем наличие изображения у вопроса
   const hasImage = q.image && q.image.trim() !== '';
@@ -625,6 +655,37 @@ function showQuestion() {
     </div>
   ` : '';
   
+  // Генерируем HTML для ответов в зависимости от типа
+  let answersHtml = '';
+  if (isMultiple) {
+    answersHtml = `
+      <div class="multiple-hint" style="background: #2c3e50; padding: 8px 12px; border-radius: 8px; margin-bottom: 12px; font-size: 14px; color: #ffd966;">
+        ✓ Выберите несколько вариантов ответа
+      </div>
+      <div id="answers">
+        ${q.answers.map((ans, i) => {
+          const isChecked = alreadyAnswered && restoredSelectedIds.includes(ans.id) ? 'checked' : '';
+          return `
+            <label class="answer-checkbox" id="ansLabel${i}" style="display: flex; align-items: center; padding: 10px; margin: 5px 0; background: #1e1e2e; border-radius: 8px; cursor: pointer; transition: all 0.2s;">
+              <input type="checkbox" id="ans${i}" value="${ans.id}" ${isChecked} ${alreadyAnswered ? 'disabled' : ''} style="margin-right: 12px; width: 18px; height: 18px;">
+              <div class="badge" style="margin-right: 12px;">${letters[i]}</div>
+              <div class="ans-text">${escapeHtml(ans.text)}</div>
+            </label>
+          `;
+        }).join("")}
+      </div>
+      ${!alreadyAnswered ? '<button class="button primary" id="submitMultipleBtn" style="margin-top: 16px;">✅ Подтвердить</button>' : ''}
+    `;
+  } else {
+    answersHtml = `
+      <div id="answers">
+        ${q.answers.map((ans, i) => {
+          return `<button class="button" id="ans${i}" onclick="window.selectAnswer(${i})" ${alreadyAnswered ? 'disabled' : ''}><div class="ans"><div class="badge">${letters[i]}</div><div class="ans-text">${escapeHtml(ans.text)}</div></div></button>`;
+        }).join("")}
+      </div>
+    `;
+  }
+  
   testArea.innerHTML = `
     <div class="card">
       <div class="row">
@@ -634,30 +695,177 @@ function showQuestion() {
       <div class="progress-bar"><div class="progress" style="width:${progressPct}%"></div></div>
       <h3>${escapeHtml(q.text)}</h3>
       ${imageHtml}
-      <div id="answers">
-        ${q.answers.map((ans, i) => {
-          return `<button class="button" id="ans${i}" onclick="window.selectAnswer(${i})" ${currentAnsweredQuestions.includes(currentQuestionIndex) ? 'disabled' : ''}><div class="ans"><div class="badge">${letters[i]}</div><div class="ans-text">${escapeHtml(ans.text)}</div></div></button>`;
-        }).join("")}
-      </div>
+      ${answersHtml}
       <div id="commentArea"></div>
     </div>
   `;
   
-  if (currentAnsweredQuestions.includes(currentQuestionIndex)) {
-    const correctIndex = q.answers.findIndex(a => a.is_correct === 1 || a.is_correct === true);
-    const correctBtn = document.getElementById("ans" + correctIndex);
-    if (correctBtn) correctBtn.classList.add("correct-permanent");
+  // Если вопрос уже был отвечен, показываем результат и подсветку
+  if (alreadyAnswered) {
+    const isCorrect = existingAnswer.isCorrect;
+    const correctIds = getCorrectAnswerIds(q);
+    
+    if (isMultiple) {
+      // Подсвечиваем правильные и неправильные ответы
+      q.answers.forEach((ans, i) => {
+        const label = document.getElementById(`ansLabel${i}`);
+        const checkbox = document.getElementById(`ans${i}`);
+        if (!label) return;
+        
+        const isCorrectAnswer = correctIds.includes(ans.id);
+        const wasSelected = restoredSelectedIds.includes(ans.id);
+        
+        if (isCorrectAnswer) {
+          label.style.background = 'rgba(46, 204, 113, 0.3)';
+          label.style.border = '1px solid #2ecc71';
+        }
+        if (wasSelected && !isCorrectAnswer) {
+          label.style.background = 'rgba(231, 76, 60, 0.3)';
+          label.style.border = '1px solid #e74c3c';
+        }
+        if (checkbox) checkbox.disabled = true;
+      });
+    } else {
+      // Для single подсветка
+      const correctIndex = q.answers.findIndex(a => a.is_correct === 1 || a.is_correct === true);
+      const correctBtn = document.getElementById("ans" + correctIndex);
+      if (correctBtn) correctBtn.classList.add("correct-permanent");
+    }
+    
     showComment(q.explanation);
     if (nextBtn) nextBtn.classList.remove('hidden');
+  } else if (isMultiple) {
+    // Добавляем обработчик для кнопки подтверждения
+    const submitBtn = document.getElementById("submitMultipleBtn");
+    if (submitBtn) {
+      // Сначала делаем кнопку неактивной
+      submitBtn.disabled = true;
+      submitBtn.style.opacity = '0.5';
+      
+      // Добавляем обработчики на чекбоксы
+      q.answers.forEach((ans, i) => {
+        const checkbox = document.getElementById(`ans${i}`);
+        if (checkbox) {
+          checkbox.addEventListener('change', () => {
+            // Обновляем currentMultipleSelected
+            if (checkbox.checked) {
+              if (!currentMultipleSelected.includes(checkbox.value)) {
+                currentMultipleSelected.push(checkbox.value);
+              }
+            } else {
+              currentMultipleSelected = currentMultipleSelected.filter(id => id !== checkbox.value);
+            }
+            // Активируем кнопку, если выбран хотя бы один вариант
+            if (currentMultipleSelected.length > 0) {
+              submitBtn.disabled = false;
+              submitBtn.style.opacity = '1';
+            } else {
+              submitBtn.disabled = true;
+              submitBtn.style.opacity = '0.5';
+            }
+          });
+          
+          // Восстанавливаем состояние если есть
+          if (restoredSelectedIds.includes(checkbox.value)) {
+            checkbox.checked = true;
+          }
+        }
+      });
+      
+      // Если были восстановленные ответы, активируем кнопку
+      if (restoredSelectedIds.length > 0) {
+        submitBtn.disabled = false;
+        submitBtn.style.opacity = '1';
+      }
+      
+      submitBtn.onclick = () => submitMultipleAnswer();
+    }
+  }
+}
+
+function submitMultipleAnswer() {
+  if (currentAnswered) return;
+  
+  const q = currentQuestions[currentQuestionIndex];
+  const isCorrect = checkMultipleAnswer(q, currentMultipleSelected);
+  
+  currentAnswered = true;
+  
+  // Отключаем все чекбоксы
+  for (let i = 0; i < q.answers.length; i++) {
+    const checkbox = document.getElementById(`ans${i}`);
+    if (checkbox) checkbox.disabled = true;
+  }
+  
+  // Скрываем кнопку подтверждения
+  const submitBtn = document.getElementById("submitMultipleBtn");
+  if (submitBtn) submitBtn.style.display = 'none';
+  
+  // Подсвечиваем ответы
+  const correctIds = getCorrectAnswerIds(q);
+  
+  q.answers.forEach((ans, i) => {
+    const label = document.getElementById(`ansLabel${i}`);
+    if (!label) return;
+    
+    const isCorrectAnswer = correctIds.includes(ans.id);
+    const wasSelected = currentMultipleSelected.includes(ans.id);
+    
+    if (isCorrectAnswer) {
+      label.style.background = 'rgba(46, 204, 113, 0.3)';
+      label.style.border = '1px solid #2ecc71';
+    }
+    if (wasSelected && !isCorrectAnswer) {
+      label.style.background = 'rgba(231, 76, 60, 0.3)';
+      label.style.border = '1px solid #e74c3c';
+    }
+  });
+  
+  if (isCorrect) {
+    currentScore++;
+    showComment(q.explanation);
+    
+    // Сохраняем ответ
+    currentAnsweredQuestions.push({
+      index: currentQuestionIndex,
+      selectedAnswers: currentMultipleSelected,
+      isCorrect: true
+    });
+    
+    saveTestProgressToDB();
+    
+    // Автоматический переход
+    testAutoTransitionTimer = setTimeout(() => {
+      nextQuestion();
+    }, 1200);
+  } else {
+    showComment(q.explanation);
+    
+    // Сохраняем ответ
+    currentAnsweredQuestions.push({
+      index: currentQuestionIndex,
+      selectedAnswers: currentMultipleSelected,
+      isCorrect: false
+    });
+    
+    saveTestProgressToDB();
+    
+    const nextBtn = document.getElementById("nextBtn");
+    if (nextBtn) {
+      nextBtn.classList.remove('hidden');
+    }
   }
 }
 
 function selectAnswer(index) {
-  if (currentAnswered || currentAnsweredQuestions.includes(currentQuestionIndex)) return;
+  if (currentAnswered) return;
+  
+  // Проверяем тип вопроса (если multiple, не используем эту функцию)
+  const q = currentQuestions[currentQuestionIndex];
+  if (q.type === 'multiple') return;
   
   currentAnswered = true;
   
-  const q = currentQuestions[currentQuestionIndex];
   const isCorrect = q.answers[index].is_correct === 1 || q.answers[index].is_correct === true;
   const selectedBtn = document.getElementById("ans" + index);
   
@@ -669,10 +877,8 @@ function selectAnswer(index) {
   
   if (isCorrect) {
     currentScore++;
-    // Добавляем анимацию для правильного ответа
     if (selectedBtn) {
       selectedBtn.classList.add("correct-flash");
-      // Убираем класс анимации после её завершения
       setTimeout(() => {
         selectedBtn.classList.remove("correct-flash");
         selectedBtn.classList.add("correct-permanent");
@@ -680,37 +886,37 @@ function selectAnswer(index) {
     }
     showComment(q.explanation);
     
-    if (!currentAnsweredQuestions.includes(currentQuestionIndex)) {
-      currentAnsweredQuestions.push(currentQuestionIndex);
-    }
+    currentAnsweredQuestions.push({
+      index: currentQuestionIndex,
+      selectedAnswers: [q.answers[index].id],
+      isCorrect: true
+    });
     
     saveTestProgressToDB();
     
-    // Автоматический переход к следующему вопросу
     testAutoTransitionTimer = setTimeout(() => {
       nextQuestion();
     }, 1200);
     
   } else {
-    // Находим правильный ответ
     const correctIndex = q.answers.findIndex(a => a.is_correct === 1 || a.is_correct === true);
     const correctBtn = document.getElementById("ans" + correctIndex);
     
-    // Подсвечиваем неправильный ответ
     if (selectedBtn) {
       selectedBtn.classList.add("wrong-permanent");
     }
     
-    // Подсвечиваем правильный ответ
     if (correctBtn) {
       correctBtn.classList.add("correct-permanent");
     }
     
     showComment(q.explanation);
     
-    if (!currentAnsweredQuestions.includes(currentQuestionIndex)) {
-      currentAnsweredQuestions.push(currentQuestionIndex);
-    }
+    currentAnsweredQuestions.push({
+      index: currentQuestionIndex,
+      selectedAnswers: [q.answers[index].id],
+      isCorrect: false
+    });
     
     saveTestProgressToDB();
     
@@ -730,7 +936,7 @@ function nextQuestion() {
   clearTestAutoTransition();
   const total = currentQuestions.length;
   let nextQ = currentQuestionIndex + 1;
-  while (nextQ < total && currentAnsweredQuestions.includes(nextQ)) nextQ++;
+  while (nextQ < total && currentAnsweredQuestions.some(a => a.index === nextQ)) nextQ++;
   if (nextQ < total) {
     currentQuestionIndex = nextQ;
     showQuestion();
@@ -877,6 +1083,7 @@ window.startTestByTheme = startTestByTheme;
 window.startTestByDifficulty = startTestByDifficulty;
 window.startTest = startTest;
 window.selectAnswer = selectAnswer;
+window.submitMultipleAnswer = submitMultipleAnswer;
 window.nextQuestion = nextQuestion;
 window.finishTest = finishTest;
 window.exitTest = exitTest;
