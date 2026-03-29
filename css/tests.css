@@ -747,21 +747,16 @@
 
 /* ===== MULTIPLE CHOICE STYLES ===== */
 .multiple-hint {
-    background: rgba(230, 193, 88, 0.15) !important;
-    border: 1px solid var(--accent);
-    border-radius: 12px;
-    padding: 10px 14px;
-    margin-bottom: 16px;
-    font-size: 13px;
-    font-weight: 500;
+    margin-bottom: 12px;
+    font-size: 14px;
     color: var(--accent);
-    text-align: center;
+    font-weight: 500;
 }
 
 .answer-multiple {
     display: flex;
     align-items: center;
-    padding: 14px 16px;
+    padding: 12px;
     margin: 8px 0;
     background: var(--btn);
     border-radius: 12px;
@@ -785,7 +780,6 @@
 .answer-multiple.multiple-selected {
     background: rgba(230, 193, 88, 0.2);
     border: 1px solid var(--accent);
-    box-shadow: 0 0 0 1px rgba(230, 193, 88, 0.3);
 }
 
 .answer-multiple.multiple-selected .badge {
@@ -801,12 +795,20 @@
     color: #fff;
 }
 
-/* Кнопка подтверждения в панели управления */
+.answer-multiple.correct-highlight {
+    background: rgba(46, 204, 113, 0.3);
+    border: 1px solid #2ecc71;
+}
+
+.answer-multiple.wrong-highlight {
+    background: rgba(231, 76, 60, 0.3);
+    border: 1px solid #e74c3c;
+}
+
 #submitMultipleBtn {
     background: var(--accent);
     color: #000;
     font-weight: 700;
-    border-color: rgba(0,0,0,0.12);
 }
 
 #submitMultipleBtn.hidden {
@@ -816,22 +818,4 @@
 #submitMultipleBtn:disabled {
     opacity: 0.5;
     cursor: not-allowed;
-}
-
-/* Адаптация для мобильных */
-@media (max-width: 480px) {
-    .answer-multiple {
-        padding: 12px 14px;
-    }
-    
-    .answer-multiple .badge {
-        width: 28px;
-        height: 28px;
-        font-size: 14px;
-    }
-    
-    .multiple-hint {
-        font-size: 12px;
-        padding: 8px 12px;
-    }
 }
