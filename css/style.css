@@ -195,6 +195,7 @@ body{
 }
 
 /* Прогресс-бар с разделителями */
+/* Прогресс-бар с разделителями */
 .progress-bar {
   height: 8px;
   background: var(--btn);
@@ -211,7 +212,7 @@ body{
   transition: width 0.3s ease;
 }
 
-/* Разделители на фоне (не зависят от заполнения) */
+/* Разделители на фоне (пустая часть) */
 .progress-bar {
   background-image: repeating-linear-gradient(
     90deg,
@@ -220,6 +221,19 @@ body{
     rgba(0, 0, 0, 0.4) calc(100% / var(--total) - 2px),
     rgba(0, 0, 0, 0.4) calc(100% / var(--total))
   );
+}
+
+/* Разделители на заполненной части (тёмно-жёлтые) */
+.progress {
+  background-image: repeating-linear-gradient(
+    90deg,
+    transparent,
+    transparent calc(100% / var(--total) - 2px),
+    rgba(120, 85, 20, 0.6) calc(100% / var(--total) - 2px),
+    rgba(120, 85, 20, 0.6) calc(100% / var(--total))
+  );
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
 }
 
 .button{
