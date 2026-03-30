@@ -700,7 +700,7 @@ async function showDifficultyScreen() {
     const questionsCount = getActiveQuestions().filter(q => q.difficulty_level_id === diff.id).length;
     const emoji = diff.id === 1 ? '🟢' : diff.id === 5 ? '🔴' : '🟡';
     html += `
-      <div class="difficulty-card" onclick="window.startTestByDifficulty('${diff.id}', '${escapeHtml(diff.title)}')">
+      <div class="difficulty-card" onclick="window.startTestByDifficulty(${diff.id}, '${escapeHtml(diff.title)}')">
         <div class="difficulty-emoji">${emoji}</div>
         <div class="difficulty-info">
           <div class="difficulty-title">${escapeHtml(diff.title)}</div>
