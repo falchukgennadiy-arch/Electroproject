@@ -1,4 +1,5 @@
 /* ===== ТЕСТЫ ===== */
+/* Только уникальные стили для тестов (без дублирования базовых классов) */
 
 /* Главный экран */
 .tests-main-screen {
@@ -47,12 +48,7 @@
   flex: 1;
 }
 
-.test-title {
-  font-size: 18px;
-  font-weight: 600;
-  color: #e6c158;
-  margin-bottom: 4px;
-}
+/* .test-title уже есть в основном CSS, не дублируем */
 
 .test-subtitle {
   font-size: 13px;
@@ -68,18 +64,8 @@
   margin-top: 4px;
 }
 
-.test-badge {
-  display: inline-block;
-  padding: 2px 8px;
-  border-radius: 12px;
-  font-size: 11px;
-  font-weight: 500;
-}
-
-.test-badge.free {
-  background: #2ecc71;
-  color: #000;
-}
+/* .test-badge уже есть в основном CSS, не дублируем */
+/* .test-badge.free уже есть в основном CSS, не дублируем */
 
 .test-badge.locked {
   background: #7f8c8d;
@@ -268,482 +254,8 @@
   font-size: 11px;
 }
 
-/* Карточка вопроса */
-.card {
-  background: #1a1a1a;
-  border: 1px solid #2a2a2a;
-  border-radius: 16px;
-  padding: 20px;
-  margin-bottom: 20px;
-}
-
-.row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 12px;
-}
-
-.pill {
-  background: #2a2a2a;
-  padding: 6px 12px;
-  border-radius: 20px;
-  font-size: 12px;
-  color: #aaa;
-}
-
-.progress-bar {
-  background: #2a2a2a;
-  border-radius: 10px;
-  height: 8px;
-  margin: 12px 0;
-  overflow: hidden;
-}
-
-.progress {
-  background: #e6c158;
-  height: 100%;
-  border-radius: 10px;
-  transition: width 0.3s;
-}
-
-.card h3 {
-  margin: 14px 0 10px;
-  color: #fff;
-  font-size: 18px;
-  line-height: 1.4;
-}
-
-.button {
-  background: #2a2a2a;
-  border: 1px solid #3a3a3a;
-  border-radius: 12px;
-  padding: 12px;
-  width: 100%;
-  margin: 6px 0;
-  text-align: left;
-  cursor: pointer;
-  transition: all 0.2s;
-  color: #fff;
-}
-
-.button:hover:not(:disabled) {
-  background: #3a3a3a;
-  border-color: #e6c158;
-}
-
-.button:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
-.ans {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.badge {
-  width: 28px;
-  height: 28px;
-  background: #3a3a3a;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: bold;
-  color: #e6c158;
-}
-
-.ans-text {
-  flex: 1;
-}
-
-.comment {
-  margin-top: 16px;
-  padding: 12px;
-  background: #2a2a2a;
-  border-radius: 8px;
-  font-size: 14px;
-  color: #aaa;
-  border-left: 3px solid #e6c158;
-}
-
-/* Стили для выделения ответов */
-.correct-flash {
-  animation: correctFlashAnimation 0.5s ease-in-out;
-  border: 2px solid #2ecc71 !important;
-  background: rgba(46, 204, 113, 0.2) !important;
-  position: relative;
-}
-
-.correct-permanent {
-  border: 2px solid #2ecc71 !important;
-  background: rgba(46, 204, 113, 0.15) !important;
-  position: relative;
-}
-
-.correct-permanent::after {
-  content: "✓";
-  position: absolute;
-  right: 12px;
-  top: 50%;
-  transform: translateY(-50%);
-  color: #2ecc71;
-  font-weight: 700;
-  font-size: 18px;
-}
-
-.wrong-permanent {
-  border: 2px solid #e74c3c !important;
-  background: rgba(231, 76, 60, 0.15) !important;
-  position: relative;
-}
-
-.wrong-permanent::after {
-  content: "✗";
-  position: absolute;
-  right: 12px;
-  top: 50%;
-  transform: translateY(-50%);
-  color: #e74c3c;
-  font-weight: 700;
-  font-size: 18px;
-}
-
-@keyframes correctFlashAnimation {
-  0% {
-    border-color: #2ecc71;
-    background: rgba(46, 204, 113, 0);
-    transform: scale(1);
-  }
-  50% {
-    border-color: #2ecc71;
-    background: rgba(46, 204, 113, 0.4);
-    transform: scale(1.02);
-  }
-  100% {
-    border-color: #2ecc71;
-    background: rgba(46, 204, 113, 0.2);
-    transform: scale(1);
-  }
-}
-
-.stats-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 20px;
-  margin: 20px 0;
-  align-items: center;
-}
-
-.center {
-  text-align: center;
-}
-
-.percent-number {
-  font-size: 24px;
-  font-weight: bold;
-  color: #e6c158;
-  margin-top: 8px;
-}
-
-.statline {
-  display: flex;
-  justify-content: space-between;
-  padding: 8px 0;
-  border-bottom: 1px solid #2a2a2a;
-}
-
-.statline .k {
-  color: #888;
-}
-
-.statline .v {
-  font-weight: bold;
-  color: #fff;
-}
-
-/* Кнопки управления тестом - без скруглений */
-.test-controls {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  background: rgba(28, 28, 30, 0.96);
-  backdrop-filter: blur(10px);
-  border-top: 1px solid rgba(230, 193, 88, 0.2);
-  padding: 12px 16px;
-  transform: translateY(100%);
-  transition: transform 0.3s ease;
-  z-index: 1000;
-  display: block;
-  border-radius: 0;
-}
-
-.test-controls.active {
-  transform: translateY(0);
-}
-
-.test-controls .controls-wrap {
-  display: flex;
-  gap: 12px;
-  justify-content: center;
-  max-width: 600px;
-  margin: 0 auto;
-}
-
-.test-controls .button {
-  flex: 1;
-  margin-top: 0;
-  padding: 12px 20px;
-  font-size: 14px;
-  font-weight: 500;
-  border-radius: 12px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  text-align: center;
-  background: #2a2a2a;
-  border: 1px solid #3a3a3a;
-  color: #fff;
-}
-
-.test-controls .button.primary {
-  background: #e6c158;
-  color: #000;
-  border: none;
-}
-
-.test-controls .button.primary:hover {
-  background: #f1c40f;
-  transform: translateY(-1px);
-}
-
-.test-controls .button.ghost {
-  background: transparent;
-  border: 1px solid rgba(230, 193, 88, 0.3);
-  color: #e6c158;
-}
-
-.test-controls .button.ghost:hover {
-  background: rgba(230, 193, 88, 0.1);
-  transform: translateY(-1px);
-}
-
-.test-controls .button:hover:not(:disabled) {
-  background: #3a3a3a;
-  border-color: #e6c158;
-}
-
-.hidden {
-  display: none;
-}
-
-.test-active {
-  padding-bottom: 80px;
-}
-
-.padding-bottom {
-  padding-bottom: 80px;
-}
-
-/* ===== СТАТИСТИКА НА ГЛАВНОМ ЭКРАНЕ ===== */
-.stats-block {
-  background: #1a1a1a;
-  border: 1px solid #2a2a2a;
-  border-radius: 16px;
-  padding: 16px;
-  margin-bottom: 20px;
-}
-
-.stats-header-cards {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 12px;
-  margin-bottom: 16px;
-}
-
-.stat-card {
-  background: #2a2a2a;
-  border-radius: 12px;
-  padding: 12px;
-  text-align: center;
-}
-
-.stat-number {
-  font-size: 24px;
-  font-weight: bold;
-  color: #e6c158;
-  line-height: 1.2;
-}
-
-.stat-label {
-  font-size: 11px;
-  color: #888;
-  margin-top: 4px;
-}
-
-.stats-progress {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  padding-top: 8px;
-  border-top: 1px solid #2a2a2a;
-}
-
-.progress-circle {
-  position: relative;
-  width: 80px;
-  height: 80px;
-  flex-shrink: 0;
-}
-
-.progress-circle canvas {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 80px;
-  height: 80px;
-}
-
-.progress-percent {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  font-size: 14px;
-  font-weight: bold;
-  color: #e6c158;
-}
-
-.progress-text {
-  flex: 1;
-  font-size: 12px;
-  color: #aaa;
-  line-height: 1.6;
-}
-
-.progress-text div {
-  margin: 2px 0;
-}
-
-.result-title {
-  font-size: 24px;
-  font-weight: bold;
-  color: #e6c158;
-  margin-bottom: 4px;
-}
-
-.subtle {
-  color: #888;
-  font-size: 13px;
-}
-
-/* ===== СТИЛИ ДЛЯ ИЗОБРАЖЕНИЙ В ВОПРОСАХ ===== */
-.question-image-container {
-  margin: 16px 0;
-  text-align: center;
-  background: #1a1a1a;
-  border-radius: 12px;
-  padding: 12px;
-  border: 1px solid #2a2a2a;
-}
-
-.question-image {
-  max-width: 100%;
-  max-height: 300px;
-  object-fit: contain;
-  border-radius: 8px;
-}
-
-/* Адаптивность для изображений на мобильных */
-@media (max-width: 768px) {
-  .question-image {
-    max-height: 200px;
-  }
-  
-  .question-image-container {
-    padding: 8px;
-  }
-  
-  .test-controls .controls-wrap {
-    gap: 8px;
-  }
-  
-  .test-controls .button {
-    padding: 10px 16px;
-    font-size: 13px;
-  }
-  
-  .stats-grid {
-    grid-template-columns: 100px 1fr;
-    gap: 12px;
-  }
-  
-  .result-title {
-    font-size: 20px;
-  }
-  
-  .correct-permanent::after,
-  .wrong-permanent::after {
-    font-size: 14px;
-    right: 8px;
-  }
-}
-
-/* Адаптивность для очень маленьких экранов */
-@media (max-width: 480px) {
-  .question-image {
-    max-height: 150px;
-  }
-  
-  .test-controls {
-    padding: 8px 12px;
-  }
-  
-  .test-controls .button {
-    padding: 8px 12px;
-    font-size: 12px;
-  }
-  
-  .stats-header-cards {
-    gap: 8px;
-  }
-  
-  .stat-card {
-    padding: 8px;
-  }
-  
-  .stat-number {
-    font-size: 20px;
-  }
-  
-  .stat-label {
-    font-size: 10px;
-  }
-  
-  .stats-progress {
-    gap: 12px;
-  }
-  
-  .progress-circle {
-    width: 60px;
-    height: 60px;
-  }
-  
-  .progress-circle canvas {
-    width: 60px;
-    height: 60px;
-  }
-  
-  .progress-percent {
-    font-size: 11px;
-  }
-  
-  .progress-text {
-    font-size: 10px;
-  }
-}
+/* Анимации ответов уже есть в основном CSS, не дублируем */
+/* .correct-flash, .correct-permanent, .wrong-permanent, @keyframes correctFlashAnimation — всё в основном CSS */
 
 /* ===== MULTIPLE CHOICE STYLES ===== */
 .multiple-hint {
@@ -820,71 +332,7 @@
     cursor: not-allowed;
 }
 
-/* Кнопка избранного в нижней панели */
-#favoriteBtn {
-    background: var(--btn);
-    color: var(--accent);
-    font-size: 20px;
-    padding: 8px 16px;
-}
-
-#favoriteBtn.active {
-    background: var(--accent);
-    color: #000;
-}
-
-#favoriteBtn.hidden {
-    display: none;
-}
-
-/* Иконка флага в тестовой карточке */
-.test-card .test-icon {
-    font-size: 28px;
-}
-
-/* ===== КАСТОМНЫЕ УВЕДОМЛЕНИЯ ===== */
-.custom-notification {
-    position: fixed;
-    bottom: 80px;
-    left: 50%;
-    transform: translateX(-50%);
-    z-index: 10000;
-    pointer-events: none;
-}
-
-.notification-content {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 12px 20px;
-    border-radius: 12px;
-    font-size: 14px;
-    font-weight: 500;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-    backdrop-filter: blur(8px);
-    animation: slideUp 0.3s ease;
-}
-
-.notification-icon {
-    font-size: 16px;
-}
-
-.notification-message {
-    color: white;
-}
-
-@keyframes slideUp {
-    from {
-        opacity: 0;
-        transform: translateY(20px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-/* Исправленная кнопка избранного (узкая) */
+/* Кнопка избранного (узкая, с звездой) */
 #favoriteBtn {
     width: auto;
     min-width: 44px;
@@ -904,4 +352,90 @@
 
 #favoriteBtn.hidden {
     display: none;
+}
+
+/* Иконка в тестовой карточке */
+.test-card .test-icon {
+    font-size: 28px;
+}
+
+/* Стили для изображений в вопросах */
+.question-image-container {
+    margin: 16px 0;
+    text-align: center;
+    background: #1a1a1a;
+    border-radius: 12px;
+    padding: 12px;
+    border: 1px solid #2a2a2a;
+}
+
+.question-image {
+    max-width: 100%;
+    max-height: 300px;
+    object-fit: contain;
+    border-radius: 8px;
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+    .question-image {
+        max-height: 200px;
+    }
+    
+    .question-image-container {
+        padding: 8px;
+    }
+    
+    .stats-grid {
+        grid-template-columns: 100px 1fr;
+        gap: 12px;
+    }
+    
+    .result-title {
+        font-size: 20px;
+    }
+}
+
+@media (max-width: 480px) {
+    .question-image {
+        max-height: 150px;
+    }
+    
+    .stats-header-cards {
+        gap: 8px;
+    }
+    
+    .stat-card {
+        padding: 8px;
+    }
+    
+    .stat-number {
+        font-size: 20px;
+    }
+    
+    .stat-label {
+        font-size: 10px;
+    }
+    
+    .stats-progress {
+        gap: 12px;
+    }
+    
+    .progress-circle {
+        width: 60px;
+        height: 60px;
+    }
+    
+    .progress-circle canvas {
+        width: 60px;
+        height: 60px;
+    }
+    
+    .progress-percent {
+        font-size: 11px;
+    }
+    
+    .progress-text {
+        font-size: 10px;
+    }
 }
