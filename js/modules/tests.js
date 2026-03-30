@@ -141,10 +141,12 @@ async function toggleFavorite(questionId) {
     if (isCurrentlyFavorite) {
       await API.removeFavorite(currentUserId, questionId);
       currentFavoriteStatus[questionId] = false;
+      await updateFavoriteButton(questionId);
       return false;
     } else {
       await API.addFavorite(currentUserId, questionId);
       currentFavoriteStatus[questionId] = true;
+      await updateFavoriteButton(questionId);
       return true;
     }
   } catch (err) {
@@ -153,6 +155,7 @@ async function toggleFavorite(questionId) {
     return isCurrentlyFavorite;
   }
 }
+
 
 async function updateFavoriteButton(questionId) {
   const favBtn = document.getElementById("favoriteBtn");
