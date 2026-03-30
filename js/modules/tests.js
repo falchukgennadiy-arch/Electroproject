@@ -820,7 +820,7 @@ function showQuestion() {
         <span class="pill">Вопрос ${currentQuestionIndex + 1}/${total}</span>
       </div>
       <div class="progress-bar"><div class="progress" style="width:${progressPct}%"></div></div>
-      <h3>${escapeHtml(q.text)}</h3>
+      <h3 class="question-title">${escapeHtml(q.text)}</h3>
       ${imageHtml}
       ${answersHtml}
       <div id="commentArea"></div>
