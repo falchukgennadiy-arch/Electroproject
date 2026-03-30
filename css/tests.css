@@ -264,8 +264,8 @@
 
 /* ===== ЗАГОЛОВОК ВОПРОСА ===== */
 .question-title {
-  font-size: 19px;
-  font-weight: 600;
+  font-size: 17px;
+  font-weight: 400;
   line-height: 1.45;
   margin: 16px 0 14px;
   color: #fff;
