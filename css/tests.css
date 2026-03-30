@@ -301,10 +301,12 @@
   outline: none;
 }
 
+/* Единое disabled состояние для всех ответов */
 .button:disabled,
 .answer-multiple.disabled {
   opacity: 0.6;
   cursor: not-allowed;
+  pointer-events: none;
 }
 
 /* Структура ответов — одинаковая для всех */
@@ -344,14 +346,58 @@
   border-color: var(--accent);
 }
 
+/* Подсказка для multiple */
+.multiple-hint {
+  margin-bottom: 12px;
+  font-size: 14px;
+  color: var(--accent);
+  font-weight: 500;
+}
+
+/* ===== АНИМАЦИЯ FLASH ===== */
+@keyframes correctFlash {
+  0% {
+    background-color: var(--btn);
+    border-color: var(--line);
+    opacity: 1;
+  }
+  30% {
+    background-color: rgba(46, 204, 113, 0.5);
+    border-color: #2ecc71;
+    opacity: 0.85;
+  }
+  60% {
+    background-color: rgba(46, 204, 113, 0.3);
+    border-color: #2ecc71;
+    opacity: 0.95;
+  }
+  90% {
+    background-color: rgba(46, 204, 113, 0.5);
+    border-color: #2ecc71;
+    opacity: 0.85;
+  }
+  100% {
+    background-color: var(--btn);
+    border-color: var(--line);
+    opacity: 1;
+  }
+}
+
+.button.correct-flash,
+.answer-multiple.correct-flash {
+  animation: correctFlash 0.5s ease-in-out 2;
+}
+
 /* ===== ПРАВИЛЬНЫЕ/НЕПРАВИЛЬНЫЕ ОТВЕТЫ ===== */
-.correct-permanent {
+.button.correct-permanent,
+.answer-multiple.correct-permanent {
   background: rgba(46, 204, 113, 0.2) !important;
   border: 2px solid #2ecc71 !important;
   position: relative;
 }
 
-.correct-permanent::after {
+.button.correct-permanent::after,
+.answer-multiple.correct-permanent::after {
   content: "✓";
   position: absolute;
   right: 12px;
@@ -362,13 +408,15 @@
   font-size: 18px;
 }
 
-.wrong-permanent {
+.button.wrong-permanent,
+.answer-multiple.wrong-permanent {
   background: rgba(231, 76, 60, 0.2) !important;
   border: 2px solid #e74c3c !important;
   position: relative;
 }
 
-.wrong-permanent::after {
+.button.wrong-permanent::after,
+.answer-multiple.wrong-permanent::after {
   content: "✗";
   position: absolute;
   right: 12px;
@@ -377,14 +425,6 @@
   color: #e74c3c;
   font-weight: 700;
   font-size: 18px;
-}
-
-/* Подсказка для multiple */
-.multiple-hint {
-  margin-bottom: 12px;
-  font-size: 14px;
-  color: var(--accent);
-  font-weight: 500;
 }
 
 /* Кнопка избранного (узкая) */
