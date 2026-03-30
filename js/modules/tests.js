@@ -771,7 +771,7 @@ function showQuestion() {
   
   const q = currentQuestions[currentQuestionIndex];
   const total = currentQuestions.length;
-  const progressPct = Math.round(((currentQuestionIndex) / total) * 100);
+  const progressPct = Math.round(((currentQuestionIndex + 1) / total) * 100);
   const letters = ['А', 'Б', 'В', 'Г', 'Д', 'Е'];
   
   const isMultiple = q.type === 'multiple';
