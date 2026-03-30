@@ -811,10 +811,7 @@ body{
   border-color: rgba(230,193,88,0.3);
   color: var(--accent);
 }
-.controls-wrap .button:hover:not(:disabled) {
-  background: #3a3a3a;
-  border-color: var(--accent);
-}
+
 
 .test-controls.active {
   display: block;
