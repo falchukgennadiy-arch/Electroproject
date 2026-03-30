@@ -953,7 +953,7 @@ function submitMultipleAnswer() {
       setTimeout(() => {
         answerDiv.classList.remove('correct-flash');
         answerDiv.classList.add('correct-permanent');
-      }, 500);
+      }, 1000);
     } else if (isCorrectAnswer && !wasSelected) {
       answerDiv.classList.add('correct-permanent');
     } else if (wasSelected && !isCorrectAnswer) {
@@ -1020,7 +1020,7 @@ function selectAnswer(index) {
       setTimeout(() => {
         selectedBtn.classList.remove("correct-flash");
         selectedBtn.classList.add("correct-permanent");
-      }, 500);
+      }, 1000);
     }
     showComment(q.explanation);
     
