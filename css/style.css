@@ -195,7 +195,6 @@ body{
 }
 
 /* Прогресс-бар с разделителями */
-/* Прогресс-бар с разделителями */
 .progress-bar {
   height: 8px;
   background: var(--btn);
@@ -205,36 +204,37 @@ body{
   position: relative;
 }
 
+/* Заполненная часть (просто заливка) */
 .progress {
   height: 100%;
   width: 0%;
   background: var(--accent);
   transition: width 0.3s ease;
+  position: relative;
+  z-index: 1;
 }
 
-/* Разделители на фоне (пустая часть) */
-.progress-bar {
+/* Разделители поверх всего бара (один слой) */
+.progress-bar::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 2;
   background-image: repeating-linear-gradient(
     90deg,
     transparent,
     transparent calc(100% / var(--total) - 2px),
-    rgba(0, 0, 0, 0.4) calc(100% / var(--total) - 2px),
-    rgba(0, 0, 0, 0.4) calc(100% / var(--total))
-  );
-}
-
-/* Разделители на заполненной части (тёмно-жёлтые) */
-.progress {
-  background-image: repeating-linear-gradient(
-    90deg,
-    transparent,
-    transparent calc(100% / var(--total) - 2px),
-    rgba(120, 85, 20, 0.6) calc(100% / var(--total) - 2px),
-    rgba(120, 85, 20, 0.6) calc(100% / var(--total))
+    rgba(0, 0, 0, 0.5) calc(100% / var(--total) - 2px),
+    rgba(0, 0, 0, 0.5) calc(100% / var(--total))
   );
   background-size: 100% 100%;
   background-repeat: no-repeat;
 }
+
 
 .button{
   width:100%;
