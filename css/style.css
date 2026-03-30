@@ -937,3 +937,26 @@ body{
         transform: translateY(0);
     }
 }
+/* ===== УНИВЕРСАЛЬНЫЙ КЛАСС СКРЫТИЯ ===== */
+.hidden {
+  display: none !important;
+}
+
+/* ===== КНОПКА ИЗБРАННОГО В ПАНЕЛИ ===== */
+.controls-wrap .button#favoriteBtn {
+  width: auto;
+  min-width: 44px;
+  flex: 0 0 auto;
+  padding: 8px 12px;
+  font-size: 20px;
+  background: var(--btn);
+  color: var(--accent);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+}
+
+#favoriteBtn.active {
+  background: var(--accent);
+  color: #000;
+  border-color: var(--accent);
+}
