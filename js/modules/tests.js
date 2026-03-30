@@ -825,19 +825,13 @@ function showQuestion() {
         <span class="pill" id="timer">⏱ 00:00</span>
         <span class="pill">Вопрос ${currentQuestionIndex + 1}/${total}</span>
       </div>
-      <div class="progress-bar"><div class="progress" style="width:${progressPct}%"></div></div>
+      <div class="progress-bar" style="--total: ${total}"><div class="progress" style="--total: ${total}; width: ${progressPct}%"></div></div>
       <h3 class="question-title">${escapeHtml(q.text)}</h3>
       ${imageHtml}
       ${answersHtml}
       <div id="commentArea"></div>
     </div>
   `;
-  
-  // Устанавливаем CSS-переменную для разделителей прогресс-бара
-  const progressBar = document.querySelector('.progress-bar');
-  if (progressBar) {
-    progressBar.style.setProperty('--total', total);
-  }
   
   const favBtn = document.getElementById("favoriteBtn");
   if (favBtn && !alreadyAnswered) {
