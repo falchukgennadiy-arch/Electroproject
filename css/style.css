@@ -539,51 +539,6 @@ body{
   flex-shrink: 0;
 }
 
-@keyframes correctFlash {
-  0% { background-color: var(--btn); }
-  30% { background-color: var(--good); }
-  70% { background-color: var(--good); }
-  100% { background-color: var(--btn); }
-}
-
-.button.correct-flash {
-  animation: correctFlash 0.8s ease;
-}
-
-.button.correct-permanent {
-  background: rgba(46, 204, 113, 0.3) !important;
-  border-color: var(--good) !important;
-  position: relative;
-}
-
-.button.correct-permanent::after {
-  content: "✓";
-  position: absolute;
-  right: 12px;
-  top: 50%;
-  transform: translateY(-50%);
-  color: var(--good);
-  font-weight: 700;
-  font-size: 18px;
-}
-
-.button.wrong-permanent {
-  background: rgba(231, 76, 60, 0.2) !important;
-  border-color: var(--bad) !important;
-  position: relative;
-}
-
-.button.wrong-permanent::after {
-  content: "✗";
-  position: absolute;
-  right: 12px;
-  top: 50%;
-  transform: translateY(-50%);
-  color: var(--bad);
-  font-weight: 700;
-  font-size: 18px;
-}
-
 .comment {
   margin-top: 20px;
   padding: 16px 18px;
@@ -786,7 +741,7 @@ body{
   font-size:15px;
 }
 
-/* Панель управления тестом - без скруглений, как основное меню */
+/* Панель управления тестом */
 .test-controls{
   position:fixed;
   left:0;
@@ -937,6 +892,7 @@ body{
         transform: translateY(0);
     }
 }
+
 /* ===== УНИВЕРСАЛЬНЫЙ КЛАСС СКРЫТИЯ ===== */
 .hidden {
   display: none !important;
