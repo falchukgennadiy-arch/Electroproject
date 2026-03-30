@@ -561,6 +561,13 @@ async function renderTestsList() {
   const stats = await getUserStats();
   const progressPercent = stats.totalAnswered > 0 ? Math.round((stats.totalCorrect / stats.totalAnswered) * 100) : 0;
   
+  // Получаем количество избранных вопросов
+  let favoritesCount = 0;
+  if (currentUserId) {
+    const favoriteIds = await loadFavorites();
+    favoritesCount = favoriteIds.length;
+  }
+  
   let html = `
     <div class="tests-main-screen">
       <div class="stats-block">
@@ -618,11 +625,12 @@ async function renderTestsList() {
     html += `<div class="test-card locked" onclick="window.showSubscriptionRequired('Тесты по сложности')"><div class="test-icon">⭐</div><div class="test-info"><div class="test-title">По сложности</div><div class="test-subtitle">Выберите уровень сложности</div><div class="test-badge locked">🔒 Требуется подписка</div></div><div class="subscribe-btn" onclick="event.stopPropagation(); window.openDonatSubscription('test')">💎 Оформить</div></div>`;
   }
   
+  // Кнопка "Избранное" с количеством
   html += `
     <div class="test-card" onclick="window.startFavoriteTest()">
       <div class="test-icon">★</div>
       <div class="test-info">
-        <div class="test-title">Избранное</div>
+        <div class="test-title">Избранное ${favoritesCount > 0 ? `(${favoritesCount})` : ''}</div>
         <div class="test-subtitle">Только ваши избранные вопросы</div>        
       </div>
     </div>
