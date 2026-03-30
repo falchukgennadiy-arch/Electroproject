@@ -156,7 +156,6 @@ async function toggleFavorite(questionId) {
   }
 }
 
-
 async function updateFavoriteButton(questionId) {
   const favBtn = document.getElementById("favoriteBtn");
   if (!favBtn) return;
@@ -843,6 +842,7 @@ function showQuestion() {
         const wasSelected = restoredSelectedIds.includes(ans.id);
         
         answerDiv.classList.remove('multiple-selected');
+        answerDiv.classList.add('disabled');
         
         if (isCorrectAnswer) {
           answerDiv.classList.add('correct-permanent');
@@ -851,7 +851,6 @@ function showQuestion() {
         }
         
         answerDiv.style.cursor = 'default';
-        answerDiv.style.pointerEvents = 'none';
       });
     } else {
       const correctIndex = q.answers.findIndex(a => a.is_correct === 1 || a.is_correct === true);
@@ -931,6 +930,15 @@ function submitMultipleAnswer() {
   
   const correctIds = getCorrectAnswerIds(q);
   
+  // Отключаем все кнопки (как в single)
+  for (let i = 0; i < q.answers.length; i++) {
+    const answerDiv = document.getElementById(`ansMultiple${i}`);
+    if (answerDiv) {
+      answerDiv.classList.add('disabled');
+    }
+  }
+  
+  // Применяем подсветку с анимацией для правильных выбранных ответов
   q.answers.forEach((ans, i) => {
     const answerDiv = document.getElementById(`ansMultiple${i}`);
     if (!answerDiv) return;
@@ -940,14 +948,17 @@ function submitMultipleAnswer() {
     
     answerDiv.classList.remove('multiple-selected');
     
-    if (isCorrectAnswer) {
+    if (isCorrectAnswer && wasSelected) {
+      answerDiv.classList.add('correct-flash');
+      setTimeout(() => {
+        answerDiv.classList.remove('correct-flash');
+        answerDiv.classList.add('correct-permanent');
+      }, 500);
+    } else if (isCorrectAnswer && !wasSelected) {
       answerDiv.classList.add('correct-permanent');
     } else if (wasSelected && !isCorrectAnswer) {
       answerDiv.classList.add('wrong-permanent');
     }
-    
-    answerDiv.style.cursor = 'default';
-    answerDiv.style.pointerEvents = 'none';
   });
   
   const submitBtn = document.getElementById("submitMultipleBtn");
