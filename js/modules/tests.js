@@ -594,8 +594,7 @@ async function renderTestsList() {
         <div class="test-info">
           <div class="test-title">Случайный тест</div>
           <div class="test-subtitle">10 случайных вопросов</div>
-          <div class="test-badge free">БЕСПЛАТНО</div>
-        </div>
+         </div>
       </div>
   `;
   
@@ -622,8 +621,7 @@ async function renderTestsList() {
       <div class="test-icon">★</div>
       <div class="test-info">
         <div class="test-title">Избранное</div>
-        <div class="test-subtitle">Только ваши избранные вопросы</div>
-        <div class="test-badge free">БЕСПЛАТНО</div>
+        <div class="test-subtitle">Только ваши избранные вопросы</div>        
       </div>
     </div>
   `;
