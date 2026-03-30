@@ -99,7 +99,7 @@
   background: #3a3a3a;
 }
 
-/* ===== СТАТИСТИКА (новая система, соответствует JS) ===== */
+/* ===== СТАТИСТИКА ===== */
 .stats-block {
   background: #1a1a1a;
   border: 1px solid #2a2a2a;
@@ -266,7 +266,7 @@
   letter-spacing: 0.2px;
 }
 
-/* ===== ОБЩИЕ СТИЛИ ДЛЯ ВСЕХ ОТВЕТОВ (SINGLE + MULTIPLE) ===== */
+/* ===== ОБЩИЕ СТИЛИ ДЛЯ ВСЕХ ОТВЕТОВ ===== */
 .button,
 .answer-multiple {
   background: var(--btn);
@@ -281,10 +281,24 @@
   color: #fff;
 }
 
-.button:hover:not(:disabled),
-.answer-multiple:hover {
-  background: rgba(230, 193, 88, 0.1);
-  border-color: var(--accent);
+/* Hover — только на десктопе */
+@media (hover: hover) {
+  .button:hover:not(:disabled),
+  .answer-multiple:hover {
+    background: rgba(230, 193, 88, 0.1);
+    border-color: var(--accent);
+  }
+}
+
+/* Убираем липкий эффект на мобильных */
+.button:active,
+.answer-multiple:active {
+  transform: none;
+}
+
+.button:focus-visible,
+.answer-multiple:focus-visible {
+  outline: none;
 }
 
 .button:disabled,
@@ -293,20 +307,15 @@
   cursor: not-allowed;
 }
 
-/* Выбранное состояние (до отправки) */
-.button.selected,
-.answer-multiple.multiple-selected {
-  background: rgba(230, 193, 88, 0.2);
-  border-color: var(--accent);
-}
-
-/* Бейджи внутри ответов */
-.ans {
+/* Структура ответов — одинаковая для всех */
+.ans,
+.answer-multiple {
   display: flex;
+  align-items: center;
   gap: 12px;
-  align-items: flex-start;
 }
 
+/* Бейджи */
 .badge {
   flex: 0 0 auto;
   width: 28px;
@@ -326,6 +335,48 @@
   padding-top: 2px;
   flex: 1;
   font-size: 15px;
+}
+
+/* Выбранное состояние (до отправки) */
+.button.selected,
+.answer-multiple.multiple-selected {
+  background: rgba(230, 193, 88, 0.2);
+  border-color: var(--accent);
+}
+
+/* ===== ПРАВИЛЬНЫЕ/НЕПРАВИЛЬНЫЕ ОТВЕТЫ ===== */
+.correct-permanent {
+  background: rgba(46, 204, 113, 0.2) !important;
+  border: 2px solid #2ecc71 !important;
+  position: relative;
+}
+
+.correct-permanent::after {
+  content: "✓";
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #2ecc71;
+  font-weight: 700;
+  font-size: 18px;
+}
+
+.wrong-permanent {
+  background: rgba(231, 76, 60, 0.2) !important;
+  border: 2px solid #e74c3c !important;
+  position: relative;
+}
+
+.wrong-permanent::after {
+  content: "✗";
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #e74c3c;
+  font-weight: 700;
+  font-size: 18px;
 }
 
 /* Подсказка для multiple */
