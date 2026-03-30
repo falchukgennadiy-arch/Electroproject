@@ -825,6 +825,30 @@ function showQuestion() {
     </div>
   `;
   
+  // Добавляем разделители на прогресс-бар по количеству вопросов
+  setTimeout(() => {
+    const progressBar = document.querySelector('.progress');
+    if (progressBar && total > 1) {
+      const width = progressBar.clientWidth;
+      const segmentWidth = width / total;
+      
+      // Создаём градиент с разделителями между вопросами
+      let gradientStops = [];
+      for (let i = 1; i < total; i++) {
+        const pos = i * segmentWidth;
+        gradientStops.push(`rgba(0,0,0,0.5) ${pos}px`);
+        gradientStops.push(`rgba(0,0,0,0.5) ${pos + 1}px`);
+        gradientStops.push(`transparent ${pos + 1}px`);
+      }
+      
+      if (gradientStops.length > 0) {
+        progressBar.style.backgroundImage = `linear-gradient(90deg, ${gradientStops.join(', ')})`;
+        progressBar.style.backgroundSize = '100% 100%';
+        progressBar.style.backgroundRepeat = 'no-repeat';
+      }
+    }
+  }, 10);
+  
   const favBtn = document.getElementById("favoriteBtn");
   if (favBtn && !alreadyAnswered) {
     favBtn.onclick = () => toggleFavorite(q.id);
