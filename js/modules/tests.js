@@ -511,43 +511,29 @@ function checkMultipleAnswer(question, selectedIds) {
 function showNotification(message, type = 'info') {
   const existing = document.querySelector('.custom-notification');
   if (existing) existing.remove();
-  
+
   const notification = document.createElement('div');
   notification.className = `custom-notification ${type}`;
-  
+
   let icon = 'ℹ️';
   if (type === 'error') icon = '❌';
   if (type === 'warning') icon = '⚠️';
   if (type === 'success') icon = '✅';
-  
+
+  const bg = type === 'error' ? 'rgba(231, 76, 60, 0.95)' :
+              type === 'warning' ? 'rgba(243, 156, 18, 0.95)' :
+              type === 'success' ? 'rgba(46, 204, 113, 0.95)' :
+              'rgba(52, 152, 219, 0.95)';
+
   notification.innerHTML = `
-    <div class="notification-content">
+    <div class="notification-content" style="background: ${bg}">
       <span class="notification-icon">${icon}</span>
       <span class="notification-message">${escapeHtml(message)}</span>
     </div>
   `;
-  
-  notification.style.cssText = `
-    position: fixed;
-    bottom: 80px;
-    left: 50%;
-    transform: translateX(-50%);
-    background: ${type === 'error' ? 'rgba(231, 76, 60, 0.95)' : type === 'warning' ? 'rgba(243, 156, 18, 0.95)' : type === 'success' ? 'rgba(46, 204, 113, 0.95)' : 'rgba(52, 152, 219, 0.95)'};
-    color: white;
-    padding: 12px 20px;
-    border-radius: 12px;
-    font-size: 14px;
-    font-weight: 500;
-    z-index: 1000;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-    backdrop-filter: blur(8px);
-    max-width: 80%;
-    text-align: center;
-    animation: slideUp 0.3s ease;
-  `;
-  
+
   document.body.appendChild(notification);
-  
+
   setTimeout(() => {
     notification.style.opacity = '0';
     notification.style.transition = 'opacity 0.3s';
