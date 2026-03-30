@@ -944,3 +944,16 @@ body{
   color: #000;
   border-color: var(--accent);
 }
+
+@media (hover: hover) {
+  .controls-wrap .button:hover:not(:disabled) {
+    background: #3a3a3a;
+    border-color: var(--accent);
+  }
+}
+
+.controls-wrap .button:active {
+  transform: scale(0.98);
+  background: #3a3a3a;
+  border-color: var(--accent);
+}
