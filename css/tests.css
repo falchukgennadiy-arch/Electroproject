@@ -385,7 +385,7 @@
 
 .button.correct-flash,
 .answer-multiple.correct-flash {
-  animation: correctFlash 0.25s ease-in-out 2;
+  animation: correctFlash 0.5s ease-in-out 2;
 }
 
 /* ===== ПРАВИЛЬНЫЕ/НЕПРАВИЛЬНЫЕ ОТВЕТЫ ===== */
