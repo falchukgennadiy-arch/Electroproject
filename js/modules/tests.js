@@ -11,7 +11,7 @@ let currentUserId = null;
 let currentAttemptId = null;
 let currentTestMode = 'exam';
 let currentMultipleSelected = [];
-let currentFavoriteStatus = {}; // Кэш статусов избранного
+let currentFavoriteStatus = {};
 
 // Локальные таймеры
 let testStartTime = null;
@@ -33,7 +33,7 @@ const TEST_RULES = {
   ],
   theme: { count: 15 },
   quick: { count: 10 },
-  favorite: { count: 999 } // все избранные
+  favorite: { count: 999 }
 };
 
 // ===== УПРАВЛЕНИЕ НИЖНЕЙ НАВИГАЦИЕЙ =====
@@ -226,12 +226,11 @@ function showTestControls() {
   const nextBtn = document.getElementById("nextBtn");
   if (nextBtn) nextBtn.classList.add('hidden');
   
-  // Показываем кнопку звезды только если пользователь авторизован
   const favBtn = document.getElementById("favoriteBtn");
   if (favBtn && currentUserId) {
-    favBtn.style.display = 'inline-flex';
+    favBtn.classList.remove('hidden');
   } else if (favBtn) {
-    favBtn.style.display = 'none';
+    favBtn.classList.add('hidden');
   }
   
   if (currentQuestions[currentQuestionIndex]?.type === 'multiple' && !currentAnswered) {
@@ -618,7 +617,6 @@ async function renderTestsList() {
     html += `<div class="test-card locked" onclick="window.showSubscriptionRequired('Тесты по сложности')"><div class="test-icon">⭐</div><div class="test-info"><div class="test-title">По сложности</div><div class="test-subtitle">Выберите уровень сложности</div><div class="test-badge locked">🔒 Требуется подписка</div></div><div class="subscribe-btn" onclick="event.stopPropagation(); window.openDonatSubscription('test')">💎 Оформить</div></div>`;
   }
   
-  // Кнопка "Избранное"
   html += `
     <div class="test-card" onclick="window.startFavoriteTest()">
       <div class="test-icon">★</div>
@@ -827,6 +825,11 @@ function showQuestion() {
     </div>
   `;
   
+  const favBtn = document.getElementById("favoriteBtn");
+  if (favBtn && !alreadyAnswered) {
+    favBtn.onclick = () => toggleFavorite(q.id);
+  }
+  
   if (alreadyAnswered) {
     const correctIds = getCorrectAnswerIds(q);
     
@@ -841,9 +844,9 @@ function showQuestion() {
         answerDiv.classList.remove('multiple-selected');
         
         if (isCorrectAnswer) {
-          answerDiv.classList.add('correct-highlight');
+          answerDiv.classList.add('correct-permanent');
         } else if (wasSelected && !isCorrectAnswer) {
-          answerDiv.classList.add('wrong-highlight');
+          answerDiv.classList.add('wrong-permanent');
         }
         
         answerDiv.style.cursor = 'default';
@@ -937,9 +940,9 @@ function submitMultipleAnswer() {
     answerDiv.classList.remove('multiple-selected');
     
     if (isCorrectAnswer) {
-      answerDiv.classList.add('correct-highlight');
+      answerDiv.classList.add('correct-permanent');
     } else if (wasSelected && !isCorrectAnswer) {
-      answerDiv.classList.add('wrong-highlight');
+      answerDiv.classList.add('wrong-permanent');
     }
     
     answerDiv.style.cursor = 'default';
