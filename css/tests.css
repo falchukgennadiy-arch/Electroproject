@@ -361,17 +361,17 @@
     border-color: var(--line);
     opacity: 1;
   }
-  30% {
+  25% {
     background-color: rgba(46, 204, 113, 0.5);
     border-color: #2ecc71;
     opacity: 0.85;
   }
-  60% {
+  50% {
     background-color: rgba(46, 204, 113, 0.3);
     border-color: #2ecc71;
     opacity: 0.95;
   }
-  90% {
+  75% {
     background-color: rgba(46, 204, 113, 0.5);
     border-color: #2ecc71;
     opacity: 0.85;
@@ -385,7 +385,7 @@
 
 .button.correct-flash,
 .answer-multiple.correct-flash {
-  animation: correctFlash 0.5s ease-in-out 2;
+  animation: correctFlash 0.25s ease-in-out 2;
 }
 
 /* ===== ПРАВИЛЬНЫЕ/НЕПРАВИЛЬНЫЕ ОТВЕТЫ ===== */
