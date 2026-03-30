@@ -945,15 +945,25 @@ body{
   border-color: var(--accent);
 }
 
+/* Hover — только на десктопе */
 @media (hover: hover) {
   .controls-wrap .button:hover:not(:disabled) {
     background: #3a3a3a;
     border-color: var(--accent);
   }
+  
+  .controls-wrap .button.primary:hover:not(:disabled) {
+    background: #f1c40f;
+  }
 }
 
+/* Активное состояние (нажатие) для всех устройств */
 .controls-wrap .button:active {
   transform: scale(0.98);
   background: #3a3a3a;
   border-color: var(--accent);
+}
+
+.controls-wrap .button.primary:active {
+  background: #f1c40f;
 }
