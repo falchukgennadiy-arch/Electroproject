@@ -105,6 +105,14 @@
 }
 
 /* Статистика */
+.stats-block {
+  background: #1a1a1a;
+  border: 1px solid #2a2a2a;
+  border-radius: 16px;
+  padding: 16px;
+  margin-bottom: 16px;
+}
+
 .stats-header {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -254,6 +262,18 @@
   font-size: 11px;
 }
 
+/* ===== ЗАГОЛОВОК ВОПРОСА ===== */
+.question-title {
+  font-size: 19px;
+  font-weight: 600;
+  line-height: 1.45;
+  margin: 16px 0 14px;
+  color: #fff;
+  border-left: 3px solid var(--accent);
+  padding-left: 12px;
+  letter-spacing: 0.2px;
+}
+
 /* Анимации ответов уже есть в основном CSS, не дублируем */
 /* .correct-flash, .correct-permanent, .wrong-permanent, @keyframes correctFlashAnimation — всё в основном CSS */
 
@@ -394,6 +414,11 @@
     .result-title {
         font-size: 20px;
     }
+    
+    .question-title {
+        font-size: 17px;
+        padding-left: 10px;
+    }
 }
 
 @media (max-width: 480px) {
@@ -437,5 +462,11 @@
     
     .progress-text {
         font-size: 10px;
+    }
+    
+    .question-title {
+        font-size: 16px;
+        padding-left: 8px;
+        margin: 12px 0 10px;
     }
 }
