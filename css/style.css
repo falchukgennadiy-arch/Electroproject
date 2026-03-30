@@ -194,18 +194,32 @@ body{
   display: inline-block;
 }
 
-.progress-bar{
-  height:6px;
-  background:var(--btn);
-  border-radius:999px;
-  overflow:hidden;
-  margin:10px 0 4px;
+/* Прогресс-бар с разделителями */
+.progress-bar {
+  height: 8px;
+  background: var(--btn);
+  border-radius: 999px;
+  overflow: hidden;
+  margin: 10px 0 4px;
+  position: relative;
 }
-.progress{
-  height:100%;
-  width:0%;
-  background:var(--accent);
+
+.progress {
+  height: 100%;
+  width: 0%;
+  background: var(--accent);
   transition: width 0.3s ease;
+}
+
+/* Разделители на фоне (не зависят от заполнения) */
+.progress-bar {
+  background-image: repeating-linear-gradient(
+    90deg,
+    transparent,
+    transparent calc(100% / var(--total) - 2px),
+    rgba(0, 0, 0, 0.4) calc(100% / var(--total) - 2px),
+    rgba(0, 0, 0, 0.4) calc(100% / var(--total))
+  );
 }
 
 .button{
