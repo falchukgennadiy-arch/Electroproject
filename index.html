@@ -4,7 +4,6 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes" />
   <title>ЭлектроПроект Donuts</title>
-  
 </head>
 <body>
 <div class="app-wrapper">
@@ -13,15 +12,20 @@
       <img src="images/logo.png" alt="Donuts" class="logo-img" style="height: 30px; width: auto; margin-right: 8px;">
       ЭлектроПроект <span>Donuts</span>
     </div>
-    <div class="profile-icon" id="headerProfileIcon" onclick="navigate('profile')">👤</div>
   </div>
 
   <div class="container">
     <!-- ГЛАВНАЯ -->
     <div id="home" class="section active">
       <div class="card">
-        <h3>⚡ Добро пожаловать!!!</h3>
-        <div class="placeholder-image">🔧 Доступ к эксклюзивному контенту</div>
+        <h3>
+          <div class="icon icon-lightning icon-inline"></div>
+          Добро пожаловать!!!
+        </h3>
+        <div class="placeholder-image">
+          <div class="icon icon-tools icon-inline"></div>
+          Доступ к эксклюзивному контенту
+        </div>
         <p>...</p>
       </div>
     </div>
@@ -47,98 +51,80 @@
       <div id="testArea"></div>
     </div>
 
-<!-- ПРОФИЛЬ -->
-<div id="profile" class="section">
-  <!-- Блок информации о пользователе (по умолчанию виден) -->
-  <div id="profileView" style="display: block;">
-    <div class="card profile-card">
-      <div class="profile-header">
-        <div class="profile-avatar" id="avatar">AA</div>
-        <div class="profile-info">
-          <h3 id="displayName">Алексей Александров</h3>
-          <p id="userEmail">alex@example.com</p>
-          <p class="subtle">С нами <span id="daysWithUs">0</span> дней</p>
+    <!-- ПРОФИЛЬ (очищен) -->
+    <div id="profile" class="section">
+      <div class="card profile-card">
+        <div class="profile-header">
+          <div class="profile-avatar" id="avatar"></div>
+          <div class="profile-info">
+            <h3 id="displayName">Алексей Александров</h3>
+            <p id="userEmail">alex@example.com</p>
+            <p class="subtle">С нами <span id="daysWithUs">0</span> дней</p>
+          </div>
         </div>
-        <button class="icon-button" onclick="enableNameEdit()">✏️</button>
+      </div>
+
+      <div class="card">
+        <h3>Мои подписки</h3>
+        <div id="subscriptionsList"></div>
       </div>
     </div>
-  </div>
 
-  <!-- Редактирование профиля (скрыто) -->
-  <div id="profileEdit" style="display: none;">
-    <div class="card">
-      <h3>Редактировать профиль</h3>
-      <input type="text" id="editNameInput" class="input" placeholder="Ваше имя">
-      <div style="display: flex; gap: 10px; margin-top: 15px;">
-        <button class="button primary" onclick="saveName()">Сохранить</button>
-        <button class="button ghost" onclick="cancelNameEdit()">Отмена</button>
+    <!-- Панель управления тестом -->
+    <div id="testControls" class="test-controls">
+      <div class="controls-wrap">
+        <button class="button" id="favoriteBtn" onclick="window.toggleFavorite(currentQuestions[currentQuestionIndex]?.id)">
+          <div class="icon icon-star"></div>
+          Избранное
+        </button>
+        <button class="button ghost" onclick="exitTest()">Выйти</button>
+        <button class="button ghost" onclick="finishTest()">Завершить</button>
+        <button class="button primary" id="submitMultipleBtn" onclick="window.submitMultipleAnswer()">Подтвердить</button>
+        <button class="button primary" id="nextBtn" onclick="nextQuestion()">Далее</button>
       </div>
     </div>
-  </div>
 
-  <!-- Секция подписок -->
-  <div class="card">
-    <h3>Мои подписки</h3>
-    <div id="subscriptionsList"></div>
-  </div>
-
-  <!-- VK Авторизация -->
-  <div style="margin-top: 20px; text-align: center;" id="vkAuthSection">
-    <div id="vk-auth-container"></div> <!-- Это для виджета VK -->
-    <!-- ИЛИ кнопка, если виджет не используется -->
-    <button class="button" onclick="VKAuth.login()" style="background: #4a76a8; margin-bottom: 10px; " id="vkButton">
-      🔵 Войти через ВКонтакте
-    </button>
-  </div>
-
-  <!-- Блок с информацией о пользователе VK (скрыт по умолчанию) -->
-  <div id="userInfoSection" style="display: none; margin-top: 20px;">
-    <div style="display: flex; align-items: center; gap: 15px; padding: 15px; background: #1a1a1a; border-radius: 12px;">
-      <img id="userAvatar" src="" style="width: 60px; height: 60px; border-radius: 50%; border: 2px solid #e6c158;">
-      <div>
-        <h3 id="userName" style="margin: 0 0 5px;"></h3>
-        <p id="userEmailVK" style="margin: 0; color: #a7a7a7; font-size: 13px;"></p>
-      </div>
+    <!-- Нижняя навигация с горизонтальной прокруткой -->
+    <div class="bottom-nav">
+      <button class="nav-btn active" onclick="navigate('home',this)">
+        <div class="icon icon-home"></div>
+        <span>Главная</span>
+      </button>
+      <button class="nav-btn" onclick="navigate('courses',this)">
+        <div class="icon icon-courses"></div>
+        <span>Курсы</span>
+      </button>
+      <button class="nav-btn" onclick="navigate('visual',this)">
+        <div class="icon icon-visual"></div>
+        <span>Visual</span>
+      </button>
+      <button class="nav-btn" onclick="navigate('templates',this)">
+        <div class="icon icon-templates"></div>
+        <span>Шаблоны</span>
+      </button>
+      <button class="nav-btn" onclick="navigate('tests',this)">
+        <div class="icon icon-tests"></div>
+        <span>Тесты</span>
+      </button>
+      <button class="nav-btn" onclick="navigate('profile',this)">
+        <div class="icon icon-profile"></div>
+        <span>Профиль</span>
+      </button>
     </div>
-    <div id="userSubscriptions" style="margin-top: 15px; display: flex; flex-wrap: wrap; gap: 8px;"></div>
-    <button class="button ghost" onclick="logout()" style="margin-top: 15px;">Выйти</button>
-  </div>
-</div>
-
-  <!-- Панель управления тестом -->
-  <div id="testControls" class="test-controls">
-    <div class="controls-wrap">
-       <button class="button" id="favoriteBtn" onclick="window.toggleFavorite(currentQuestions[currentQuestionIndex]?.id)">★☆</button>
-      <button class="button ghost" onclick="exitTest()">Выйти</button>
-      <button class="button ghost" onclick="finishTest()">Завершить</button>
-      <button class="button primary" id="submitMultipleBtn" onclick="window.submitMultipleAnswer()">Подтвердить</button>
-      <button class="button primary" id="nextBtn" onclick="nextQuestion()">Далее</button>
-    </div>
-  </div>
-
-  <!-- Нижняя навигация -->
-  <div class="bottom-nav">
-    <button class="nav-btn active" onclick="navigate('home',this)">🏠<span>Главная</span></button>
-    <button class="nav-btn" onclick="navigate('courses',this)">📚<span>Курсы</span></button>
-    <button class="nav-btn" onclick="navigate('visual',this)">🎨<span>Visual</span></button>
-    <button class="nav-btn" onclick="navigate('templates',this)">📁<span>Шаблоны</span></button>
-    <button class="nav-btn" onclick="navigate('tests',this)">📝<span>Тесты</span></button>
   </div>
 </div>
 
 <link rel="stylesheet" href="css/style.css" />
 <link rel="stylesheet" href="css/profile.css" />
 <link rel="stylesheet" href="css/tests.css" />
+<link rel="stylesheet" href="css/icons.css" />
 
 <!-- Подключение скриптов -->
 <script src="https://unpkg.com/@vkid/sdk@<3.0.0/dist-sdk/umd/index.js"></script>
-<!-- 👇 VK Bridge - подключаем библиотеку -->
 <script src="https://unpkg.com/@vkontakte/vk-bridge/dist/browser.min.js"></script>
-<!-- 👇 Обработчик для VK Bridge (отдельный файл) -->
 <script src="js/vk-bridge.js"></script>
-<!-- Локальные скрипты -->
 <script src="js/config.js"></script>
-  <script src="js/config/subscriptions-config.js"></script>
+<script src="js/config/subscriptions-config.js"></script>
 <script src="js/api.js"></script>
 <script src="js/utils/helpers.js"></script>
 <script src="js/utils/calendar.js"></script>
