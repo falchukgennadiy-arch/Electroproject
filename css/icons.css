@@ -49,3 +49,6 @@
 
 /* ---------- ПРОФИЛЬ (аватар-плейсхолдер) ---------- */
 .icon-avatar-placeholder { --icon: url('../icons/avatar-placeholder.svg'); }
+/* ---------- ПОДПИСКИ ---------- */
+.icon-free { --icon: url('../icons/free.svg'); }
+.icon-gift { --icon: url('../icons/gift.svg'); }
