@@ -7,6 +7,14 @@ let userSubscriptions = {
   test: false
 };
 
+// Цвета и иконки для типов подписок
+const typeColors = {
+  course: { bg: '#4a90e2', iconClass: 'icon-courses', name: 'COURSE' },
+  visual: { bg: '#e6c158', iconClass: 'icon-visual', name: 'VISUAL' },
+  template: { bg: '#9b59b6', iconClass: 'icon-templates', name: 'TEMPLATE' },
+  test: { bg: '#e67e22', iconClass: 'icon-tests', name: 'TEST' }
+};
+
 // Функция сохранения пользователя в базу данных
 async function saveUserToDatabase(userData, hasDonut = false, subscriptions = {}) {
   try {
@@ -193,9 +201,11 @@ function updateProfileDisplay() {
     if (currentUser?.photo) {
       avatar.innerHTML = '';
       avatar.style.backgroundImage = `url(${currentUser.photo})`;
+      avatar.style.backgroundSize = 'cover';
+      avatar.style.backgroundPosition = 'center';
       avatar.classList.add('has-avatar');
     } else {
-      avatar.innerHTML = '👤';
+      avatar.innerHTML = '';
       avatar.classList.remove('has-avatar');
     }
   }
@@ -243,18 +253,50 @@ function renderSubscriptions() {
   const subsList = document.getElementById("subscriptionsList");
   if (!subsList) return;
   
-  const subscriptionTypes = getAllSubscriptionTypes();
+  // Массив подписок с данными из typeColors
+  const subscriptionTypes = [
+    {
+      id: 'course',
+      name: 'Курсы',
+      desc: 'Доступ к обучающим материалам',
+      iconClass: typeColors.course.iconClass,
+      color: typeColors.course.bg
+    },
+    {
+      id: 'visual',
+      name: 'Визуализация',
+      desc: 'Доступ к визуальному контенту',
+      iconClass: typeColors.visual.iconClass,
+      color: typeColors.visual.bg
+    },
+    {
+      id: 'template',
+      name: 'Шаблоны',
+      desc: 'Доступ к готовым шаблонам',
+      iconClass: typeColors.template.iconClass,
+      color: typeColors.template.bg
+    },
+    {
+      id: 'test',
+      name: 'Тесты',
+      desc: 'Доступ к тестированию',
+      iconClass: typeColors.test.iconClass,
+      color: typeColors.test.bg
+    }
+  ];
   
   let html = `
-    <div class="sub-card">
+    <div class="sub-card free-card">
       <div class="sub-card-left">
-        <div class="sub-card-icon">🔓</div>
+        <div class="sub-card-icon free-icon">
+          <div class="icon icon-free" style="width: 28px; height: 28px; background-color: #2ecc71;"></div>
+        </div>
         <div class="sub-card-info">
           <h4>FREE (базовый)</h4>
           <p>Всегда доступен</p>
         </div>
       </div>
-      <div class="sub-card-badge">Активен</div>
+      <div class="sub-card-badge active-badge">Активен</div>
     </div>
   `;
   
@@ -264,9 +306,11 @@ function renderSubscriptions() {
     const expiryText = expiry ? `до ${expiry.toLocaleDateString('ru')}` : 'бессрочно';
     
     html += `
-      <div class="sub-card">
+      <div class="sub-card ${isActive ? 'active-card' : ''}">
         <div class="sub-card-left">
-          <div class="sub-card-icon">${sub.icon}</div>
+          <div class="sub-card-icon" style="background: ${sub.color};">
+            <div class="icon ${sub.iconClass}" style="width: 24px; height: 24px; background-color: white;"></div>
+          </div>
           <div class="sub-card-info">
             <h4 style="color: ${isActive ? '#e6c158' : '#fff'};">${sub.name}</h4>
             <p>${sub.desc}</p>
@@ -274,20 +318,25 @@ function renderSubscriptions() {
           </div>
         </div>
         ${isActive 
-          ? `<div class="sub-card-badge">Активна</div>`
+          ? `<div class="sub-card-badge active-badge">Активна</div>`
           : `<button class="sub-card-btn" onclick="openDonatSubscription('${sub.id}')">Оформить</button>`
         }
       </div>
     `;
   }
   
-  // Кнопка активации промокода
+  // Кнопка активации промокода с отдельной SVG-иконкой (без эмодзи)
   html += `
     <div class="promo-card">
       <div class="promo-card-content">
-        <div>
-          <h4>🎁 Есть промокод?</h4>
-          <p>Введите код для активации подписки</p>
+        <div class="promo-card-left">
+          <div class="promo-icon">
+            <div class="icon icon-gift" style="width: 32px; height: 32px; background-color: var(--accent);"></div>
+          </div>
+          <div>
+            <h4>Есть промокод?</h4>
+            <p>Введите код для активации подписки</p>
+          </div>
         </div>
         <button class="sub-card-btn" onclick="activatePromoCode()">Активировать</button>
       </div>
