@@ -51,7 +51,7 @@
       <div id="testArea"></div>
     </div>
 
-    <!-- ПРОФИЛЬ (очищен) -->
+    <!-- ПРОФИЛЬ -->
     <div id="profile" class="section">
       <div class="card profile-card">
         <div class="profile-header">
@@ -83,36 +83,36 @@
         <button class="button primary" id="nextBtn" onclick="nextQuestion()">Далее</button>
       </div>
     </div>
+  </div> <!-- закрываем container -->
 
-    <!-- Нижняя навигация с горизонтальной прокруткой -->
-    <div class="bottom-nav">
-      <button class="nav-btn active" onclick="navigate('home',this)">
-        <div class="icon icon-home"></div>
-        <span>Главная</span>
-      </button>
-      <button class="nav-btn" onclick="navigate('courses',this)">
-        <div class="icon icon-courses"></div>
-        <span>Курсы</span>
-      </button>
-      <button class="nav-btn" onclick="navigate('visual',this)">
-        <div class="icon icon-visual"></div>
-        <span>Visual</span>
-      </button>
-      <button class="nav-btn" onclick="navigate('templates',this)">
-        <div class="icon icon-templates"></div>
-        <span>Шаблоны</span>
-      </button>
-      <button class="nav-btn" onclick="navigate('tests',this)">
-        <div class="icon icon-tests"></div>
-        <span>Тесты</span>
-      </button>
-      <button class="nav-btn" onclick="navigate('profile',this)">
-        <div class="icon icon-profile"></div>
-        <span>Профиль</span>
-      </button>
-    </div>
+  <!-- Нижняя навигация ВНЕ container -->
+  <div class="bottom-nav">
+    <button class="nav-btn active" onclick="navigate('home',this)">
+      <div class="icon icon-home"></div>
+      <span>Главная</span>
+    </button>
+    <button class="nav-btn" onclick="navigate('courses',this)">
+      <div class="icon icon-courses"></div>
+      <span>Курсы</span>
+    </button>
+    <button class="nav-btn" onclick="navigate('visual',this)">
+      <div class="icon icon-visual"></div>
+      <span>Visual</span>
+    </button>
+    <button class="nav-btn" onclick="navigate('templates',this)">
+      <div class="icon icon-templates"></div>
+      <span>Шаблоны</span>
+    </button>
+    <button class="nav-btn" onclick="navigate('tests',this)">
+      <div class="icon icon-tests"></div>
+      <span>Тесты</span>
+    </button>
+    <button class="nav-btn" onclick="navigate('profile',this)">
+      <div class="icon icon-profile"></div>
+      <span>Профиль</span>
+    </button>
   </div>
-</div>
+</div> <!-- закрываем app-wrapper -->
 
 <link rel="stylesheet" href="css/style.css" />
 <link rel="stylesheet" href="css/profile.css" />
