@@ -791,12 +791,10 @@ body{
   left: 0;
   right: 0;
   bottom: 0;
-  width: 100%;
   background: rgba(28,28,30,0.96);
   backdrop-filter: blur(10px);
   display: flex;
   overflow-x: auto;
-  overflow-y: hidden;
   gap: 8px;
   padding: 10px 16px 12px;
   border-top: 1px solid var(--line);
@@ -844,10 +842,9 @@ body{
   color: var(--accent);
 }
 
+/* Активная кнопка — только цвет, без фона */
 .nav-btn.active {
   color: var(--accent);
-  font-weight: 700;
-  background: rgba(230,193,88,0.1);
 }
 
 /* ========== ИКОНКИ (SVG через mask) ========== */
