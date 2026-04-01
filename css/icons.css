@@ -1,0 +1,51 @@
+/* ============================================
+   КАСТОМНЫЕ SVG-ИКОНКИ
+   ============================================ */
+
+/* ---------- БАЗОВЫЙ КЛАСС ДЛЯ ВСЕХ ИКОНОК ---------- */
+.icon {
+  display: inline-block;
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+  background-color: currentColor;
+  
+  -webkit-mask-image: var(--icon);
+  mask-image: var(--icon);
+  
+  -webkit-mask-size: contain;
+  mask-size: contain;
+  
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  
+  -webkit-mask-position: center;
+  mask-position: center;
+  
+  transition: background-color 0.2s ease;
+}
+
+/* ---------- ВСПОМОГАТЕЛЬНЫЙ КЛАСС ДЛЯ ВСТРОЕННЫХ ИКОНОК ---------- */
+.icon-inline {
+  display: inline-block;
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  vertical-align: middle;
+  margin-right: 8px;
+}
+
+/* ---------- НАВИГАЦИЯ ---------- */
+.icon-home { --icon: url('../icons/home.svg'); }
+.icon-courses { --icon: url('../icons/courses.svg'); }
+.icon-visual { --icon: url('../icons/visual.svg'); }
+.icon-templates { --icon: url('../icons/templates.svg'); }
+.icon-tests { --icon: url('../icons/tests.svg'); }
+.icon-profile { --icon: url('../icons/profile.svg'); }
+
+/* ---------- ТЕСТЫ (ИЗБРАННОЕ) ---------- */
+.icon-favorite-off { --icon: url('../icons/favorite-off.svg'); }
+.icon-favorite-on { --icon: url('../icons/favorite-on.svg'); }
+
+/* ---------- ПРОФИЛЬ (аватар-плейсхолдер) ---------- */
+.icon-avatar-placeholder { --icon: url('../icons/avatar-placeholder.svg'); }
