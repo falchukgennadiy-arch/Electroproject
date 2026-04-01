@@ -986,3 +986,24 @@ body{
 .controls-wrap .button.primary:active {
   background: #f1c40f;
 }
+/* ========== ДЕСКТОПНАЯ ВЕРСИЯ ========== */
+@media (min-width: 768px) {
+  .bottom-nav {
+    padding: 12px 16px 16px;
+  }
+  
+  .nav-btn {
+    padding: 8px 12px;
+    min-width: 70px;
+    max-width: 100px;
+  }
+  
+  .nav-btn span {
+    font-size: 13px;
+  }
+  
+  .nav-btn .icon {
+    width: 28px;
+    height: 28px;
+  }
+}
