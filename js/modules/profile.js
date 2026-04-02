@@ -25,7 +25,7 @@ async function saveUserToDatabase(userData, hasDonut = false, subscriptions = {}
         vk_id: userData.id,
         first_name: userData.first_name,
         last_name: userData.last_name || '',
-        photo: userData.photo_200 || userData.photo_100,
+        photo: userData.photo || userData.photo_200 || userData.photo_100 || '',
         has_donut: hasDonut,
         donut_levels: subscriptions
       })
@@ -107,14 +107,16 @@ document.addEventListener('DOMContentLoaded', function() {
   const userInfoSection = document.getElementById('userInfoSection');
   if (userInfoSection) userInfoSection.remove();
   
-  if (window.vkBridge) {
-    window.vkBridge.send('VKWebAppGetUserInfo')
-      .then(userData => {
-        handleVKUserData(userData);
-        checkDonutSubscription();
-      })
-      .catch(error => console.log('❌ Ошибка VK Bridge:', error));
+  // Только обработка уже пришедших данных — без дублирующего запроса
+  if (window.vkUserData) {
+    handleVKUserData(window.vkUserData);
+    checkDonutSubscription();
   }
+  
+  window.addEventListener('vkBridgeReady', function(event) {
+    handleVKUserData(event.detail);
+    checkDonutSubscription();
+  });
 });
 
 function handleVKUserData(userData) {
@@ -209,9 +211,6 @@ function updateProfileDisplay() {
   
   const userEmail = document.getElementById("userEmail");
   if (userEmail) userEmail.style.display = 'none';
-  
-  const editButton = document.querySelector('[onclick="enableNameEdit()"]');
-  if (editButton) editButton.remove();
   
   updateDaysWithUs();
 }
