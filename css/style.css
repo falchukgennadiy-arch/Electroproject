@@ -415,36 +415,17 @@ body{
   color: var(--accent);
 }
 
-.profile-header {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  margin-bottom: 24px;
-  padding-bottom: 16px;
-  border-bottom: 1px solid var(--line);
-}
-
+/* Аватар — стиль только для отображения фото, без маски */
 .profile-avatar {
-  width: 60px;
-  height: 60px;
+  width: 96px;
+  height: 96px;
   border-radius: 50%;
   background-color: #C39A69;
   background-size: cover;
   background-position: center;
+  background-repeat: no-repeat;
   flex-shrink: 0;
-}
-
-.profile-avatar:empty {
-  --icon: url('../icons/avatar-placeholder.svg');
-  -webkit-mask-image: var(--icon);
-  mask-image: var(--icon);
-  -webkit-mask-size: 60%;
-  mask-size: 60%;
-  -webkit-mask-repeat: no-repeat;
-  mask-repeat: no-repeat;
-  -webkit-mask-position: center;
-  mask-position: center;
-  background-color: #C39A69;
+  overflow: hidden;
 }
 
 .profile-info h3 {
@@ -986,6 +967,7 @@ body{
 .controls-wrap .button.primary:active {
   background: #f1c40f;
 }
+
 /* ========== ДЕСКТОПНАЯ ВЕРСИЯ ========== */
 @media (min-width: 768px) {
   .bottom-nav {
