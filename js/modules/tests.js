@@ -161,11 +161,21 @@ async function updateFavoriteButton(questionId) {
   if (!favBtn) return;
   
   const isFavorite = await checkFavoriteStatus(questionId);
+  const icon = favBtn.querySelector('.icon');
+  
   if (isFavorite) {
-    favBtn.innerHTML = '★';
+    if (icon) {
+      icon.className = 'icon icon-favorite-on';
+    } else {
+      favBtn.innerHTML = '<div class="icon icon-favorite-on"></div> Избранное';
+    }
     favBtn.classList.add('active');
   } else {
-    favBtn.innerHTML = '☆';
+    if (icon) {
+      icon.className = 'icon icon-favorite-off';
+    } else {
+      favBtn.innerHTML = '<div class="icon icon-favorite-off"></div> Избранное';
+    }
     favBtn.classList.remove('active');
   }
 }
@@ -204,7 +214,9 @@ function startTestTimer() {
   stopTestTimer();
   testTimerInterval = setInterval(() => {
     const el = document.getElementById("timer");
-    if (el) el.textContent = "⏱ " + formatSeconds(getElapsedSeconds());
+    if (el) {
+      el.innerHTML = '<div class="icon icon-timer" style="width: 14px; height: 14px; background-color: currentColor;"></div> ' + formatSeconds(getElapsedSeconds());
+    }
   }, 1000);
 }
 
@@ -426,7 +438,7 @@ async function generateFavoriteTest() {
   
   const favoriteIds = await loadFavorites();
   if (favoriteIds.length === 0) {
-    showNotification('У вас нет избранных вопросов. Добавьте вопросы в избранное через кнопку ☆ во время тестирования', 'warning');
+    showNotification('У вас нет избранных вопросов. Добавьте вопросы в избранное через кнопку во время тестирования', 'warning');
     return null;
   }
   
@@ -516,10 +528,11 @@ function showNotification(message, type = 'info') {
   const notification = document.createElement('div');
   notification.className = `custom-notification ${type}`;
 
-  let icon = 'ℹ️';
-  if (type === 'error') icon = '❌';
-  if (type === 'warning') icon = '⚠️';
-  if (type === 'success') icon = '✅';
+  let iconSvg = '';
+  if (type === 'error') iconSvg = '<div class="icon icon-cross" style="width: 16px; height: 16px; background-color: white;"></div>';
+  else if (type === 'warning') iconSvg = '<div class="icon icon-warning" style="width: 16px; height: 16px; background-color: white;"></div>';
+  else if (type === 'success') iconSvg = '<div class="icon icon-check" style="width: 16px; height: 16px; background-color: white;"></div>';
+  else iconSvg = '<div class="icon icon-info" style="width: 16px; height: 16px; background-color: white;"></div>';
 
   const bg = type === 'error' ? 'rgba(231, 76, 60, 0.95)' :
               type === 'warning' ? 'rgba(243, 156, 18, 0.95)' :
@@ -528,7 +541,7 @@ function showNotification(message, type = 'info') {
 
   notification.innerHTML = `
     <div class="notification-content" style="background: ${bg}">
-      <span class="notification-icon">${icon}</span>
+      <span class="notification-icon">${iconSvg}</span>
       <span class="notification-message">${escapeHtml(message)}</span>
     </div>
   `;
@@ -591,44 +604,44 @@ async function renderTestsList() {
             <div class="progress-percent">${progressPercent}%</div>
           </div>
           <div class="progress-text">
-            <div>✅ правильно: ${stats.totalCorrect}</div>
-            <div>❌ неправильно: ${stats.totalAnswered - stats.totalCorrect}</div>
-            <div>📊 всего ответов: ${stats.totalAnswered}</div>
+            <div><div class="icon icon-check" style="width: 14px; height: 14px; background-color: #2ecc71; display: inline-block;"></div> правильно: ${stats.totalCorrect}</div>
+            <div><div class="icon icon-cross" style="width: 14px; height: 14px; background-color: #e74c3c; display: inline-block;"></div> неправильно: ${stats.totalAnswered - stats.totalCorrect}</div>
+            <div><div class="icon icon-chart" style="width: 14px; height: 14px; background-color: #e6c158; display: inline-block;"></div> всего ответов: ${stats.totalAnswered}</div>
           </div>
         </div>
       </div>
       
       <div class="test-card" onclick="window.startQuickTest()">
-        <div class="test-icon">🎲</div>
+        <div class="test-icon"><div class="icon icon-random" style="width: 28px; height: 28px; background-color: var(--accent);"></div></div>
         <div class="test-info">
           <div class="test-title">Случайный тест</div>
           <div class="test-subtitle">10 случайных вопросов</div>
-         </div>
+        </div>
       </div>
   `;
   
   if (hasTestSub) {
-    html += `<div class="test-card" onclick="window.startExam()"><div class="test-icon">🎓</div><div class="test-info"><div class="test-title">Экзамен</div><div class="test-subtitle">25 вопросов (по 5 на каждый уровень)</div></div></div>`;
+    html += `<div class="test-card" onclick="window.startExam()"><div class="test-icon"><div class="icon icon-exam" style="width: 28px; height: 28px; background-color: var(--accent);"></div></div><div class="test-info"><div class="test-title">Экзамен</div><div class="test-subtitle">25 вопросов (по 5 на каждый уровень)</div></div></div>`;
   } else {
-    html += `<div class="test-card locked" onclick="window.showSubscriptionRequired('Экзамен')"><div class="test-icon">🎓</div><div class="test-info"><div class="test-title">Экзамен</div><div class="test-subtitle">25 вопросов (по 5 на каждый уровень)</div><div class="test-badge locked">🔒 Требуется подписка</div></div><div class="subscribe-btn" onclick="event.stopPropagation(); window.openDonatSubscription('test')">💎 Оформить</div></div>`;
+    html += `<div class="test-card locked" onclick="window.showSubscriptionRequired('Экзамен')"><div class="test-icon"><div class="icon icon-exam" style="width: 28px; height: 28px; background-color: #888;"></div></div><div class="test-info"><div class="test-title">Экзамен</div><div class="test-subtitle">25 вопросов (по 5 на каждый уровень)</div><div class="test-badge locked"><div class="icon icon-lock" style="width: 10px; height: 10px; background-color: currentColor; display: inline-block;"></div> Требуется подписка</div></div><div class="subscribe-btn" onclick="event.stopPropagation(); window.openDonatSubscription('test')"><div class="icon icon-diamond" style="width: 14px; height: 14px; background-color: currentColor;"></div> Оформить</div></div>`;
   }
   
   if (hasTestSub) {
-    html += `<div class="test-card" onclick="window.showThemesScreen()"><div class="test-icon">📂</div><div class="test-info"><div class="test-title">По темам</div><div class="test-subtitle">Выберите тему для тренировки</div></div></div>`;
+    html += `<div class="test-card" onclick="window.showThemesScreen()"><div class="test-icon"><div class="icon icon-folder" style="width: 28px; height: 28px; background-color: var(--accent);"></div></div><div class="test-info"><div class="test-title">По темам</div><div class="test-subtitle">Выберите тему для тренировки</div></div></div>`;
   } else {
-    html += `<div class="test-card locked" onclick="window.showSubscriptionRequired('Тесты по темам')"><div class="test-icon">📂</div><div class="test-info"><div class="test-title">По темам</div><div class="test-subtitle">Выберите тему для тренировки</div><div class="test-badge locked">🔒 Требуется подписка</div></div><div class="subscribe-btn" onclick="event.stopPropagation(); window.openDonatSubscription('test')">💎 Оформить</div></div>`;
+    html += `<div class="test-card locked" onclick="window.showSubscriptionRequired('Тесты по темам')"><div class="test-icon"><div class="icon icon-folder" style="width: 28px; height: 28px; background-color: #888;"></div></div><div class="test-info"><div class="test-title">По темам</div><div class="test-subtitle">Выберите тему для тренировки</div><div class="test-badge locked"><div class="icon icon-lock" style="width: 10px; height: 10px; background-color: currentColor; display: inline-block;"></div> Требуется подписка</div></div><div class="subscribe-btn" onclick="event.stopPropagation(); window.openDonatSubscription('test')"><div class="icon icon-diamond" style="width: 14px; height: 14px; background-color: currentColor;"></div> Оформить</div></div>`;
   }
   
   if (hasTestSub) {
-    html += `<div class="test-card" onclick="window.showDifficultyScreen()"><div class="test-icon">⭐</div><div class="test-info"><div class="test-title">По сложности</div><div class="test-subtitle">Выберите уровень сложности</div></div></div>`;
+    html += `<div class="test-card" onclick="window.showDifficultyScreen()"><div class="test-icon"><div class="icon icon-difficulty" style="width: 28px; height: 28px; background-color: var(--accent);"></div></div><div class="test-info"><div class="test-title">По сложности</div><div class="test-subtitle">Выберите уровень сложности</div></div></div>`;
   } else {
-    html += `<div class="test-card locked" onclick="window.showSubscriptionRequired('Тесты по сложности')"><div class="test-icon">⭐</div><div class="test-info"><div class="test-title">По сложности</div><div class="test-subtitle">Выберите уровень сложности</div><div class="test-badge locked">🔒 Требуется подписка</div></div><div class="subscribe-btn" onclick="event.stopPropagation(); window.openDonatSubscription('test')">💎 Оформить</div></div>`;
+    html += `<div class="test-card locked" onclick="window.showSubscriptionRequired('Тесты по сложности')"><div class="test-icon"><div class="icon icon-difficulty" style="width: 28px; height: 28px; background-color: #888;"></div></div><div class="test-info"><div class="test-title">По сложности</div><div class="test-subtitle">Выберите уровень сложности</div><div class="test-badge locked"><div class="icon icon-lock" style="width: 10px; height: 10px; background-color: currentColor; display: inline-block;"></div> Требуется подписка</div></div><div class="subscribe-btn" onclick="event.stopPropagation(); window.openDonatSubscription('test')"><div class="icon icon-diamond" style="width: 14px; height: 14px; background-color: currentColor;"></div> Оформить</div></div>`;
   }
   
   // Кнопка "Избранное" с количеством
   html += `
     <div class="test-card" onclick="window.startFavoriteTest()">
-      <div class="test-icon">★</div>
+      <div class="test-icon"><div class="icon icon-favorite-off" style="width: 28px; height: 28px; background-color: var(--accent);"></div></div>
       <div class="test-info">
         <div class="test-title">Избранное ${favoritesCount > 0 ? `(${favoritesCount})` : ''}</div>
         <div class="test-subtitle">Только ваши избранные вопросы</div>        
@@ -668,7 +681,10 @@ async function showThemesScreen() {
   if (!listEl) return;
   let html = `
     <div class="themes-screen">
-      <button class="back-btn" onclick="window.renderTestsList()">← Назад</button>
+      <button class="back-btn" onclick="window.renderTestsList()">
+        <div class="icon icon-back" style="width: 18px; height: 18px; background-color: currentColor;"></div>
+        Назад
+      </button>
       <h3>Выберите тему</h3>
       <div class="themes-list">
   `;
@@ -677,11 +693,11 @@ async function showThemesScreen() {
     const questionsCount = getActiveQuestions().filter(q => q.theme_id === theme.id).length;
     const progress = sharedTestProgress[`theme_${theme.id}`];
     let progressText = '';
-    if (progress && progress.completed) progressText = `<span class="progress-completed">✅ Пройден: ${progress.score}/${progress.total}</span>`;
-    else if (progress && progress.currentQuestion > 0) progressText = `<span class="progress-inprogress">⏳ Прогресс: ${progress.currentQuestion}/${progress.total}</span>`;
+    if (progress && progress.completed) progressText = `<span class="progress-completed"><div class="icon icon-check" style="width: 10px; height: 10px; background-color: #2ecc71; display: inline-block;"></div> Пройден: ${progress.score}/${progress.total}</span>`;
+    else if (progress && progress.currentQuestion > 0) progressText = `<span class="progress-inprogress"><div class="icon icon-progress" style="width: 10px; height: 10px; background-color: #e6c158; display: inline-block;"></div> Прогресс: ${progress.currentQuestion}/${progress.total}</span>`;
     html += `
       <div class="theme-card" onclick="window.startTestByTheme('${theme.id}', '${escapeHtml(theme.title)}')">
-        <div class="theme-icon">📂</div>
+        <div class="theme-icon"><div class="icon icon-theme" style="width: 28px; height: 28px; background-color: var(--accent);"></div></div>
         <div class="theme-info">
           <div class="theme-title">${escapeHtml(theme.title)}</div>
           <div class="theme-count">${questionsCount} вопросов</div>
@@ -697,18 +713,31 @@ async function showThemesScreen() {
 async function showDifficultyScreen() {
   const listEl = document.getElementById("topicsList");
   if (!listEl) return;
+  
+  // Маппинг уровней сложности на иконки
+  const levelIcons = {
+    1: 'level-novice',
+    2: 'level-experienced',
+    3: 'level-specialist',
+    4: 'level-top',
+    5: 'level-expert'
+  };
+  
   let html = `
     <div class="difficulty-screen">
-      <button class="back-btn" onclick="window.renderTestsList()">← Назад</button>
+      <button class="back-btn" onclick="window.renderTestsList()">
+        <div class="icon icon-back" style="width: 18px; height: 18px; background-color: currentColor;"></div>
+        Назад
+      </button>
       <h3>Выберите уровень сложности</h3>
       <div class="difficulty-list">
   `;
   for (let diff of window.allDifficulty || []) {
     const questionsCount = getActiveQuestions().filter(q => q.difficulty_level_id === diff.id).length;
-    const emoji = diff.id === 1 ? '🟢' : diff.id === 5 ? '🔴' : '🟡';
+    const iconClass = levelIcons[diff.id] || 'level-novice';
     html += `
       <div class="difficulty-card" onclick="window.startTestByDifficulty(${diff.id}, '${escapeHtml(diff.title)}')">
-        <div class="difficulty-emoji">${emoji}</div>
+        <div class="difficulty-emoji"><div class="icon ${iconClass}" style="width: 32px; height: 32px;"></div></div>
         <div class="difficulty-info">
           <div class="difficulty-title">${escapeHtml(diff.title)}</div>
           <div class="difficulty-count">${questionsCount} вопросов</div>
@@ -796,7 +825,8 @@ function showQuestion() {
   if (isMultiple) {
     answersHtml = `
       <div class="multiple-hint">
-        ✓ Выберите несколько вариантов ответа
+        <div class="icon icon-info" style="width: 14px; height: 14px; background-color: var(--accent); display: inline-block;"></div>
+        Выберите несколько вариантов ответа
       </div>
       <div id="answers">
         ${q.answers.map((ans, i) => {
@@ -822,7 +852,7 @@ function showQuestion() {
   testArea.innerHTML = `
     <div class="card">
       <div class="row">
-        <span class="pill" id="timer">⏱ 00:00</span>
+        <span class="pill" id="timer"><div class="icon icon-timer" style="width: 14px; height: 14px; background-color: currentColor;"></div> 00:00</span>
         <span class="pill">Вопрос ${currentQuestionIndex + 1}/${total}</span>
       </div>
       <div class="progress-bar" style="--total: ${total}"><div class="progress" style="--total: ${total}; width: ${progressPct}%"></div></div>
@@ -938,7 +968,7 @@ function submitMultipleAnswer() {
   
   const correctIds = getCorrectAnswerIds(q);
   
-  // Отключаем все кнопки (как в single)
+  // Отключаем все кнопки
   for (let i = 0; i < q.answers.length; i++) {
     const answerDiv = document.getElementById(`ansMultiple${i}`);
     if (answerDiv) {
@@ -1075,7 +1105,7 @@ function selectAnswer(index) {
 
 function showComment(text) {
   const ca = document.getElementById("commentArea");
-  if (ca) ca.innerHTML = `<div class="comment">💬 ${escapeHtml(text)}</div>`;
+  if (ca) ca.innerHTML = `<div class="comment"><div class="icon icon-comment" style="width: 16px; height: 16px; background-color: var(--accent); display: inline-block;"></div> ${escapeHtml(text)}</div>`;
 }
 
 function nextQuestion() {
@@ -1125,11 +1155,11 @@ function showTestResult() {
     <div class="card">
       <div class="row">
         <div><div class="result-title">Результат</div><div class="subtle">${currentTestConfig?.title || 'Тест'} завершен</div></div>
-        <span class="pill">⏱ ${formatSeconds(timeSpent)}</span>
+        <span class="pill"><div class="icon icon-timer" style="width: 14px; height: 14px; background-color: currentColor;"></div> ${formatSeconds(timeSpent)}</span>
       </div>
       <div class="stats-grid">
         <div class="center"><canvas id="pie" width="120" height="120"></canvas><div class="percent-number">${percent}%</div><div class="subtle">верных</div></div>
-        <div><div class="statline"><span class="k">Правильных</span><span class="v">${currentScore}</span></div><div class="statline"><span class="k">Неправильных</span><span class="v">${wrong}</span></div><div class="statline"><span class="k">Всего</span><span class="v">${total}</span></div></div>
+        <div><div class="statline"><span class="k"><div class="icon icon-check" style="width: 14px; height: 14px; background-color: #2ecc71; display: inline-block;"></div> Правильных</span><span class="v">${currentScore}</span></div><div class="statline"><span class="k"><div class="icon icon-cross" style="width: 14px; height: 14px; background-color: #e74c3c; display: inline-block;"></div> Неправильных</span><span class="v">${wrong}</span></div><div class="statline"><span class="k"><div class="icon icon-chart" style="width: 14px; height: 14px; background-color: #e6c158; display: inline-block;"></div> Всего</span><span class="v">${total}</span></div></div>
       </div>
       <button class="button primary" onclick="window.restartTest()">Пройти ещё раз</button>
       <button class="button" onclick="window.renderTestsList()">К списку тестов</button>
