@@ -81,6 +81,7 @@ async function loadSubscriptionsFromDB() {
     
   } catch (err) {
     console.error('Ошибка загрузки подписок из БД:', err);
+    renderSubscriptions();
   }
 }
 
@@ -106,23 +107,13 @@ document.addEventListener('DOMContentLoaded', function() {
   const userInfoSection = document.getElementById('userInfoSection');
   if (userInfoSection) userInfoSection.remove();
   
-  if (window.vkUserData) {
-    handleVKUserData(window.vkUserData);
-    checkDonutSubscription();
-  }
-  
-  window.addEventListener('vkBridgeReady', function(event) {
-    handleVKUserData(event.detail);
-    checkDonutSubscription();
-  });
-  
   if (window.vkBridge) {
     window.vkBridge.send('VKWebAppGetUserInfo')
       .then(userData => {
         handleVKUserData(userData);
         checkDonutSubscription();
       })
-      .catch(error => console.log('❌ Ошибка:', error));
+      .catch(error => console.log('❌ Ошибка VK Bridge:', error));
   }
 });
 
@@ -136,6 +127,7 @@ function handleVKUserData(userData) {
     photo: userData.photo_200 || userData.photo_100 || '',
   };
   
+  console.log('👤 Пользователь загружен:', currentUser);
   updateProfileDisplay();
   saveUserToDatabase(currentUser);
   window.dispatchEvent(new CustomEvent('userLoaded', { detail: currentUser }));
@@ -198,15 +190,20 @@ function updateProfileDisplay() {
   
   const avatar = document.getElementById("avatar");
   if (avatar) {
+    // Очищаем всё
+    avatar.innerHTML = '';
+    avatar.style.backgroundImage = 'none';
+    avatar.classList.remove('has-avatar', 'no-avatar');
+    
     if (currentUser?.photo) {
-      avatar.innerHTML = '';
-      avatar.style.backgroundImage = `url(${currentUser.photo})`;
-      avatar.style.backgroundSize = 'cover';
-      avatar.style.backgroundPosition = 'center';
+      // Есть фото — ставим его
+      avatar.style.backgroundImage = `url("${currentUser.photo}")`;
       avatar.classList.add('has-avatar');
+      console.log('🖼️ Аватар установлен:', currentUser.photo);
     } else {
-      avatar.innerHTML = '';
-      avatar.classList.remove('has-avatar');
+      // Нет фото — показываем заглушку
+      avatar.classList.add('no-avatar');
+      console.log('⚠️ Нет фото пользователя, показываем заглушку');
     }
   }
   
@@ -251,7 +248,10 @@ async function activatePromoCode() {
 
 function renderSubscriptions() {
   const subsList = document.getElementById("subscriptionsList");
-  if (!subsList) return;
+  if (!subsList) {
+    console.log('⚠️ subscriptionsList не найден');
+    return;
+  }
   
   // Массив подписок с данными из typeColors
   const subscriptionTypes = [
@@ -325,7 +325,7 @@ function renderSubscriptions() {
     `;
   }
   
-  // Кнопка активации промокода с отдельной SVG-иконкой (без эмодзи)
+  // Кнопка активации промокода
   html += `
     <div class="promo-card">
       <div class="promo-card-content">
@@ -344,11 +344,16 @@ function renderSubscriptions() {
   `;
   
   subsList.innerHTML = html;
+  console.log('✅ Подписки отрендерены');
 }
 
 function openDonatSubscription(level) {
-  const link = CONFIG.DONUT_LINKS[level];
-  if (!link) return;
+  const link = CONFIG.DONUT_LINKS?.[level];
+  if (!link) {
+    console.log('⚠️ Ссылка для подписки не найдена:', level);
+    alert('Ссылка на оформление временно недоступна');
+    return;
+  }
   
   if (window.vkBridge) {
     window.vkBridge.send("VKWebAppOpenURL", { url: link })
@@ -358,6 +363,7 @@ function openDonatSubscription(level) {
   }
 }
 
+// Экспорт в глобальный объект
 window.checkDonutSubscription = checkDonutSubscription;
 window.openDonatSubscription = openDonatSubscription;
 window.activatePromoCode = activatePromoCode;
