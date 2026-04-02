@@ -49,6 +49,32 @@
 
 /* ---------- ПРОФИЛЬ (аватар-плейсхолдер) ---------- */
 .icon-avatar-placeholder { --icon: url('../icons/avatar-placeholder.svg'); }
+
 /* ---------- ПОДПИСКИ ---------- */
 .icon-free { --icon: url('../icons/free.svg'); }
 .icon-gift { --icon: url('../icons/gift.svg'); }
+
+/* ---------- ТЕСТЫ ---------- */
+.icon-timer { --icon: url('../icons/timer.svg'); }
+.icon-random { --icon: url('../icons/random.svg'); }
+.icon-exam { --icon: url('../icons/exam.svg'); }
+.icon-folder { --icon: url('../icons/folder.svg'); }
+.icon-difficulty { --icon: url('../icons/difficulty.svg'); }
+.icon-theme { --icon: url('../icons/theme.svg'); }
+.icon-back { --icon: url('../icons/back.svg'); }
+.icon-lock { --icon: url('../icons/lock.svg'); }
+.icon-check { --icon: url('../icons/check.svg'); }
+.icon-cross { --icon: url('../icons/cross.svg'); }
+.icon-warning { --icon: url('../icons/warning.svg'); }
+.icon-info { --icon: url('../icons/info.svg'); }
+.icon-chart { --icon: url('../icons/chart.svg'); }
+.icon-progress { --icon: url('../icons/progress.svg'); }
+.icon-comment { --icon: url('../icons/comment.svg'); }
+.icon-diamond { --icon: url('../icons/diamond.svg'); }
+
+/* ---------- УРОВНИ СЛОЖНОСТИ ---------- */
+.icon-level-novice { --icon: url('../icons/level-novice.svg'); }
+.icon-level-experienced { --icon: url('../icons/level-experienced.svg'); }
+.icon-level-specialist { --icon: url('../icons/level-specialist.svg'); }
+.icon-level-top { --icon: url('../icons/level-top.svg'); }
+.icon-level-expert { --icon: url('../icons/level-expert.svg'); }
