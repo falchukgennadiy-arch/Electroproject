@@ -34,7 +34,6 @@
 }
 
 .test-icon {
-  font-size: 36px;
   width: 56px;
   height: 56px;
   background: #2a2a2a;
@@ -42,10 +41,17 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-shrink: 0;
 }
 
 .test-info {
   flex: 1;
+}
+
+.test-title {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 4px;
 }
 
 .test-subtitle {
@@ -65,6 +71,12 @@
 .test-badge.locked {
   background: #7f8c8d;
   color: #fff;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 10px;
 }
 
 .subscribe-btn {
@@ -76,6 +88,9 @@
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
 }
 
 .subscribe-btn:hover {
@@ -93,6 +108,9 @@
   cursor: pointer;
   margin-bottom: 20px;
   transition: all 0.2s;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .back-btn:hover {
@@ -177,6 +195,9 @@
 
 .progress-text div {
   margin: 2px 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
 
 /* Темы и сложность */
@@ -209,7 +230,6 @@
 }
 
 .theme-icon {
-  font-size: 28px;
   width: 48px;
   height: 48px;
   background: #2a2a2a;
@@ -217,6 +237,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-shrink: 0;
 }
 
 .theme-info,
@@ -239,19 +260,26 @@
 }
 
 .difficulty-emoji {
-  font-size: 32px;
   width: 52px;
   text-align: center;
+  flex-shrink: 0;
+}
+
+.progress-completed,
+.progress-inprogress {
+  font-size: 11px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 4px;
 }
 
 .progress-completed {
   color: #2ecc71;
-  font-size: 11px;
 }
 
 .progress-inprogress {
   color: #f39c12;
-  font-size: 11px;
 }
 
 /* ===== ЗАГОЛОВОК ВОПРОСА ===== */
@@ -352,6 +380,9 @@
   font-size: 14px;
   color: var(--accent);
   font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 /* ===== АНИМАЦИЯ FLASH ===== */
@@ -433,11 +464,14 @@
   min-width: 44px;
   flex: 0 0 auto;
   padding: 8px 12px;
-  font-size: 20px;
   background: var(--btn);
   color: var(--accent);
   border: 1px solid var(--line);
   border-radius: 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
 }
 
 #favoriteBtn.active {
@@ -465,6 +499,26 @@
   max-height: 300px;
   object-fit: contain;
   border-radius: 8px;
+}
+
+/* Таймер в pill */
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Результаты теста */
+.result-title {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--accent);
+}
+
+.percent-number {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--accent);
 }
 
 /* Адаптивность */
@@ -530,5 +584,13 @@
     font-size: 16px;
     padding-left: 8px;
     margin: 12px 0 10px;
+  }
+  
+  .result-title {
+    font-size: 20px;
+  }
+  
+  .percent-number {
+    font-size: 20px;
   }
 }
