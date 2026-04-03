@@ -98,6 +98,13 @@
   transform: scale(1.02);
 }
 
+/* ===== УРОВНИ СЛОЖНОСТИ ===== */
+.level-novice { background-color: #2ecc71; }
+.level-experienced { background-color: #3498db; }
+.level-specialist { background-color: #e6c158; }
+.level-top { background-color: #e67e22; }
+.level-expert { background-color: #e74c3c; }
+
 /* Общие кнопки */
 .back-btn {
   background: #2a2a2a;
