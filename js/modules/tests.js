@@ -479,20 +479,22 @@ async function renderTestsList() {
   
   let stats = {
     totalQuestions: 0,
-    completedTests: 0,
-    avgScore: 0,
     totalCorrect: 0,
-    totalAnswered: 0
+    totalAnswered: 0,
+    avgScore: 0,
+    masteredQuestions: 0,
+    bestResult: 0
   };
   
   if (currentUserId) {
     const summary = await Statistics.getStatsSummary(currentUserId);
     if (summary) {
       stats.totalQuestions = summary.totalQuestions;
-      stats.completedTests = summary.completedTests;
-      stats.avgScore = summary.accuracyPercent;
       stats.totalCorrect = summary.accuracyPercent > 0 ? Math.round(summary.accuracyPercent / 100 * summary.uniqueQuestionsAnswered) : 0;
       stats.totalAnswered = summary.uniqueQuestionsAnswered;
+      stats.avgScore = summary.accuracyPercent;
+      stats.masteredQuestions = summary.masteredQuestions;
+      stats.bestResult = summary.bestResult;
     }
   } else {
     const activeQuestions = getActiveQuestions();
@@ -516,12 +518,12 @@ async function renderTestsList() {
             <div class="stat-label">всего вопросов</div>
           </div>
           <div class="stat-card">
-            <div class="stat-number">${stats.completedTests}</div>
-            <div class="stat-label">пройдено тестов</div>
+            <div class="stat-number">${stats.masteredQuestions}</div>
+            <div class="stat-label">освоено</div>
           </div>
           <div class="stat-card">
             <div class="stat-number">${stats.avgScore}%</div>
-            <div class="stat-label">средний балл</div>
+            <div class="stat-label">точность</div>
           </div>
         </div>
         <div class="stats-progress">
@@ -533,6 +535,7 @@ async function renderTestsList() {
             <div><div class="icon icon-check" style="width: 14px; height: 14px; background-color: #2ecc71; display: inline-block;"></div> правильно: ${stats.totalCorrect}</div>
             <div><div class="icon icon-cross" style="width: 14px; height: 14px; background-color: #e74c3c; display: inline-block;"></div> неправильно: ${stats.totalAnswered - stats.totalCorrect}</div>
             <div><div class="icon icon-chart" style="width: 14px; height: 14px; background-color: #e6c158; display: inline-block;"></div> всего ответов: ${stats.totalAnswered}</div>
+            <div><div class="icon icon-trophy" style="width: 14px; height: 14px; background-color: #f1c40f; display: inline-block;"></div> лучший результат: ${stats.bestResult}%</div>
           </div>
         </div>
       </div>
@@ -681,7 +684,7 @@ async function startTestByTheme(themeId, themeTitle) { const test = await genera
 async function startTestByDifficulty(difficultyId, difficultyTitle) { const test = await generateTestByDifficulty(difficultyId, difficultyTitle); if (test) startTest(test); }
 async function startFavoriteTest() { const test = await generateFavoriteTest(); if (test) startTest(test); }
 
-// ОСНОВНАЯ ФУНКЦИЯ ЗАПУСКА ТЕСТА (С ИНТЕГРАЦИЕЙ СТАТИСТИКИ)
+// ОСНОВНАЯ ФУНКЦИЯ ЗАПУСКА ТЕСТА
 async function startTest(testConfig) {
   if (!testConfig.questions || testConfig.questions.length === 0) {
     showNotification('В этом тесте пока нет вопросов', 'error');
@@ -947,13 +950,14 @@ async function submitMultipleAnswer() {
   const submitBtn = document.getElementById("submitMultipleBtn");
   if (submitBtn) submitBtn.classList.add('hidden');
   
+  // ФОНОВОЕ сохранение - без await
   if (currentUserId && currentAttemptId) {
-    await Statistics.saveAttemptAnswer(q, currentMultipleSelected, isCorrect);
+    Statistics.saveAttemptAnswer(q, currentMultipleSelected, isCorrect).catch(e => console.error);
     if (isCorrect) {
       currentScore++;
       Statistics.setCurrentScore(currentScore);
     }
-    await Statistics.updateTestAttemptSummary(false);
+    Statistics.updateTestAttemptSummary(false).catch(e => console.error);
   } else {
     if (isCorrect) currentScore++;
   }
@@ -1002,14 +1006,15 @@ async function selectAnswer(index) {
     if (btn) btn.disabled = true;
   }
   
+  // ФОНОВОЕ сохранение - без await
   if (currentUserId && currentAttemptId) {
     const selectedAnswerIds = [q.answers[index].id];
-    await Statistics.saveAttemptAnswer(q, selectedAnswerIds, isCorrect);
+    Statistics.saveAttemptAnswer(q, selectedAnswerIds, isCorrect).catch(e => console.error);
     if (isCorrect) {
       currentScore++;
       Statistics.setCurrentScore(currentScore);
     }
-    await Statistics.updateTestAttemptSummary(false);
+    Statistics.updateTestAttemptSummary(false).catch(e => console.error);
   }
   
   if (isCorrect) {
