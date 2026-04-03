@@ -7,7 +7,8 @@ let currentQuestionIndex = 0;
 let currentScore = 0;
 let currentAnswered = false;
 let currentAnsweredQuestions = [];
-let currentUserId = null;
+let currentUserId = null;      // UUID для статистики
+let currentVkId = null;        // VK ID для избранного
 let currentAttemptId = null;
 let currentTestMode = 'exam';
 let currentMultipleSelected = [];
@@ -98,11 +99,11 @@ async function loadDifficultyLevels() {
   }
 }
 
-// ===== ИЗБРАННОЕ =====
+// ===== ИЗБРАННОЕ (использует VK ID) =====
 async function loadFavorites() {
-  if (!currentUserId) return [];
+  if (!currentVkId) return [];
   try {
-    const favorites = await API.getFavorites(currentUserId);
+    const favorites = await API.getFavorites(currentVkId);
     return favorites.map(q => q.id);
   } catch (err) {
     console.error('Ошибка загрузки избранного:', err);
@@ -111,12 +112,12 @@ async function loadFavorites() {
 }
 
 async function checkFavoriteStatus(questionId) {
-  if (!currentUserId) return false;
+  if (!currentVkId) return false;
   if (currentFavoriteStatus[questionId] !== undefined) {
     return currentFavoriteStatus[questionId];
   }
   try {
-    const result = await API.checkFavorite(currentUserId, questionId);
+    const result = await API.checkFavorite(currentVkId, questionId);
     currentFavoriteStatus[questionId] = result.is_favorite;
     return result.is_favorite;
   } catch (err) {
@@ -126,7 +127,7 @@ async function checkFavoriteStatus(questionId) {
 }
 
 async function toggleFavorite(questionId) {
-  if (!currentUserId) {
+  if (!currentVkId) {
     showNotification('Войдите в аккаунт, чтобы добавлять в избранное', 'warning');
     return false;
   }
@@ -135,12 +136,12 @@ async function toggleFavorite(questionId) {
   
   try {
     if (isCurrentlyFavorite) {
-      await API.removeFavorite(currentUserId, questionId);
+      await API.removeFavorite(currentVkId, questionId);
       currentFavoriteStatus[questionId] = false;
       await updateFavoriteButton(questionId);
       return false;
     } else {
-      await API.addFavorite(currentUserId, questionId);
+      await API.addFavorite(currentVkId, questionId);
       currentFavoriteStatus[questionId] = true;
       await updateFavoriteButton(questionId);
       return true;
@@ -237,7 +238,7 @@ function showTestControls() {
   if (nextBtn) nextBtn.classList.add('hidden');
   
   const favBtn = document.getElementById("favoriteBtn");
-  if (favBtn && currentUserId) {
+  if (favBtn && currentVkId) {
     favBtn.classList.remove('hidden');
   } else if (favBtn) {
     favBtn.classList.add('hidden');
@@ -258,12 +259,12 @@ function hideTestControls() {
 
 // ===== ПОЛУЧЕНИЕ ПОДПИСКИ ИЗ БД =====
 async function hasTestSubscription() {
-  if (!currentUserId) return false;
+  if (!currentVkId) return false;
   try {
-    const userRes = await fetch(`${CONFIG.API_URL}/users/${currentUserId}`);
+    const userRes = await fetch(`${CONFIG.API_URL}/users/vk/${currentVkId}`);
     if (!userRes.ok) return false;
     const user = await userRes.json();
-    const subsRes = await fetch(`${CONFIG.API_URL}/subscriptions/user/${user.id}`);
+    const subsRes = await fetch(`${CONFIG.API_URL}/users/user/${user.id}`);
     if (!subsRes.ok) return false;
     const subs = await subsRes.json();
     return subs.some(s => s.type === 'test' && s.active === 1);
@@ -371,7 +372,7 @@ async function generateTestByDifficulty(difficultyId, difficultyTitle) {
 }
 
 async function generateFavoriteTest() {
-  if (!currentUserId) {
+  if (!currentVkId) {
     showNotification('Войдите в аккаунт, чтобы использовать избранное', 'warning');
     return null;
   }
@@ -501,7 +502,7 @@ async function renderTestsList() {
   const progressPercent = stats.totalAnswered > 0 ? Math.round((stats.totalCorrect / stats.totalAnswered) * 100) : 0;
   
   let favoritesCount = 0;
-  if (currentUserId) {
+  if (currentVkId) {
     const favoriteIds = await loadFavorites();
     favoritesCount = favoriteIds.length;
   }
@@ -806,7 +807,7 @@ function showQuestion() {
   }
   
   const favBtn = document.getElementById("favoriteBtn");
-  if (favBtn && !alreadyAnswered) {
+  if (favBtn && !alreadyAnswered && currentVkId) {
     favBtn.onclick = () => toggleFavorite(q.id);
   }
   
@@ -881,7 +882,11 @@ function showQuestion() {
   
   updateSubmitButtonVisibility();
   
-  setTimeout(() => updateFavoriteButton(q.id), 50);
+  setTimeout(() => {
+    if (currentVkId) {
+      updateFavoriteButton(q.id);
+    }
+  }, 50);
 }
 
 function updateSubmitButtonVisibility() {
@@ -1186,11 +1191,12 @@ async function initUser() {
     renderTestsList();
     
     if (window.currentUser?.id) {
-      const vkId = window.currentUser.id;
-      const uuid = await getUserUUID(vkId);
+      currentVkId = window.currentUser.id;
+      const uuid = await getUserUUID(currentVkId);
       if (uuid) {
         currentUserId = uuid;
         console.log('👤 Пользователь инициализирован (UUID):', currentUserId);
+        console.log('👤 VK ID:', currentVkId);
         Statistics.setCurrentUser(currentUserId);
         await loadTestProgressFromDB();
         await loadFavorites();
@@ -1207,11 +1213,12 @@ async function initUser() {
 window.addEventListener('userLoaded', async (e) => {
   try {
     if (!e.detail?.id) return;
-    const vkId = e.detail.id;
-    const uuid = await getUserUUID(vkId);
+    currentVkId = e.detail.id;
+    const uuid = await getUserUUID(currentVkId);
     if (uuid) {
       currentUserId = uuid;
       console.log('👤 Пользователь загружен из события (UUID):', currentUserId);
+      console.log('👤 VK ID:', currentVkId);
       Statistics.setCurrentUser(currentUserId);
       await loadTestProgressFromDB();
       await loadFavorites();
