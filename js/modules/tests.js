@@ -717,11 +717,11 @@ async function showDifficultyScreen() {
 
 // Маппинг уровней сложности на иконки
 const levelIcons = {
-  1: 'level-novice',
-  2: 'level-experienced',
-  3: 'level-specialist',
-  4: 'level-top',
-  5: 'level-expert'
+  1: 'icon-level-novice',
+  2: 'icon-level-experienced',
+  3: 'icon-level-specialist',
+  4: 'icon-level-top',
+  5: 'icon-level-expert'
 };
   
   let html = `
