@@ -260,10 +260,10 @@ function hideTestControls() {
 async function hasTestSubscription() {
   if (!currentUserId) return false;
   try {
-    const userRes = await fetch(`${CONFIG.API_URL}/users/vk/${currentUserId}`);
+    const userRes = await fetch(`${CONFIG.API_URL}/users/${currentUserId}`);
     if (!userRes.ok) return false;
     const user = await userRes.json();
-    const subsRes = await fetch(`${CONFIG.API_URL}/users/user/${user.id}`);
+    const subsRes = await fetch(`${CONFIG.API_URL}/subscriptions/user/${user.id}`);
     if (!subsRes.ok) return false;
     const subs = await subsRes.json();
     return subs.some(s => s.type === 'test' && s.active === 1);
@@ -1160,6 +1160,20 @@ function escapeHtml(text) {
   });
 }
 
+// ===== ПОЛУЧЕНИЕ UUID ПОЛЬЗОВАТЕЛЯ =====
+async function getUserUUID(vkId) {
+  try {
+    const response = await fetch(`${CONFIG.API_URL}/users/vk/${vkId}`);
+    if (response.ok) {
+      const userData = await response.json();
+      return userData.id;
+    }
+  } catch (err) {
+    console.error('Ошибка получения UUID:', err);
+  }
+  return null;
+}
+
 // ===== ИНИЦИАЛИЗАЦИЯ =====
 async function initUser() {
   try {
@@ -1172,12 +1186,16 @@ async function initUser() {
     renderTestsList();
     
     if (window.currentUser?.id) {
-      currentUserId = window.currentUser.id;
-      console.log('👤 Пользователь инициализирован:', currentUserId);
-      Statistics.setCurrentUser(currentUserId);
-      await loadTestProgressFromDB();
-      await loadFavorites();
-      renderTestsList();
+      const vkId = window.currentUser.id;
+      const uuid = await getUserUUID(vkId);
+      if (uuid) {
+        currentUserId = uuid;
+        console.log('👤 Пользователь инициализирован (UUID):', currentUserId);
+        Statistics.setCurrentUser(currentUserId);
+        await loadTestProgressFromDB();
+        await loadFavorites();
+        renderTestsList();
+      }
       return;
     }
     console.log('⏳ Пользователь ещё не загружен, ждём событие userLoaded...');
@@ -1189,12 +1207,16 @@ async function initUser() {
 window.addEventListener('userLoaded', async (e) => {
   try {
     if (!e.detail?.id) return;
-    currentUserId = e.detail.id;
-    console.log('👤 Пользователь загружен из события:', currentUserId);
-    Statistics.setCurrentUser(currentUserId);
-    await loadTestProgressFromDB();
-    await loadFavorites();
-    renderTestsList();
+    const vkId = e.detail.id;
+    const uuid = await getUserUUID(vkId);
+    if (uuid) {
+      currentUserId = uuid;
+      console.log('👤 Пользователь загружен из события (UUID):', currentUserId);
+      Statistics.setCurrentUser(currentUserId);
+      await loadTestProgressFromDB();
+      await loadFavorites();
+      renderTestsList();
+    }
   } catch (err) {
     console.error('❌ Ошибка обработки userLoaded:', err);
   }
