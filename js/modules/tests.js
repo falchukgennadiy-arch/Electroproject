@@ -714,14 +714,15 @@ async function showDifficultyScreen() {
   const listEl = document.getElementById("topicsList");
   if (!listEl) return;
   
-  // Маппинг уровней сложности на иконки
-  const levelIcons = {
-    1: 'level-novice',
-    2: 'level-experienced',
-    3: 'level-specialist',
-    4: 'level-top',
-    5: 'level-expert'
-  };
+
+// Маппинг уровней сложности на иконки
+const levelIcons = {
+  1: 'level-novice',
+  2: 'level-experienced',
+  3: 'level-specialist',
+  4: 'level-top',
+  5: 'level-expert'
+};
   
   let html = `
     <div class="difficulty-screen">
