@@ -1,5 +1,5 @@
 // ============================================
-// statistics.js v1.2
+// statistics.js v1.3 - ИСПРАВЛЕННАЯ ВЕРСИЯ
 // Отвечает за:
 // 1. Создание и обновление test_attempts
 // 2. Сохранение каждого ответа в test_attempt_answers
@@ -22,7 +22,7 @@ const DEBUG = false;
 
 // Счётчик ответов для оптимизации updateTestAttemptSummary
 let _answersSinceLastSummary = 0;
-const SUMMARY_UPDATE_INTERVAL = 3;  // Обновляем сводку каждые 3 ответа
+const SUMMARY_UPDATE_INTERVAL = 3;
 
 // ============================================
 // 2. ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ
@@ -152,7 +152,6 @@ function _getTotalTimeSpent() {
 
 /**
  * Обновляет сводку test_attempts
- * Оптимизировано: не вызывается при каждом ответе
  */
 async function _updateTestAttemptSummaryInternal(completed = false, force = false) {
     if (!_currentAttemptId) {
@@ -160,7 +159,6 @@ async function _updateTestAttemptSummaryInternal(completed = false, force = fals
         return false;
     }
     
-    // Оптимизация: не обновляем при каждом ответе
     if (!completed && !force && _answersSinceLastSummary < SUMMARY_UPDATE_INTERVAL) {
         _log(`⏭ Пропускаем обновление сводки (${_answersSinceLastSummary}/${SUMMARY_UPDATE_INTERVAL})`);
         return true;
@@ -180,7 +178,6 @@ async function _updateTestAttemptSummaryInternal(completed = false, force = fals
             return false;
         }
         
-        // Сбрасываем счётчик после успешного обновления
         if (!completed) {
             _answersSinceLastSummary = 0;
         }
@@ -196,14 +193,11 @@ async function _updateTestAttemptSummaryInternal(completed = false, force = fals
 
 /**
  * Публичная обёртка для updateTestAttemptSummary
- * Вызывается после каждого ответа и при завершении
  */
 async function updateTestAttemptSummary(completed = false) {
     if (completed) {
-        // При завершении всегда обновляем
         return await _updateTestAttemptSummaryInternal(true, true);
     } else {
-        // При ответе — с учётом интервала
         _answersSinceLastSummary++;
         return await _updateTestAttemptSummaryInternal(false, false);
     }
@@ -213,33 +207,19 @@ async function updateTestAttemptSummary(completed = false) {
 // 4. РАБОТА С ОТВЕТАМИ (test_attempt_answers)
 // ============================================
 
-/**
- * Засекает время начала ответа на вопрос
- * Вызывается в showQuestion()
- */
 function startQuestionTimer() {
     _questionStartTime = Date.now();
 }
 
-/**
- * Возвращает время, потраченное на вопрос (в секундах)
- */
 function getQuestionTimeSpent() {
     if (!_questionStartTime) return 0;
     return Math.floor((Date.now() - _questionStartTime) / 1000);
 }
 
-/**
- * Сбрасывает таймер вопроса (после сохранения ответа)
- */
 function _resetQuestionTimer() {
     _questionStartTime = null;
 }
 
-/**
- * Собирает payload для test_attempt_answers
- * Номер вопроса из _currentQuestionIndex (быстро, без поиска)
- */
 function _buildAttemptAnswerPayload(question, selectedAnswerIds, isCorrect) {
     return {
         id: `ans_${Date.now()}_${Math.random().toString(36).substr(2, 6)}`,
@@ -248,7 +228,7 @@ function _buildAttemptAnswerPayload(question, selectedAnswerIds, isCorrect) {
         question_id: question.id,
         theme_id: question.theme_id || null,
         difficulty_level_id: question.difficulty_level_id || null,
-        question_number: _currentQuestionIndex + 1,  // ← используется индекс
+        question_number: _currentQuestionIndex + 1,
         selected_answers: JSON.stringify(selectedAnswerIds),
         is_correct: isCorrect ? 1 : 0,
         time_spent: getQuestionTimeSpent(),
@@ -256,11 +236,6 @@ function _buildAttemptAnswerPayload(question, selectedAnswerIds, isCorrect) {
     };
 }
 
-/**
- * Сохраняет ответ в test_attempt_answers
- * Вызывается в selectAnswer() и submitMultipleAnswer()
- * FAIL-SAFE: не ломает тест при ошибке
- */
 async function saveAttemptAnswer(question, selectedAnswerIds, isCorrect) {
     if (!_currentAttemptId || !_currentUserId) {
         _error('⚠️ saveAttemptAnswer: нет attemptId или userId');
@@ -292,8 +267,15 @@ async function saveAttemptAnswer(question, selectedAnswerIds, isCorrect) {
 }
 
 // ============================================
-// 5. ФУНКЦИИ СТАТИСТИКИ
+// 5. ФУНКЦИИ СТАТИСТИКИ (ИСПРАВЛЕНЫ)
 // ============================================
+
+/**
+ * Проверяет, является ли ответ правильным (работает и с 1, и с true)
+ */
+function _isAnswerCorrect(answer) {
+    return answer.is_correct === 1 || answer.is_correct === true;
+}
 
 /**
  * Главная сводка для экрана тестов
@@ -317,27 +299,35 @@ async function getStatsSummary(userId) {
             'Ошибка получения вопросов'
         );
         
-        if (!attempts || !answers || !allQuestions) {
-            throw new Error('Не удалось загрузить данные для статистики');
+        if (!allQuestions) {
+            throw new Error('Не удалось загрузить вопросы');
         }
         
         const totalQuestions = allQuestions.length;
-        const completedTests = attempts.length;
+        const completedTests = attempts ? attempts.length : 0;
         
-        const totalAnswers = answers.length;
-        const correctAnswers = answers.filter(a => a.is_correct === 1).length;
+        // ИСПРАВЛЕНО: правильно считаем правильные ответы (и 1, и true)
+        const totalAnswers = answers ? answers.length : 0;
+        const correctAnswers = answers ? answers.filter(a => _isAnswerCorrect(a)).length : 0;
         const accuracyPercent = totalAnswers > 0 ? Math.round((correctAnswers / totalAnswers) * 100) : 0;
         
-        const totalTime = answers.reduce((sum, a) => sum + (a.time_spent || 0), 0);
+        // Среднее время на вопрос
+        const totalTime = answers ? answers.reduce((sum, a) => sum + (a.time_spent || 0), 0) : 0;
         const averageTimePerQuestion = totalAnswers > 0 ? Math.round(totalTime / totalAnswers) : 0;
         
-        const uniqueQuestions = new Set(answers.map(a => a.question_id)).size;
+        // Уникально пройденные вопросы
+        const uniqueQuestions = answers ? new Set(answers.map(a => a.question_id)).size : 0;
+        
+        // Освоенные вопросы (последний ответ правильный)
         const masteredQuestions = await _getMasteredQuestionsCount(userId, answers);
         
+        // Лучший результат
         let bestResult = 0;
-        for (const attempt of attempts) {
-            if (attempt.accuracy_percent > bestResult) {
-                bestResult = attempt.accuracy_percent;
+        if (attempts) {
+            for (const attempt of attempts) {
+                if (attempt.accuracy_percent > bestResult) {
+                    bestResult = attempt.accuracy_percent;
+                }
             }
         }
         
@@ -377,9 +367,10 @@ async function _getMasteredQuestionsCount(userId, answers = null) {
         }
     }
     
+    // ИСПРАВЛЕНО: правильно считаем освоенные вопросы
     let mastered = 0;
     for (const answer of lastAnswers.values()) {
-        if (answer.is_correct === 1) mastered++;
+        if (_isAnswerCorrect(answer)) mastered++;
     }
     
     return mastered;
@@ -397,7 +388,7 @@ async function getThemeStats(userId) {
             'Ошибка получения ответов'
         );
         
-        if (!answers) return [];
+        if (!answers || answers.length === 0) return [];
         
         const themeMap = new Map();
         
@@ -418,7 +409,7 @@ async function getThemeStats(userId) {
             
             const stat = themeMap.get(themeId);
             stat.total_answers++;
-            if (answer.is_correct === 1) stat.correct_answers++;
+            if (_isAnswerCorrect(answer)) stat.correct_answers++;
             stat.total_time += answer.time_spent || 0;
             stat.unique_questions.add(answer.question_id);
             
@@ -430,7 +421,7 @@ async function getThemeStats(userId) {
         
         const result = [];
         for (const [themeId, stat] of themeMap) {
-            const mastered = Array.from(stat.last_answers.values()).filter(a => a.is_correct === 1).length;
+            const mastered = Array.from(stat.last_answers.values()).filter(a => _isAnswerCorrect(a)).length;
             
             result.push({
                 theme_id: themeId,
@@ -463,7 +454,7 @@ async function getDifficultyStats(userId) {
             'Ошибка получения ответов'
         );
         
-        if (!answers) return [];
+        if (!answers || answers.length === 0) return [];
         
         const difficultyMap = new Map();
         
@@ -484,7 +475,7 @@ async function getDifficultyStats(userId) {
             
             const stat = difficultyMap.get(difficultyId);
             stat.total_answers++;
-            if (answer.is_correct === 1) stat.correct_answers++;
+            if (_isAnswerCorrect(answer)) stat.correct_answers++;
             stat.total_time += answer.time_spent || 0;
             stat.unique_questions.add(answer.question_id);
             
@@ -496,7 +487,7 @@ async function getDifficultyStats(userId) {
         
         const result = [];
         for (const [difficultyId, stat] of difficultyMap) {
-            const mastered = Array.from(stat.last_answers.values()).filter(a => a.is_correct === 1).length;
+            const mastered = Array.from(stat.last_answers.values()).filter(a => _isAnswerCorrect(a)).length;
             
             result.push({
                 difficulty_level_id: difficultyId,
@@ -519,7 +510,6 @@ async function getDifficultyStats(userId) {
 
 /**
  * Слабые вопросы
- * Логика: последний ответ неправильный ИЛИ 2+ ошибок
  */
 async function getWeakQuestions(userId) {
     if (!userId) return [];
@@ -530,7 +520,7 @@ async function getWeakQuestions(userId) {
             'Ошибка получения ответов'
         );
         
-        if (!answers) return [];
+        if (!answers || answers.length === 0) return [];
         
         const allQuestions = await _safeFetch(
             `${CONFIG.API_URL}/questions?status=active`,
@@ -540,7 +530,6 @@ async function getWeakQuestions(userId) {
         if (!allQuestions) return [];
         
         const questionsMap = new Map(allQuestions.map(q => [q.id, q]));
-        
         const questionMap = new Map();
         
         for (const answer of answers) {
@@ -558,11 +547,11 @@ async function getWeakQuestions(userId) {
             
             const stat = questionMap.get(qId);
             stat.total_attempts++;
-            if (answer.is_correct === 0) stat.wrong_attempts++;
+            if (!_isAnswerCorrect(answer)) stat.wrong_attempts++;
             
             if (!stat.last_answer || new Date(answer.answered_at) > new Date(stat.last_answer.answered_at)) {
                 stat.last_answer = answer;
-                stat.last_is_correct = answer.is_correct === 1;
+                stat.last_is_correct = _isAnswerCorrect(answer);
             }
         }
         
@@ -637,23 +626,16 @@ function reset() {
 // 7. ЭКСПОРТ
 // ============================================
 window.Statistics = {
-    // Работа с попыткой
     createTestAttempt,
     updateTestAttemptSummary,
     getCurrentAttemptId,
-    
-    // Работа с ответами
     startQuestionTimer,
     getQuestionTimeSpent,
     saveAttemptAnswer,
-    
-    // Статистика
     getStatsSummary,
     getThemeStats,
     getDifficultyStats,
     getWeakQuestions,
-    
-    // Настройка
     setCurrentUser,
     setCurrentScore,
     setTestStartTime,
@@ -662,4 +644,4 @@ window.Statistics = {
     reset
 };
 
-_log('📊 Statistics.js v1.2 загружен');
+_log('📊 Statistics.js v1.3 загружен');
