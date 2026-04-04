@@ -565,13 +565,13 @@ async function renderTestsList() {
       </div>
     </div>
     
-<div class="test-card" onclick="window.showStatsScreen()">
-    <div class="test-icon"><div class="icon icon-chart" style="width: 28px; height: 28px; background-color: var(--accent);"></div></div>
-    <div class="test-info">
+    <div class="test-card" onclick="window.showStatsScreen()">
+      <div class="test-icon"><div class="icon icon-chart" style="width: 28px; height: 28px; background-color: var(--accent);"></div></div>
+      <div class="test-info">
         <div class="test-title">Статистика</div>
         <div class="test-subtitle">Ваша успеваемость и прогресс</div>
+      </div>
     </div>
-</div>
   `;
   
   html += `</div>`;
@@ -676,12 +676,10 @@ async function showStatsScreen() {
   const allQuestions = window.allQuestions || [];
   const totalQuestionsCount = allQuestions.length;
   
-  // ТОП-5 тем по уникальным вопросам
   const topThemes = [...themeStats]
     .sort((a, b) => b.unique_questions_answered - a.unique_questions_answered)
     .slice(0, 5);
   
-  // Получаем названия тем
   const themesMap = new Map();
   if (window.allThemes) {
     window.allThemes.forEach(t => themesMap.set(t.id, t.title));
@@ -704,7 +702,7 @@ async function showStatsScreen() {
           <div class="progress-bar-container">
             <div class="progress-bar-fill" style="width: ${(summary.uniqueQuestionsAnswered / totalQuestionsCount * 100)}%"></div>
           </div>
-          <div class="stats-item-hint">ⓘ Количество уникальных вопросов, на которые вы отвечали</div>
+          <div class="stats-item-hint">Количество уникальных вопросов, на которые вы отвечали</div>
         </div>
         
         <div class="stats-item">
@@ -715,7 +713,7 @@ async function showStatsScreen() {
           <div class="progress-bar-container">
             <div class="progress-bar-fill" style="width: ${(summary.masteredQuestions / totalQuestionsCount * 100)}%"></div>
           </div>
-          <div class="stats-item-hint">ⓘ Вопросы, где последний ответ правильный</div>
+          <div class="stats-item-hint">Вопросы, где последний ответ правильный</div>
         </div>
         
         <div class="stats-item">
@@ -726,7 +724,7 @@ async function showStatsScreen() {
           <div class="progress-bar-container">
             <div class="progress-bar-fill" style="width: ${summary.accuracyPercent}%"></div>
           </div>
-          <div class="stats-item-hint">ⓘ Процент правильных ответов от всех</div>
+          <div class="stats-item-hint">Процент правильных ответов от всех</div>
         </div>
         
         <div class="stats-item">
@@ -734,7 +732,7 @@ async function showStatsScreen() {
             <span class="stats-item-label">Среднее время на вопрос</span>
             <span class="stats-item-value">${summary.averageTimePerQuestion} сек</span>
           </div>
-          <div class="stats-item-hint">ⓘ Среднее время на один ответ</div>
+          <div class="stats-item-hint">Среднее время на один ответ</div>
         </div>
       </div>
       
@@ -832,12 +830,14 @@ async function showAllThemesStats() {
     
     html += `
       <div class="stats-item">
-        <div class="stats-label">${escapeHtml(themeTitle)}</div>
+        <div class="stats-item-header">
+          <span class="stats-item-label">${escapeHtml(themeTitle)}</span>
+          <span class="stats-item-value">${theme.unique_questions_answered} / ${totalInTheme}</span>
+        </div>
         <div class="progress-bar-container">
           <div class="progress-bar-fill" style="width: ${percent}%"></div>
         </div>
-        <div class="stats-value">${theme.unique_questions_answered} / ${totalInTheme}</div>
-        <div class="stats-value-small">Точность: ${theme.accuracy_percent}% | Освоено: ${theme.mastered_questions}</div>
+        <div class="stats-item-hint">Точность: ${theme.accuracy_percent}% | Освоено: ${theme.mastered_questions}</div>
       </div>
     `;
   }
@@ -1123,7 +1123,6 @@ async function submitMultipleAnswer() {
   const submitBtn = document.getElementById("submitMultipleBtn");
   if (submitBtn) submitBtn.classList.add('hidden');
   
-  // ФОНОВОЕ сохранение - без await
   if (currentUserId && currentAttemptId) {
     Statistics.saveAttemptAnswer(q, currentMultipleSelected, isCorrect).catch(e => console.error);
     if (isCorrect) {
@@ -1179,7 +1178,6 @@ async function selectAnswer(index) {
     if (btn) btn.disabled = true;
   }
   
-  // ФОНОВОЕ сохранение - без await
   if (currentUserId && currentAttemptId) {
     const selectedAnswerIds = [q.answers[index].id];
     Statistics.saveAttemptAnswer(q, selectedAnswerIds, isCorrect).catch(e => console.error);
@@ -1304,19 +1302,19 @@ function showTestResult() {
       
       <div class="result-stats">
         <div class="result-stat">
-          <span class="stat-label">✅ Правильно</span>
+          <span class="stat-label">Правильно</span>
           <span class="stat-value">${currentScore}</span>
         </div>
         <div class="result-stat">
-          <span class="stat-label">❌ Неправильно</span>
+          <span class="stat-label">Неправильно</span>
           <span class="stat-value">${wrong}</span>
         </div>
         <div class="result-stat">
-          <span class="stat-label">📊 Всего вопросов</span>
+          <span class="stat-label">Всего</span>
           <span class="stat-value">${total}</span>
         </div>
         <div class="result-stat">
-          <span class="stat-label">⏱️ Время</span>
+          <span class="stat-label">Время</span>
           <span class="stat-value">${formatSeconds(timeSpent)}</span>
         </div>
       </div>
