@@ -601,3 +601,271 @@
     font-size: 20px;
   }
 }
+/* ===== НОВАЯ СТАТИСТИКА (без круговой диаграммы) ===== */
+
+/* Карточки статистики на главной */
+.stats-cards {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 24px;
+    padding: 0 4px;
+}
+
+.stats-cards .stat-card {
+    flex: 1;
+    min-width: 70px;
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+    border-radius: 16px;
+    padding: 12px 8px;
+    text-align: center;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.stats-cards .stat-number {
+    font-size: 22px;
+    font-weight: 700;
+    color: #e6c158;
+    line-height: 1.2;
+}
+
+.stats-cards .stat-label {
+    font-size: 11px;
+    color: #888;
+    margin-top: 4px;
+}
+
+/* Кнопка статистики */
+.stats-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    margin-top: 20px;
+    padding: 14px;
+    background: linear-gradient(135deg, #2d2d44 0%, #1a1a2e 100%);
+    border: 1px solid rgba(230, 193, 88, 0.3);
+    border-radius: 16px;
+    color: #e6c158;
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.stats-button:hover {
+    background: linear-gradient(135deg, #3d3d5e 0%, #252540 100%);
+    border-color: #e6c158;
+    transform: translateY(-2px);
+}
+
+/* Экран статистики */
+.stats-screen {
+    padding: 16px;
+}
+
+.stats-screen h3 {
+    font-size: 18px;
+    font-weight: 600;
+    margin: 20px 0 12px 0;
+    color: #fff;
+}
+
+.stats-screen h3:first-of-type {
+    margin-top: 8px;
+}
+
+.stats-section {
+    background: rgba(30, 30, 50, 0.5);
+    border-radius: 16px;
+    padding: 16px;
+    margin-bottom: 20px;
+}
+
+.stats-item {
+    margin-bottom: 16px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.stats-item:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+    padding-bottom: 0;
+}
+
+.stats-label {
+    font-size: 14px;
+    font-weight: 500;
+    color: #ddd;
+    margin-bottom: 6px;
+}
+
+.progress-bar-container {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    height: 8px;
+    overflow: hidden;
+    margin: 8px 0;
+}
+
+.progress-bar-fill {
+    height: 100%;
+    border-radius: 10px;
+    background: linear-gradient(90deg, #e6c158, #f1c40f);
+    width: 0%;
+    transition: width 0.3s ease;
+}
+
+.stats-value {
+    font-size: 13px;
+    color: #aaa;
+    margin-top: 4px;
+}
+
+.stats-value-small {
+    font-size: 11px;
+    color: #777;
+    margin-top: 2px;
+}
+
+.stats-hint {
+    font-size: 10px;
+    color: #666;
+    margin-top: 4px;
+    font-style: italic;
+}
+
+.stats-empty {
+    text-align: center;
+    padding: 40px 20px;
+    color: #888;
+}
+
+.stats-all-btn {
+    width: 100%;
+    padding: 10px;
+    margin-top: 12px;
+    background: rgba(230, 193, 88, 0.15);
+    border: 1px solid rgba(230, 193, 88, 0.3);
+    border-radius: 12px;
+    color: #e6c158;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.stats-all-btn:hover {
+    background: rgba(230, 193, 88, 0.25);
+}
+
+/* Результат теста (без диаграммы) */
+.result-card {
+    text-align: center;
+    padding: 24px 20px;
+}
+
+.result-title {
+    font-size: 20px;
+    font-weight: 600;
+    margin-bottom: 4px;
+    color: #e6c158;
+}
+
+.result-percent {
+    font-size: 48px;
+    font-weight: 700;
+    color: #e6c158;
+    margin: 16px 0;
+}
+
+.result-progress {
+    margin: 20px 0;
+    height: 12px;
+}
+
+.result-progress .progress-bar-fill {
+    background: #2ecc71;
+}
+
+.result-stats {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 12px;
+    margin: 20px 0;
+    padding: 12px;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 16px;
+}
+
+.result-stat {
+    flex: 1;
+    min-width: 80px;
+    text-align: center;
+}
+
+.result-stat .stat-label {
+    font-size: 12px;
+    color: #888;
+    margin-bottom: 4px;
+}
+
+.result-stat .stat-value {
+    font-size: 18px;
+    font-weight: 600;
+    color: #fff;
+}
+
+.result-buttons {
+    display: flex;
+    gap: 12px;
+    margin-top: 16px;
+}
+
+.result-buttons .button {
+    flex: 1;
+}
+
+/* Список всех тем */
+.all-themes {
+    max-height: 70vh;
+    overflow-y: auto;
+}
+
+/* Скрытие старой круговой диаграммы если нужно */
+.progress-circle {
+    display: none;
+}
+
+/* Адаптивность */
+@media (max-width: 480px) {
+    .stats-cards .stat-number {
+        font-size: 18px;
+    }
+    
+    .stats-cards .stat-label {
+        font-size: 10px;
+    }
+    
+    .result-percent {
+        font-size: 36px;
+    }
+    
+    .result-stat .stat-value {
+        font-size: 14px;
+    }
+    
+    .result-buttons {
+        flex-direction: column;
+    }
+    
+    .stats-screen h3 {
+        font-size: 16px;
+    }
+    
+    .stats-label {
+        font-size: 13px;
+    }
+}
