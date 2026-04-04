@@ -1354,6 +1354,23 @@ async function getUserUUID(vkId) {
   return null;
 }
 
+function goBack() {
+  stopTestTimer();
+  clearTestAutoTransition();
+  currentTestConfig = null;
+  const testArea = document.getElementById("testArea");
+  if (testArea) {
+    testArea.innerHTML = "";
+    testArea.classList.remove('test-active');
+  }
+  renderTestsList();
+  showBottomNav();
+  
+  // Скрываем кнопку "Назад" при возврате
+  const backBtn = document.getElementById("backBtn");
+  if (backBtn) backBtn.style.display = 'none';
+}
+
 // ===== ИНИЦИАЛИЗАЦИЯ =====
 async function initUser() {
   try {
