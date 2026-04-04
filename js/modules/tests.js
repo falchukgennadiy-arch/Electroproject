@@ -565,10 +565,13 @@ async function renderTestsList() {
       </div>
     </div>
     
-    <button class="stats-button" onclick="window.showStatsScreen()">
-      <div class="icon icon-stats" style="width: 20px; height: 20px; background-color: currentColor;"></div>
-      Статистика
-    </button>
+<div class="test-card" onclick="window.showStatsScreen()">
+    <div class="test-icon"><div class="icon icon-chart" style="width: 28px; height: 28px; background-color: var(--accent);"></div></div>
+    <div class="test-info">
+        <div class="test-title">Статистика</div>
+        <div class="test-subtitle">Ваша успеваемость и прогресс</div>
+    </div>
+</div>
   `;
   
   html += `</div>`;
