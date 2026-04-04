@@ -488,7 +488,7 @@ async function renderTestsList() {
   window.userSubscriptions.test = hasTestSub;
   
   // Получаем данные для карточек
-  const themesCount = window.allThemes ? window.allThemes.length : 0;
+  const themesCount = window.allThemes ? window.allThemes.filter(t => !t.parent_id).length : 0;
   const subthemesCount = window.allSubthemes ? window.allSubthemes.length : 0;
   const questionsCount = window.allQuestions ? window.allQuestions.length : 0;
   const freeQuestionsCount = getFreeQuestionsCount();
