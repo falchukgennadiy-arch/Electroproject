@@ -657,6 +657,13 @@
     margin-bottom: 20px;
 }
 
+#backBtn {
+    width: auto !important;
+    min-width: 100px;
+    margin: 0 auto;
+    display: inline-flex;
+}
+
 /* Компактный элемент статистики - 2 строки */
 .stats-item {
     margin-bottom: 20px;
