@@ -929,6 +929,33 @@ body{
     color: white;
 }
 
+
+
+/* На мобильных делаем шире и переносим текст */
+@media (max-width: 480px) {
+  .custom-notification {
+    max-width: 95vw;
+    min-width: auto;
+    width: 95%;
+  }
+  
+  .notification-content {
+    white-space: normal;
+    word-break: break-word;
+    padding: 12px 16px;
+    font-size: 13px;
+    width: 100%;
+  }
+  
+  .notification-message {
+    flex: 1;
+    line-height: 1.4;
+  }
+}
+
+
+
+
 @keyframes slideUp {
     from {
         opacity: 0;
