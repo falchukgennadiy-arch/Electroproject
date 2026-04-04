@@ -619,7 +619,6 @@
     border-radius: 16px;
     padding: 12px 8px;
     text-align: center;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .stats-cards .stat-number {
@@ -633,31 +632,6 @@
     font-size: 11px;
     color: #888;
     margin-top: 4px;
-}
-
-/* Кнопка статистики */
-.stats-button {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    width: 100%;
-    margin-top: 20px;
-    padding: 14px;
-    background: linear-gradient(135deg, #2d2d44 0%, #1a1a2e 100%);
-    border: 1px solid rgba(230, 193, 88, 0.3);
-    border-radius: 16px;
-    color: #e6c158;
-    font-size: 16px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.2s ease;
-}
-
-.stats-button:hover {
-    background: linear-gradient(135deg, #3d3d5e 0%, #252540 100%);
-    border-color: #e6c158;
-    transform: translateY(-2px);
 }
 
 /* Экран статистики */
@@ -683,31 +657,38 @@
     margin-bottom: 20px;
 }
 
+/* Компактный элемент статистики - 2 строки */
 .stats-item {
-    margin-bottom: 16px;
-    padding-bottom: 12px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    margin-bottom: 20px;
 }
 
-.stats-item:last-child {
-    border-bottom: none;
-    margin-bottom: 0;
-    padding-bottom: 0;
+.stats-item-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 6px;
 }
 
-.stats-label {
+.stats-item-label {
     font-size: 14px;
     font-weight: 500;
     color: #ddd;
-    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.stats-item-value {
+    font-size: 14px;
+    font-weight: 600;
+    color: #e6c158;
 }
 
 .progress-bar-container {
     background: rgba(255, 255, 255, 0.1);
     border-radius: 10px;
-    height: 8px;
+    height: 6px;
     overflow: hidden;
-    margin: 8px 0;
 }
 
 .progress-bar-fill {
@@ -718,23 +699,47 @@
     transition: width 0.3s ease;
 }
 
-.stats-value {
-    font-size: 13px;
-    color: #aaa;
-    margin-top: 4px;
-}
-
-.stats-value-small {
-    font-size: 11px;
-    color: #777;
-    margin-top: 2px;
-}
-
-.stats-hint {
+.stats-item-hint {
     font-size: 10px;
     color: #666;
+    margin-top: 6px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+/* Для тем и сложности в статистике */
+.stats-theme-item,
+.stats-difficulty-item {
+    margin-bottom: 16px;
+}
+
+.stats-theme-header,
+.stats-difficulty-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 6px;
+}
+
+.stats-theme-name,
+.stats-difficulty-name {
+    font-size: 14px;
+    font-weight: 500;
+    color: #ddd;
+}
+
+.stats-theme-count,
+.stats-difficulty-count {
+    font-size: 13px;
+    color: #e6c158;
+}
+
+.stats-theme-accuracy,
+.stats-difficulty-accuracy {
+    font-size: 11px;
+    color: #888;
     margin-top: 4px;
-    font-style: italic;
 }
 
 .stats-empty {
@@ -834,7 +839,7 @@
     overflow-y: auto;
 }
 
-/* Скрытие старой круговой диаграммы если нужно */
+/* Скрытие старой круговой диаграммы */
 .progress-circle {
     display: none;
 }
@@ -865,7 +870,7 @@
         font-size: 16px;
     }
     
-    .stats-label {
+    .stats-item-label {
         font-size: 13px;
     }
 }
