@@ -79,7 +79,6 @@ async function loadThemes() {
       window.allThemes = flatten(themesTree);
       console.log(`✅ Загружено тем: ${window.allThemes.length}`);
       
-      // Загружаем подтемы (все темы у которых есть parent_id)
       window.allSubthemes = window.allThemes.filter(t => t.parent_id);
       console.log(`✅ Загружено подтем: ${window.allSubthemes.length}`);
     } else {
@@ -104,7 +103,7 @@ async function loadDifficultyLevels() {
   }
 }
 
-// ===== ИЗБРАННОЕ (использует VK ID) =====
+// ===== ИЗБРАННОЕ =====
 async function loadFavorites() {
   if (!currentVkId) return [];
   try {
@@ -254,6 +253,11 @@ function showTestControls() {
     favBtn.classList.add('hidden');
   }
   
+  const backBtn = document.getElementById("backBtn");
+  if (backBtn) {
+    backBtn.classList.add('hidden');
+  }
+  
   if (currentQuestions[currentQuestionIndex]?.type === 'multiple' && !currentAnswered) {
     const submitBtn = document.getElementById("submitMultipleBtn");
     if (submitBtn) submitBtn.classList.remove('hidden');
@@ -284,7 +288,7 @@ async function hasTestSubscription() {
   }
 }
 
-// ===== РАБОТА С ПРОГРЕССОМ (LEGACY - только для восстановления) =====
+// ===== РАБОТА С ПРОГРЕССОМ (LEGACY) =====
 async function loadTestProgressFromDB() {
   if (!currentUserId) return;
   
@@ -487,7 +491,6 @@ async function renderTestsList() {
   window.userSubscriptions = window.userSubscriptions || {};
   window.userSubscriptions.test = hasTestSub;
   
-  // Получаем данные для карточек
   const themesCount = window.allThemes ? window.allThemes.filter(t => !t.parent_id).length : 0;
   const subthemesCount = window.allSubthemes ? window.allSubthemes.length : 0;
   const questionsCount = window.allQuestions ? window.allQuestions.length : 0;
@@ -516,7 +519,6 @@ async function renderTestsList() {
         </div>
   `;
   
-  // Если нет подписки, показываем блок "Доступно" (бесплатные вопросы)
   if (!hasTestSub) {
     html += `
         <div class="stat-card">
@@ -582,12 +584,25 @@ async function renderTestsList() {
 async function showThemesScreen() {
   const listEl = document.getElementById("topicsList");
   if (!listEl) return;
+  
+  // Показываем кнопку "Назад" в testControls
+  const backBtn = document.getElementById("backBtn");
+  if (backBtn) backBtn.style.display = 'inline-flex';
+  
+  // Скрываем остальные кнопки
+  const favBtn = document.getElementById("favoriteBtn");
+  if (favBtn) favBtn.classList.add('hidden');
+  const submitBtn = document.getElementById("submitMultipleBtn");
+  if (submitBtn) submitBtn.classList.add('hidden');
+  const nextBtn = document.getElementById("nextBtn");
+  if (nextBtn) nextBtn.classList.add('hidden');
+  
+  // Показываем testControls
+  const controls = document.getElementById("testControls");
+  if (controls) controls.classList.add('active');
+  
   let html = `
     <div class="themes-screen">
-      <button class="back-btn" onclick="window.renderTestsList()">
-        <div class="icon icon-back" style="width: 18px; height: 18px; background-color: currentColor;"></div>
-        Назад
-      </button>
       <h3>Выберите раздел</h3>
       <div class="themes-list">
   `;
@@ -612,6 +627,22 @@ async function showDifficultyScreen() {
   const listEl = document.getElementById("topicsList");
   if (!listEl) return;
   
+  // Показываем кнопку "Назад" в testControls
+  const backBtn = document.getElementById("backBtn");
+  if (backBtn) backBtn.style.display = 'inline-flex';
+  
+  // Скрываем остальные кнопки
+  const favBtn = document.getElementById("favoriteBtn");
+  if (favBtn) favBtn.classList.add('hidden');
+  const submitBtn = document.getElementById("submitMultipleBtn");
+  if (submitBtn) submitBtn.classList.add('hidden');
+  const nextBtn = document.getElementById("nextBtn");
+  if (nextBtn) nextBtn.classList.add('hidden');
+  
+  // Показываем testControls
+  const controls = document.getElementById("testControls");
+  if (controls) controls.classList.add('active');
+  
   const levelIcons = {
     1: 'icon-level-novice',
     2: 'icon-level-experienced',
@@ -622,10 +653,6 @@ async function showDifficultyScreen() {
   
   let html = `
     <div class="difficulty-screen">
-      <button class="back-btn" onclick="window.renderTestsList()">
-        <div class="icon icon-back" style="width: 18px; height: 18px; background-color: currentColor;"></div>
-        Назад
-      </button>
       <h3>Выберите уровень сложности</h3>
       <div class="difficulty-list">
   `;
@@ -657,14 +684,26 @@ async function showStatsScreen() {
   const listEl = document.getElementById("topicsList");
   if (!listEl) return;
   
-  // Скрываем нижнее меню
-  hideBottomNav();
+  // Показываем кнопку "Назад" в testControls
+  const backBtn = document.getElementById("backBtn");
+  if (backBtn) backBtn.style.display = 'inline-flex';
+  
+  // Скрываем остальные кнопки
+  const favBtn = document.getElementById("favoriteBtn");
+  if (favBtn) favBtn.classList.add('hidden');
+  const submitBtn = document.getElementById("submitMultipleBtn");
+  if (submitBtn) submitBtn.classList.add('hidden');
+  const nextBtn = document.getElementById("nextBtn");
+  if (nextBtn) nextBtn.classList.add('hidden');
+  
+  // Показываем testControls
+  const controls = document.getElementById("testControls");
+  if (controls) controls.classList.add('active');
   
   if (!currentUserId) {
     listEl.innerHTML = `
       <div class="stats-screen">
         <div class="stats-empty">Авторизуйтесь для просмотра статистики</div>
-        <button class="button" onclick="window.renderTestsList()" style="width: 100%; margin-top: 20px;">На главную</button>
       </div>
     `;
     return;
@@ -788,8 +827,6 @@ async function showStatsScreen() {
   
   html += `
       </div>
-      
-      <button class="button" onclick="window.renderTestsList()" style="width: 100%; margin-top: 20px;">На главную</button>
     </div>
   `;
   
@@ -800,8 +837,21 @@ async function showAllThemesStats() {
   const listEl = document.getElementById("topicsList");
   if (!listEl) return;
   
-  // Скрываем нижнее меню
-  hideBottomNav();
+  // Показываем кнопку "Назад" в testControls
+  const backBtn = document.getElementById("backBtn");
+  if (backBtn) backBtn.style.display = 'inline-flex';
+  
+  // Скрываем остальные кнопки
+  const favBtn = document.getElementById("favoriteBtn");
+  if (favBtn) favBtn.classList.add('hidden');
+  const submitBtn = document.getElementById("submitMultipleBtn");
+  if (submitBtn) submitBtn.classList.add('hidden');
+  const nextBtn = document.getElementById("nextBtn");
+  if (nextBtn) nextBtn.classList.add('hidden');
+  
+  // Показываем testControls
+  const controls = document.getElementById("testControls");
+  if (controls) controls.classList.add('active');
   
   const themeStats = await Statistics.getThemeStats(currentUserId);
   const allQuestions = window.allQuestions || [];
@@ -839,8 +889,6 @@ async function showAllThemesStats() {
   
   html += `
       </div>
-      
-      <button class="button" onclick="window.showStatsScreen()" style="width: 100%; margin-top: 20px;">Назад к статистике</button>
     </div>
   `;
   
@@ -1340,20 +1388,6 @@ function escapeHtml(text) {
   });
 }
 
-// ===== ПОЛУЧЕНИЕ UUID ПОЛЬЗОВАТЕЛЯ =====
-async function getUserUUID(vkId) {
-  try {
-    const response = await fetch(`${CONFIG.API_URL}/users/vk/${vkId}`);
-    if (response.ok) {
-      const userData = await response.json();
-      return userData.id;
-    }
-  } catch (err) {
-    console.error('Ошибка получения UUID:', err);
-  }
-  return null;
-}
-
 function goBack() {
   stopTestTimer();
   clearTestAutoTransition();
@@ -1366,9 +1400,22 @@ function goBack() {
   renderTestsList();
   showBottomNav();
   
-  // Скрываем кнопку "Назад" при возврате
   const backBtn = document.getElementById("backBtn");
   if (backBtn) backBtn.style.display = 'none';
+}
+
+// ===== ПОЛУЧЕНИЕ UUID ПОЛЬЗОВАТЕЛЯ =====
+async function getUserUUID(vkId) {
+  try {
+    const response = await fetch(`${CONFIG.API_URL}/users/vk/${vkId}`);
+    if (response.ok) {
+      const userData = await response.json();
+      return userData.id;
+    }
+  } catch (err) {
+    console.error('Ошибка получения UUID:', err);
+  }
+  return null;
 }
 
 // ===== ИНИЦИАЛИЗАЦИЯ =====
@@ -1450,6 +1497,7 @@ window.updateFavoriteButton = updateFavoriteButton;
 window.showNotification = showNotification;
 window.showStatsScreen = showStatsScreen;
 window.showAllThemesStats = showAllThemesStats;
+window.goBack = goBack;
 
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', initUser);
