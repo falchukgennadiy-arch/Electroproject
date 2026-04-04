@@ -658,10 +658,8 @@
 }
 
 #backBtn {
-    width: auto !important;
-    min-width: 100px;
+    max-width: 100px;
     margin: 0 auto;
-    display: inline-flex;
 }
 
 /* Компактный элемент статистики - 2 строки */
