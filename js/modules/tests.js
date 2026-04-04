@@ -504,11 +504,11 @@ async function renderTestsList() {
       <div class="stats-cards">
         <div class="stat-card">
           <div class="stat-number">${themesCount}</div>
-          <div class="stat-label">Темы</div>
+          <div class="stat-label">Разделы</div>
         </div>
         <div class="stat-card">
           <div class="stat-number">${subthemesCount}</div>
-          <div class="stat-label">Подтемы</div>
+          <div class="stat-label">Темы</div>
         </div>
         <div class="stat-card">
           <div class="stat-number">${questionsCount}</div>
@@ -545,9 +545,9 @@ async function renderTestsList() {
   }
   
   if (hasTestSub) {
-    html += `<div class="test-card" onclick="window.showThemesScreen()"><div class="test-icon"><div class="icon icon-folder" style="width: 28px; height: 28px; background-color: var(--accent);"></div></div><div class="test-info"><div class="test-title">По темам</div><div class="test-subtitle">Выберите тему для тренировки</div></div></div>`;
+    html += `<div class="test-card" onclick="window.showThemesScreen()"><div class="test-icon"><div class="icon icon-folder" style="width: 28px; height: 28px; background-color: var(--accent);"></div></div><div class="test-info"><div class="test-title">По разделам</div><div class="test-subtitle">Выберите раздел для тренировки</div></div></div>`;
   } else {
-    html += `<div class="test-card locked" onclick="window.showSubscriptionRequired('Тесты по темам')"><div class="test-icon"><div class="icon icon-folder" style="width: 28px; height: 28px; background-color: #888;"></div></div><div class="test-info"><div class="test-title">По темам</div><div class="test-subtitle">Выберите тему для тренировки</div><div class="test-badge locked"><div class="icon icon-lock" style="width: 10px; height: 10px; background-color: currentColor; display: inline-block;"></div> Требуется подписка</div></div><div class="subscribe-btn" onclick="event.stopPropagation(); window.openDonatSubscription('test')"><div class="icon icon-diamond" style="width: 14px; height: 14px; background-color: currentColor;"></div> Оформить</div></div>`;
+    html += `<div class="test-card locked" onclick="window.showSubscriptionRequired('Тесты по разделам')"><div class="test-icon"><div class="icon icon-folder" style="width: 28px; height: 28px; background-color: #888;"></div></div><div class="test-info"><div class="test-title">По разделам</div><div class="test-subtitle">Выберите раздел для тренировки</div><div class="test-badge locked"><div class="icon icon-lock" style="width: 10px; height: 10px; background-color: currentColor; display: inline-block;"></div> Требуется подписка</div></div><div class="subscribe-btn" onclick="event.stopPropagation(); window.openDonatSubscription('test')"><div class="icon icon-diamond" style="width: 14px; height: 14px; background-color: currentColor;"></div> Оформить</div></div>`;
   }
   
   if (hasTestSub) {
@@ -588,7 +588,7 @@ async function showThemesScreen() {
         <div class="icon icon-back" style="width: 18px; height: 18px; background-color: currentColor;"></div>
         Назад
       </button>
-      <h3>Выберите тему</h3>
+      <h3>Выберите раздел</h3>
       <div class="themes-list">
   `;
   for (let theme of window.allThemes || []) {
