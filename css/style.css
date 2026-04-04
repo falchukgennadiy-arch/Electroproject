@@ -415,6 +415,108 @@ body{
   color: var(--accent);
 }
 
+/* Аватар — стиль только для отображения фото, без маски */
+.profile-avatar {
+  width: 96px;
+  height: 96px;
+  border-radius: 50%;
+  background-color: #C39A69;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  flex-shrink: 0;
+  overflow: hidden;
+}
+
+.profile-info h3 {
+  font-size: 18px;
+  margin-bottom: 4px;
+}
+
+.profile-info p {
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.subscription-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin: 20px 0;
+}
+
+.sub-card {
+  background: rgba(255,255,255,0.03);
+  border-radius: 12px;
+  padding: 14px;
+  border: 1px solid var(--line);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.sub-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.sub-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  flex-shrink: 0;
+}
+
+.sub-icon.course { background: var(--course); }
+.sub-icon.visual { background: var(--visual); }
+.sub-icon.template { background: var(--template); }
+.sub-icon.test { background: var(--test); }
+.sub-icon.free { background: var(--good); }
+
+.sub-details h4 {
+  font-size: 15px;
+  margin-bottom: 2px;
+}
+
+.sub-details p {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.sub-status {
+  font-size: 12px;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 20px;
+}
+
+.sub-status.active {
+  background: rgba(46, 204, 113, 0.2);
+  color: var(--good);
+}
+
+.sub-status.inactive {
+  background: rgba(231, 76, 60, 0.1);
+  color: var(--bad);
+}
+
+.sub-button {
+  background: var(--accent);
+  color: #000;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
 .comment {
   margin-top: 20px;
   padding: 16px 18px;
@@ -592,9 +694,79 @@ body{
 .test-badge.free { background: var(--good); color: #000; }
 .test-badge.test { background: var(--test); color: #fff; }
 
-.center{ text-align:center; }
+.ans{
+  display:flex;
+  gap:12px;
+  align-items:flex-start;
+}
+.badge{
+  flex:0 0 auto;
+  width:28px;
+  height:28px;
+  border-radius:9px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-weight:800;
+  background:rgba(255,255,255,0.07);
+  border:1px solid rgba(255,255,255,0.08);
+  font-size:14px;
+}
+.ans-text{
+  line-height:1.4;
+  padding-top:2px;
+  flex: 1;
+  font-size:15px;
+}
 
-/* ===== НИЖНЯЯ НАВИГАЦИЯ ===== */
+/* Панель управления тестом */
+.test-controls{
+  position:fixed;
+  left:0;
+  right:0;
+  bottom:0;
+  width: 100%;
+  background: rgba(28,28,30,0.96);
+  backdrop-filter: blur(10px);
+  border-top: 1px solid var(--line);
+  padding: 10px 14px;
+  display: none;
+  z-index: 20;
+  border-radius: 0;
+}
+.controls-wrap{
+  max-width:720px;
+  margin:0 auto;
+  display:flex;
+  gap:8px;
+}
+.controls-wrap .button{
+  margin-top:0;
+  text-align:center;
+  padding:10px;
+  font-size:13px;
+  background: #2a2a2a;
+  border: 1px solid #3a3a3a;
+  border-radius: 12px;
+  color: #fff;
+  flex: 1;
+}
+.controls-wrap .button.primary{
+  background: var(--accent);
+  color:#000;
+  border: none;
+}
+.controls-wrap .button.ghost{
+  background:transparent;
+  border-color: rgba(230,193,88,0.3);
+  color: var(--accent);
+}
+
+.test-controls.active {
+  display: block;
+}
+
+/* ========== НИЖНЯЯ НАВИГАЦИЯ ========== */
 .bottom-nav {
   position: fixed;
   left: 0;
@@ -646,7 +818,7 @@ body{
   height: 24px;
 }
 
-/* ===== ИКОНКИ (SVG через mask) ===== */
+/* ========== ИКОНКИ (SVG через mask) ========== */
 .icon {
   display: inline-block;
   flex-shrink: 0;
@@ -677,6 +849,54 @@ body{
   vertical-align: middle;
   margin-right: 8px;
 }
+
+/* ========== КНОПКА ИЗБРАННОГО ========== */
+.controls-wrap .button#favoriteBtn {
+  width: auto;
+  min-width: 44px;
+  flex: 0 0 auto;
+  padding: 8px 12px;
+  gap: 6px;
+  background: var(--btn);
+  color: var(--accent);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#favoriteBtn.active {
+  background: var(--accent);
+  color: #000;
+  border-color: var(--accent);
+}
+
+#favoriteBtn .icon {
+  width: 18px;
+  height: 18px;
+}
+
+.center{ text-align:center; }
+
+.stats-grid{
+  display:grid;
+  grid-template-columns: 120px 1fr;
+  gap:14px;
+  align-items:center;
+}
+
+.statline{
+  display:flex;
+  justify-content:space-between;
+  gap:10px;
+  padding:8px 0;
+  border-bottom:1px solid rgba(255,255,255,0.06);
+  font-size:14px;
+}
+.statline:last-child{ border-bottom:none; }
+.k{ color:var(--muted); }
+.v{ font-weight:800; }
 
 /* ===== КАСТОМНЫЕ УВЕДОМЛЕНИЯ ===== */
 .custom-notification {
@@ -727,24 +947,24 @@ body{
 
 /* Hover — только на десктопе */
 @media (hover: hover) {
-  .button:hover:not(:disabled) {
+  .controls-wrap .button:hover:not(:disabled) {
     background: #3a3a3a;
     border-color: var(--accent);
   }
   
-  .button.primary:hover:not(:disabled) {
+  .controls-wrap .button.primary:hover:not(:disabled) {
     background: #f1c40f;
   }
 }
 
 /* Активное состояние (нажатие) для всех устройств */
-.button:active {
+.controls-wrap .button:active {
   transform: scale(0.98);
   background: #3a3a3a;
   border-color: var(--accent);
 }
 
-.button.primary:active {
+.controls-wrap .button.primary:active {
   background: #f1c40f;
 }
 
