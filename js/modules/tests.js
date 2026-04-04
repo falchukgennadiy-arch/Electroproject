@@ -481,6 +481,9 @@ async function renderTestsList() {
   hideTestControls();
   clearTestAutoTransition();
   
+  // Показываем нижнее меню
+  showBottomNav();
+  
   // Скрываем кнопку "Назад"
   const backBtn = document.getElementById("backBtn");
   if (backBtn) backBtn.classList.add('hidden');
@@ -585,6 +588,9 @@ async function showThemesScreen() {
   const listEl = document.getElementById("topicsList");
   if (!listEl) return;
   
+  // Скрываем нижнее меню
+  hideBottomNav();
+  
   // Показываем кнопку "Назад"
   const backBtn = document.getElementById("backBtn");
   if (backBtn) backBtn.classList.remove('hidden');
@@ -626,6 +632,9 @@ async function showThemesScreen() {
 async function showDifficultyScreen() {
   const listEl = document.getElementById("topicsList");
   if (!listEl) return;
+  
+  // Скрываем нижнее меню
+  hideBottomNav();
   
   // Показываем кнопку "Назад"
   const backBtn = document.getElementById("backBtn");
@@ -683,6 +692,9 @@ function showSubscriptionRequired(testName) {
 async function showStatsScreen() {
   const listEl = document.getElementById("topicsList");
   if (!listEl) return;
+  
+  // Скрываем нижнее меню
+  hideBottomNav();
   
   // Показываем кнопку "Назад"
   const backBtn = document.getElementById("backBtn");
@@ -837,6 +849,9 @@ async function showAllThemesStats() {
   const listEl = document.getElementById("topicsList");
   if (!listEl) return;
   
+  // Скрываем нижнее меню
+  hideBottomNav();
+  
   // Показываем кнопку "Назад"
   const backBtn = document.getElementById("backBtn");
   if (backBtn) backBtn.classList.remove('hidden');
@@ -934,6 +949,9 @@ async function startTest(testConfig) {
   // Скрываем кнопку "Назад" во время теста
   const backBtn = document.getElementById("backBtn");
   if (backBtn) backBtn.classList.add('hidden');
+  
+  // Скрываем нижнее меню
+  hideBottomNav();
 
   const listEl = document.getElementById("topicsList");
   if (listEl) listEl.innerHTML = "";
@@ -948,7 +966,6 @@ async function startTest(testConfig) {
   showTestControls();
   startTestTimer();
   showQuestion();
-  hideBottomNav();
 }
 
 function showQuestion() {
@@ -1402,7 +1419,6 @@ function goBack() {
     testArea.classList.remove('test-active');
   }
   renderTestsList();
-  showBottomNav();
   
   const backBtn = document.getElementById("backBtn");
   if (backBtn) backBtn.classList.add('hidden');
