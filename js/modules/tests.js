@@ -694,22 +694,22 @@ async function showStatsScreen() {
         Назад
       </button>
       
-      <h3>📊 Общая статистика</h3>
+      <h3>Общая статистика</h3>
       <div class="stats-section">
         <div class="stats-item">
           <div class="stats-item-header">
-            <span class="stats-item-label">📋 Уникально пройдено</span>
+            <span class="stats-item-label">Уникально пройдено</span>
             <span class="stats-item-value">${summary.uniqueQuestionsAnswered} / ${totalQuestionsCount}</span>
           </div>
           <div class="progress-bar-container">
             <div class="progress-bar-fill" style="width: ${(summary.uniqueQuestionsAnswered / totalQuestionsCount * 100)}%"></div>
           </div>
-          <div class="stats-item-hint">ⓘ Количество разных вопросов, на которые вы отвечали</div>
+          <div class="stats-item-hint">ⓘ Количество уникальных вопросов, на которые вы отвечали</div>
         </div>
         
         <div class="stats-item">
           <div class="stats-item-header">
-            <span class="stats-item-label">✅ Освоено вопросов</span>
+            <span class="stats-item-label">Освоено вопросов</span>
             <span class="stats-item-value">${summary.masteredQuestions} / ${totalQuestionsCount}</span>
           </div>
           <div class="progress-bar-container">
@@ -720,7 +720,7 @@ async function showStatsScreen() {
         
         <div class="stats-item">
           <div class="stats-item-header">
-            <span class="stats-item-label">🎯 Общая точность</span>
+            <span class="stats-item-label">Общая точность</span>
             <span class="stats-item-value">${summary.accuracyPercent}%</span>
           </div>
           <div class="progress-bar-container">
@@ -731,14 +731,14 @@ async function showStatsScreen() {
         
         <div class="stats-item">
           <div class="stats-item-header">
-            <span class="stats-item-label">⏱️ Среднее время на вопрос</span>
+            <span class="stats-item-label">Среднее время на вопрос</span>
             <span class="stats-item-value">${summary.averageTimePerQuestion} сек</span>
           </div>
           <div class="stats-item-hint">ⓘ Среднее время на один ответ</div>
         </div>
       </div>
       
-      <h3>🏆 ТОП-5 тем по активности</h3>
+      <h3>ТОП-5 тем по активности</h3>
       <div class="stats-section">
   `;
   
@@ -750,7 +750,7 @@ async function showStatsScreen() {
     html += `
       <div class="stats-item">
         <div class="stats-item-header">
-          <span class="stats-item-label">📁 ${escapeHtml(themeTitle)}</span>
+          <span class="stats-item-label">${escapeHtml(themeTitle)}</span>
           <span class="stats-item-value">${theme.unique_questions_answered} / ${totalInTheme}</span>
         </div>
         <div class="progress-bar-container">
@@ -765,7 +765,7 @@ async function showStatsScreen() {
         <button class="stats-all-btn" onclick="window.showAllThemesStats()">Все темы →</button>
       </div>
       
-      <h3>📈 По уровням сложности</h3>
+      <h3>По уровням сложности</h3>
       <div class="stats-section">
   `;
   
@@ -821,7 +821,7 @@ async function showAllThemesStats() {
         Назад к статистике
       </button>
       
-      <h3>📊 Статистика по всем темам</h3>
+      <h3>Статистика по всем темам</h3>
       <div class="stats-section all-themes">
   `;
   
@@ -832,7 +832,7 @@ async function showAllThemesStats() {
     
     html += `
       <div class="stats-item">
-        <div class="stats-label">📁 ${escapeHtml(themeTitle)}</div>
+        <div class="stats-label">${escapeHtml(themeTitle)}</div>
         <div class="progress-bar-container">
           <div class="progress-bar-fill" style="width: ${percent}%"></div>
         </div>
