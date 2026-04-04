@@ -1,0 +1,223 @@
+/* ===== СТАТИСТИКА ===== */
+/* Все стили статистики из style.css и tests.css */
+
+/* Карточки статистики на главной */
+.stats-cards {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 24px;
+    padding: 0 4px;
+}
+
+.stats-cards .stat-card {
+    flex: 1;
+    min-width: 70px;
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+    border-radius: 16px;
+    padding: 12px 8px;
+    text-align: center;
+}
+
+.stats-cards .stat-number {
+    font-size: 22px;
+    font-weight: 700;
+    color: #e6c158;
+    line-height: 1.2;
+}
+
+.stats-cards .stat-label {
+    font-size: 11px;
+    color: #888;
+    margin-top: 4px;
+}
+
+/* Экран статистики */
+.stats-screen {
+    padding: 16px;
+}
+
+.stats-screen h3 {
+    font-size: 18px;
+    font-weight: 600;
+    margin: 20px 0 12px 0;
+    color: #fff;
+}
+
+.stats-screen h3:first-of-type {
+    margin-top: 8px;
+}
+
+.stats-section {
+    background: rgba(30, 30, 50, 0.5);
+    border-radius: 16px;
+    padding: 16px;
+    margin-bottom: 20px;
+}
+
+/* Сетка статистики (из style.css) */
+.stats-grid {
+    display: grid;
+    grid-template-columns: 120px 1fr;
+    gap: 14px;
+    align-items: center;
+}
+
+.statline {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 8px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    font-size: 14px;
+}
+
+.statline:last-child {
+    border-bottom: none;
+}
+
+.k {
+    color: var(--muted);
+}
+
+.v {
+    font-weight: 800;
+}
+
+/* Компактный элемент статистики - 2 строки */
+.stats-item {
+    margin-bottom: 20px;
+}
+
+.stats-item-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 6px;
+}
+
+.stats-item-label {
+    font-size: 14px;
+    font-weight: 500;
+    color: #ddd;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.stats-item-value {
+    font-size: 14px;
+    font-weight: 600;
+    color: #e6c158;
+}
+
+.progress-bar-container {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    height: 6px;
+    overflow: hidden;
+}
+
+.progress-bar-fill {
+    height: 100%;
+    border-radius: 10px;
+    background: linear-gradient(90deg, #e6c158, #f1c40f);
+    width: 0%;
+    transition: width 0.3s ease;
+}
+
+.stats-item-hint {
+    font-size: 10px;
+    color: #666;
+    margin-top: 6px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+/* Для тем и сложности в статистике */
+.stats-theme-item,
+.stats-difficulty-item {
+    margin-bottom: 16px;
+}
+
+.stats-theme-header,
+.stats-difficulty-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 6px;
+}
+
+.stats-theme-name,
+.stats-difficulty-name {
+    font-size: 14px;
+    font-weight: 500;
+    color: #ddd;
+}
+
+.stats-theme-count,
+.stats-difficulty-count {
+    font-size: 13px;
+    color: #e6c158;
+}
+
+.stats-theme-accuracy,
+.stats-difficulty-accuracy {
+    font-size: 11px;
+    color: #888;
+    margin-top: 4px;
+}
+
+.stats-empty {
+    text-align: center;
+    padding: 40px 20px;
+    color: #888;
+}
+
+.stats-all-btn {
+    width: 100%;
+    padding: 10px;
+    margin-top: 12px;
+    background: rgba(230, 193, 88, 0.15);
+    border: 1px solid rgba(230, 193, 88, 0.3);
+    border-radius: 12px;
+    color: #e6c158;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.stats-all-btn:hover {
+    background: rgba(230, 193, 88, 0.25);
+}
+
+/* Список всех тем */
+.all-themes {
+    max-height: 70vh;
+    overflow-y: auto;
+}
+
+/* Скрытие старой круговой диаграммы */
+.progress-circle {
+    display: none;
+}
+
+/* Адаптивность статистики */
+@media (max-width: 480px) {
+    .stats-cards .stat-number {
+        font-size: 18px;
+    }
+    
+    .stats-cards .stat-label {
+        font-size: 10px;
+    }
+    
+    .stats-screen h3 {
+        font-size: 16px;
+    }
+    
+    .stats-item-label {
+        font-size: 13px;
+    }
+}
