@@ -243,13 +243,24 @@ function clearTestAutoTransition() {
 function showTestControls() {
   const controls = document.getElementById("testControls");
   if (controls) controls.classList.add('active');
+  
+  // Показываем все кнопки, кроме "Назад"
+  const allButtons = controls.querySelectorAll('.button');
+  allButtons.forEach(btn => {
+    if (btn.id !== 'backBtn') {
+      btn.classList.remove('hidden');
+    }
+  });
+  
+  // Кнопка "Назад" скрыта во время теста
+  const backBtn = document.getElementById("backBtn");
+  if (backBtn) backBtn.classList.add('hidden');
+  
   const nextBtn = document.getElementById("nextBtn");
   if (nextBtn) nextBtn.classList.add('hidden');
   
   const favBtn = document.getElementById("favoriteBtn");
-  if (favBtn && currentVkId) {
-    favBtn.classList.remove('hidden');
-  } else if (favBtn) {
+  if (favBtn && !currentVkId) {
     favBtn.classList.add('hidden');
   }
   
@@ -258,6 +269,7 @@ function showTestControls() {
     if (submitBtn) submitBtn.classList.remove('hidden');
   }
 }
+  
 
 function hideTestControls() {
   const controls = document.getElementById("testControls");
