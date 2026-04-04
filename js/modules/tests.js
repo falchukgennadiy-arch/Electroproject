@@ -697,36 +697,44 @@ async function showStatsScreen() {
       <h3>📊 Общая статистика</h3>
       <div class="stats-section">
         <div class="stats-item">
-          <div class="stats-label">📋 Уникально пройдено</div>
+          <div class="stats-item-header">
+            <span class="stats-item-label">📋 Уникально пройдено</span>
+            <span class="stats-item-value">${summary.uniqueQuestionsAnswered} / ${totalQuestionsCount}</span>
+          </div>
           <div class="progress-bar-container">
             <div class="progress-bar-fill" style="width: ${(summary.uniqueQuestionsAnswered / totalQuestionsCount * 100)}%"></div>
           </div>
-          <div class="stats-value">${summary.uniqueQuestionsAnswered} / ${totalQuestionsCount}</div>
-          <div class="stats-hint">ⓘ Количество разных вопросов, на которые вы отвечали</div>
+          <div class="stats-item-hint">ⓘ Количество разных вопросов, на которые вы отвечали</div>
         </div>
         
         <div class="stats-item">
-          <div class="stats-label">✅ Освоено вопросов</div>
+          <div class="stats-item-header">
+            <span class="stats-item-label">✅ Освоено вопросов</span>
+            <span class="stats-item-value">${summary.masteredQuestions} / ${totalQuestionsCount}</span>
+          </div>
           <div class="progress-bar-container">
             <div class="progress-bar-fill" style="width: ${(summary.masteredQuestions / totalQuestionsCount * 100)}%"></div>
           </div>
-          <div class="stats-value">${summary.masteredQuestions} / ${totalQuestionsCount}</div>
-          <div class="stats-hint">ⓘ Вопросы, где последний ответ правильный</div>
+          <div class="stats-item-hint">ⓘ Вопросы, где последний ответ правильный</div>
         </div>
         
         <div class="stats-item">
-          <div class="stats-label">🎯 Общая точность</div>
+          <div class="stats-item-header">
+            <span class="stats-item-label">🎯 Общая точность</span>
+            <span class="stats-item-value">${summary.accuracyPercent}%</span>
+          </div>
           <div class="progress-bar-container">
             <div class="progress-bar-fill" style="width: ${summary.accuracyPercent}%"></div>
           </div>
-          <div class="stats-value">${summary.accuracyPercent}%</div>
-          <div class="stats-hint">ⓘ Процент правильных ответов от всех</div>
+          <div class="stats-item-hint">ⓘ Процент правильных ответов от всех</div>
         </div>
         
         <div class="stats-item">
-          <div class="stats-label">⏱️ Среднее время на вопрос</div>
-          <div class="stats-value">${summary.averageTimePerQuestion} сек</div>
-          <div class="stats-hint">ⓘ Среднее время на один ответ</div>
+          <div class="stats-item-header">
+            <span class="stats-item-label">⏱️ Среднее время на вопрос</span>
+            <span class="stats-item-value">${summary.averageTimePerQuestion} сек</span>
+          </div>
+          <div class="stats-item-hint">ⓘ Среднее время на один ответ</div>
         </div>
       </div>
       
@@ -741,12 +749,14 @@ async function showStatsScreen() {
     
     html += `
       <div class="stats-item">
-        <div class="stats-label">📁 ${escapeHtml(themeTitle)}</div>
+        <div class="stats-item-header">
+          <span class="stats-item-label">📁 ${escapeHtml(themeTitle)}</span>
+          <span class="stats-item-value">${theme.unique_questions_answered} / ${totalInTheme}</span>
+        </div>
         <div class="progress-bar-container">
           <div class="progress-bar-fill" style="width: ${percent}%"></div>
         </div>
-        <div class="stats-value">${theme.unique_questions_answered} / ${totalInTheme}</div>
-        <div class="stats-value-small">Точность: ${theme.accuracy_percent}%</div>
+        <div class="stats-item-hint">Точность: ${theme.accuracy_percent}%</div>
       </div>
     `;
   }
@@ -771,12 +781,14 @@ async function showStatsScreen() {
     
     html += `
       <div class="stats-item">
-        <div class="stats-label">${escapeHtml(diffTitle)}</div>
+        <div class="stats-item-header">
+          <span class="stats-item-label">${escapeHtml(diffTitle)}</span>
+          <span class="stats-item-value">${diff.unique_questions_answered} / ${totalInDiff}</span>
+        </div>
         <div class="progress-bar-container">
           <div class="progress-bar-fill" style="width: ${percent}%"></div>
         </div>
-        <div class="stats-value">${diff.unique_questions_answered} / ${totalInDiff}</div>
-        <div class="stats-value-small">Точность: ${diff.accuracy_percent}%</div>
+        <div class="stats-item-hint">Точность: ${diff.accuracy_percent}%</div>
       </div>
     `;
   }
