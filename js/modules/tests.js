@@ -591,20 +591,18 @@ async function showThemesScreen() {
   // Скрываем нижнее меню
   hideBottomNav();
   
-  // Показываем кнопку "Назад"
+  // Скрываем все кнопки в testControls
+  const controls = document.getElementById("testControls");
+  if (controls) {
+    const allButtons = controls.querySelectorAll('.button');
+    allButtons.forEach(btn => btn.classList.add('hidden'));
+  }
+  
+  // Показываем только кнопку "Назад"
   const backBtn = document.getElementById("backBtn");
   if (backBtn) backBtn.classList.remove('hidden');
   
-  // Скрываем остальные кнопки
-  const favBtn = document.getElementById("favoriteBtn");
-  if (favBtn) favBtn.classList.add('hidden');
-  const submitBtn = document.getElementById("submitMultipleBtn");
-  if (submitBtn) submitBtn.classList.add('hidden');
-  const nextBtn = document.getElementById("nextBtn");
-  if (nextBtn) nextBtn.classList.add('hidden');
-  
   // Показываем testControls
-  const controls = document.getElementById("testControls");
   if (controls) controls.classList.add('active');
   
   let html = `
@@ -636,20 +634,18 @@ async function showDifficultyScreen() {
   // Скрываем нижнее меню
   hideBottomNav();
   
-  // Показываем кнопку "Назад"
+  // Скрываем все кнопки в testControls
+  const controls = document.getElementById("testControls");
+  if (controls) {
+    const allButtons = controls.querySelectorAll('.button');
+    allButtons.forEach(btn => btn.classList.add('hidden'));
+  }
+  
+  // Показываем только кнопку "Назад"
   const backBtn = document.getElementById("backBtn");
   if (backBtn) backBtn.classList.remove('hidden');
   
-  // Скрываем остальные кнопки
-  const favBtn = document.getElementById("favoriteBtn");
-  if (favBtn) favBtn.classList.add('hidden');
-  const submitBtn = document.getElementById("submitMultipleBtn");
-  if (submitBtn) submitBtn.classList.add('hidden');
-  const nextBtn = document.getElementById("nextBtn");
-  if (nextBtn) nextBtn.classList.add('hidden');
-  
   // Показываем testControls
-  const controls = document.getElementById("testControls");
   if (controls) controls.classList.add('active');
   
   const levelIcons = {
@@ -696,20 +692,18 @@ async function showStatsScreen() {
   // Скрываем нижнее меню
   hideBottomNav();
   
-  // Показываем кнопку "Назад"
+  // Скрываем все кнопки в testControls
+  const controls = document.getElementById("testControls");
+  if (controls) {
+    const allButtons = controls.querySelectorAll('.button');
+    allButtons.forEach(btn => btn.classList.add('hidden'));
+  }
+  
+  // Показываем только кнопку "Назад"
   const backBtn = document.getElementById("backBtn");
   if (backBtn) backBtn.classList.remove('hidden');
   
-  // Скрываем остальные кнопки
-  const favBtn = document.getElementById("favoriteBtn");
-  if (favBtn) favBtn.classList.add('hidden');
-  const submitBtn = document.getElementById("submitMultipleBtn");
-  if (submitBtn) submitBtn.classList.add('hidden');
-  const nextBtn = document.getElementById("nextBtn");
-  if (nextBtn) nextBtn.classList.add('hidden');
-  
   // Показываем testControls
-  const controls = document.getElementById("testControls");
   if (controls) controls.classList.add('active');
   
   if (!currentUserId) {
@@ -852,20 +846,18 @@ async function showAllThemesStats() {
   // Скрываем нижнее меню
   hideBottomNav();
   
-  // Показываем кнопку "Назад"
+  // Скрываем все кнопки в testControls
+  const controls = document.getElementById("testControls");
+  if (controls) {
+    const allButtons = controls.querySelectorAll('.button');
+    allButtons.forEach(btn => btn.classList.add('hidden'));
+  }
+  
+  // Показываем только кнопку "Назад"
   const backBtn = document.getElementById("backBtn");
   if (backBtn) backBtn.classList.remove('hidden');
   
-  // Скрываем остальные кнопки
-  const favBtn = document.getElementById("favoriteBtn");
-  if (favBtn) favBtn.classList.add('hidden');
-  const submitBtn = document.getElementById("submitMultipleBtn");
-  if (submitBtn) submitBtn.classList.add('hidden');
-  const nextBtn = document.getElementById("nextBtn");
-  if (nextBtn) nextBtn.classList.add('hidden');
-  
   // Показываем testControls
-  const controls = document.getElementById("testControls");
   if (controls) controls.classList.add('active');
   
   const themeStats = await Statistics.getThemeStats(currentUserId);
@@ -1419,9 +1411,6 @@ function goBack() {
     testArea.classList.remove('test-active');
   }
   renderTestsList();
-  
-  const backBtn = document.getElementById("backBtn");
-  if (backBtn) backBtn.classList.add('hidden');
 }
 
 // ===== ПОЛУЧЕНИЕ UUID ПОЛЬЗОВАТЕЛЯ =====
