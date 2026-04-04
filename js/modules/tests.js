@@ -253,11 +253,6 @@ function showTestControls() {
     favBtn.classList.add('hidden');
   }
   
-  const backBtn = document.getElementById("backBtn");
-  if (backBtn) {
-    backBtn.classList.add('hidden');
-  }
-  
   if (currentQuestions[currentQuestionIndex]?.type === 'multiple' && !currentAnswered) {
     const submitBtn = document.getElementById("submitMultipleBtn");
     if (submitBtn) submitBtn.classList.remove('hidden');
@@ -485,6 +480,11 @@ async function renderTestsList() {
   }
   hideTestControls();
   clearTestAutoTransition();
+  
+  // Скрываем кнопку "Назад"
+  const backBtn = document.getElementById("backBtn");
+  if (backBtn) backBtn.classList.add('hidden');
+  
   if (!listEl) return;
   
   const hasTestSub = await hasTestSubscription();
@@ -585,9 +585,9 @@ async function showThemesScreen() {
   const listEl = document.getElementById("topicsList");
   if (!listEl) return;
   
-  // Показываем кнопку "Назад" в testControls
+  // Показываем кнопку "Назад"
   const backBtn = document.getElementById("backBtn");
-  if (backBtn) backBtn.style.display = 'inline-flex';
+  if (backBtn) backBtn.classList.remove('hidden');
   
   // Скрываем остальные кнопки
   const favBtn = document.getElementById("favoriteBtn");
@@ -627,9 +627,9 @@ async function showDifficultyScreen() {
   const listEl = document.getElementById("topicsList");
   if (!listEl) return;
   
-  // Показываем кнопку "Назад" в testControls
+  // Показываем кнопку "Назад"
   const backBtn = document.getElementById("backBtn");
-  if (backBtn) backBtn.style.display = 'inline-flex';
+  if (backBtn) backBtn.classList.remove('hidden');
   
   // Скрываем остальные кнопки
   const favBtn = document.getElementById("favoriteBtn");
@@ -684,9 +684,9 @@ async function showStatsScreen() {
   const listEl = document.getElementById("topicsList");
   if (!listEl) return;
   
-  // Показываем кнопку "Назад" в testControls
+  // Показываем кнопку "Назад"
   const backBtn = document.getElementById("backBtn");
-  if (backBtn) backBtn.style.display = 'inline-flex';
+  if (backBtn) backBtn.classList.remove('hidden');
   
   // Скрываем остальные кнопки
   const favBtn = document.getElementById("favoriteBtn");
@@ -837,9 +837,9 @@ async function showAllThemesStats() {
   const listEl = document.getElementById("topicsList");
   if (!listEl) return;
   
-  // Показываем кнопку "Назад" в testControls
+  // Показываем кнопку "Назад"
   const backBtn = document.getElementById("backBtn");
-  if (backBtn) backBtn.style.display = 'inline-flex';
+  if (backBtn) backBtn.classList.remove('hidden');
   
   // Скрываем остальные кнопки
   const favBtn = document.getElementById("favoriteBtn");
@@ -930,6 +930,10 @@ async function startTest(testConfig) {
     currentAttemptId = await Statistics.createTestAttempt(testConfig, currentQuestions);
     console.log('📊 Попытка создана:', currentAttemptId);
   }
+
+  // Скрываем кнопку "Назад" во время теста
+  const backBtn = document.getElementById("backBtn");
+  if (backBtn) backBtn.classList.add('hidden');
 
   const listEl = document.getElementById("topicsList");
   if (listEl) listEl.innerHTML = "";
@@ -1401,7 +1405,7 @@ function goBack() {
   showBottomNav();
   
   const backBtn = document.getElementById("backBtn");
-  if (backBtn) backBtn.style.display = 'none';
+  if (backBtn) backBtn.classList.add('hidden');
 }
 
 // ===== ПОЛУЧЕНИЕ UUID ПОЛЬЗОВАТЕЛЯ =====
