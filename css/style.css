@@ -997,10 +997,6 @@ body{
 
 /* ========== ДЕСКТОПНАЯ ВЕРСИЯ ========== */
 @media (min-width: 768px) {
-  .bottom-nav {
-    padding: 12px 16px 16px;
-  }
-  
   .nav-btn {
     padding: 8px 12px;
     min-width: 70px;
