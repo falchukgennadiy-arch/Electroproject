@@ -1,5 +1,5 @@
 /* ===== ТЕСТЫ ===== */
-/* Только уникальные стили для тестов (без дублей с style.css) */
+/* Только уникальные стили для тестов (без дублирования базовых классов) */
 
 /* Главный экран */
 .tests-main-screen {
@@ -105,7 +105,109 @@
 .icon-level-top { background-color: #e67e22; }
 .icon-level-expert { background-color: #e74c3c; }
 
-/* Экраны выбора тем и сложности */
+/* Общие кнопки */
+.back-btn {
+  background: #2a2a2a;
+  border: none;
+  color: #fff;
+  padding: 8px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  margin-bottom: 20px;
+  transition: all 0.2s;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.back-btn:hover {
+  background: #3a3a3a;
+}
+
+/* ===== СТАТИСТИКА ===== */
+.stats-block {
+  background: #1a1a1a;
+  border: 1px solid #2a2a2a;
+  border-radius: 16px;
+  padding: 16px;
+  margin-bottom: 16px;
+}
+
+.stats-header-cards {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.stat-card {
+  background: #2a2a2a;
+  border-radius: 12px;
+  padding: 12px;
+  text-align: center;
+}
+
+.stat-number {
+  font-size: 24px;
+  font-weight: bold;
+  color: #e6c158;
+  line-height: 1.2;
+}
+
+.stat-label {
+  font-size: 11px;
+  color: #888;
+  margin-top: 4px;
+}
+
+.stats-progress {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding-top: 8px;
+  border-top: 1px solid #2a2a2a;
+}
+
+.progress-circle {
+  position: relative;
+  width: 80px;
+  height: 80px;
+  flex-shrink: 0;
+}
+
+.progress-circle canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 80px;
+  height: 80px;
+}
+
+.progress-percent {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 14px;
+  font-weight: bold;
+  color: #e6c158;
+}
+
+.progress-text {
+  flex: 1;
+  font-size: 12px;
+  color: #aaa;
+  line-height: 1.6;
+}
+
+.progress-text div {
+  margin: 2px 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Темы и сложность */
 .themes-list,
 .difficulty-list {
   display: flex;
@@ -170,6 +272,23 @@
   flex-shrink: 0;
 }
 
+.progress-completed,
+.progress-inprogress {
+  font-size: 11px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 4px;
+}
+
+.progress-completed {
+  color: #2ecc71;
+}
+
+.progress-inprogress {
+  color: #f39c12;
+}
+
 /* ===== ЗАГОЛОВОК ВОПРОСА ===== */
 .question-title {
   font-size: 19px;
@@ -182,35 +301,7 @@
   letter-spacing: 0.2px;
 }
 
-/* ===== СТРУКТУРА ОТВЕТОВ ===== */
-.ans {
-  display: flex;
-  gap: 12px;
-  align-items: flex-start;
-}
-
-.badge {
-  flex: 0 0 auto;
-  width: 28px;
-  height: 28px;
-  border-radius: 9px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 800;
-  background: rgba(255,255,255,0.07);
-  border: 1px solid rgba(255,255,255,0.08);
-  font-size: 14px;
-}
-
-.ans-text {
-  line-height: 1.4;
-  padding-top: 2px;
-  flex: 1;
-  font-size: 15px;
-}
-
-/* Стили для кнопок ответов (переопределяем базовые .button) */
+/* ===== ОБЩИЕ СТИЛИ ДЛЯ ВСЕХ ОТВЕТОВ ===== */
 .button,
 .answer-multiple {
   background: var(--btn);
@@ -254,10 +345,33 @@
 }
 
 /* Структура ответов — одинаковая для всех */
+.ans,
 .answer-multiple {
   display: flex;
   align-items: center;
   gap: 12px;
+}
+
+/* Бейджи */
+.badge {
+  flex: 0 0 auto;
+  width: 28px;
+  height: 28px;
+  border-radius: 9px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  background: rgba(255,255,255,0.07);
+  border: 1px solid rgba(255,255,255,0.08);
+  font-size: 14px;
+}
+
+.ans-text {
+  line-height: 1.4;
+  padding-top: 2px;
+  flex: 1;
+  font-size: 15px;
 }
 
 /* Выбранное состояние (до отправки) */
@@ -402,71 +516,16 @@
 }
 
 /* Результаты теста */
-.result-card {
-  text-align: center;
-  padding: 24px 20px;
-}
-
 .result-title {
-  font-size: 20px;
-  font-weight: 600;
-  margin-bottom: 4px;
-  color: #e6c158;
-}
-
-.result-percent {
-  font-size: 48px;
+  font-size: 24px;
   font-weight: 700;
-  color: #e6c158;
-  margin: 16px 0;
+  color: var(--accent);
 }
 
-.result-progress {
-  margin: 20px 0;
-  height: 12px;
-}
-
-.result-progress .progress-bar-fill {
-  background: #2ecc71;
-}
-
-.result-stats {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
-  gap: 12px;
-  margin: 20px 0;
-  padding: 12px;
-  background: rgba(0, 0, 0, 0.2);
-  border-radius: 16px;
-}
-
-.result-stat {
-  flex: 1;
-  min-width: 80px;
-  text-align: center;
-}
-
-.result-stat .stat-label {
-  font-size: 12px;
-  color: #888;
-  margin-bottom: 4px;
-}
-
-.result-stat .stat-value {
-  font-size: 18px;
-  font-weight: 600;
-  color: #fff;
-}
-
-.result-buttons {
-  display: flex;
-  gap: 12px;
-  margin-top: 16px;
-}
-
-.result-buttons .button {
-  flex: 1;
+.percent-number {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--accent);
 }
 
 /* Адаптивность */
@@ -490,6 +549,44 @@
     max-height: 150px;
   }
   
+  .stats-header-cards {
+    gap: 8px;
+  }
+  
+  .stat-card {
+    padding: 8px;
+  }
+  
+  .stat-number {
+    font-size: 20px;
+  }
+  
+  .stat-label {
+    font-size: 10px;
+  }
+  
+  .stats-progress {
+    gap: 12px;
+  }
+  
+  .progress-circle {
+    width: 60px;
+    height: 60px;
+  }
+  
+  .progress-circle canvas {
+    width: 60px;
+    height: 60px;
+  }
+  
+  .progress-percent {
+    font-size: 11px;
+  }
+  
+  .progress-text {
+    font-size: 10px;
+  }
+  
   .question-title {
     font-size: 16px;
     padding-left: 8px;
@@ -500,15 +597,285 @@
     font-size: 20px;
   }
   
-  .result-percent {
-    font-size: 36px;
+  .percent-number {
+    font-size: 20px;
   }
-  
-  .result-stat .stat-value {
+}
+/* ===== НОВАЯ СТАТИСТИКА (без круговой диаграммы) ===== */
+
+/* Карточки статистики на главной */
+.stats-cards {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 24px;
+    padding: 0 4px;
+}
+
+.stats-cards .stat-card {
+    flex: 1;
+    min-width: 70px;
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+    border-radius: 16px;
+    padding: 12px 8px;
+    text-align: center;
+}
+
+.stats-cards .stat-number {
+    font-size: 22px;
+    font-weight: 700;
+    color: #e6c158;
+    line-height: 1.2;
+}
+
+.stats-cards .stat-label {
+    font-size: 11px;
+    color: #888;
+    margin-top: 4px;
+}
+
+/* Экран статистики */
+.stats-screen {
+    padding: 16px;
+}
+
+.stats-screen h3 {
+    font-size: 18px;
+    font-weight: 600;
+    margin: 20px 0 12px 0;
+    color: #fff;
+}
+
+.stats-screen h3:first-of-type {
+    margin-top: 8px;
+}
+
+.stats-section {
+    background: rgba(30, 30, 50, 0.5);
+    border-radius: 16px;
+    padding: 16px;
+    margin-bottom: 20px;
+}
+
+#backBtn {
+    max-width: 180px;
+    margin: 0 auto;
+}
+
+/* Компактный элемент статистики - 2 строки */
+.stats-item {
+    margin-bottom: 20px;
+}
+
+.stats-item-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 6px;
+}
+
+.stats-item-label {
     font-size: 14px;
-  }
-  
-  .result-buttons {
-    flex-direction: column;
-  }
+    font-weight: 500;
+    color: #ddd;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.stats-item-value {
+    font-size: 14px;
+    font-weight: 600;
+    color: #e6c158;
+}
+
+.progress-bar-container {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    height: 6px;
+    overflow: hidden;
+}
+
+.progress-bar-fill {
+    height: 100%;
+    border-radius: 10px;
+    background: linear-gradient(90deg, #e6c158, #f1c40f);
+    width: 0%;
+    transition: width 0.3s ease;
+}
+
+.stats-item-hint {
+    font-size: 10px;
+    color: #666;
+    margin-top: 6px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+/* Для тем и сложности в статистике */
+.stats-theme-item,
+.stats-difficulty-item {
+    margin-bottom: 16px;
+}
+
+.stats-theme-header,
+.stats-difficulty-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 6px;
+}
+
+.stats-theme-name,
+.stats-difficulty-name {
+    font-size: 14px;
+    font-weight: 500;
+    color: #ddd;
+}
+
+.stats-theme-count,
+.stats-difficulty-count {
+    font-size: 13px;
+    color: #e6c158;
+}
+
+.stats-theme-accuracy,
+.stats-difficulty-accuracy {
+    font-size: 11px;
+    color: #888;
+    margin-top: 4px;
+}
+
+.stats-empty {
+    text-align: center;
+    padding: 40px 20px;
+    color: #888;
+}
+
+.stats-all-btn {
+    width: 100%;
+    padding: 10px;
+    margin-top: 12px;
+    background: rgba(230, 193, 88, 0.15);
+    border: 1px solid rgba(230, 193, 88, 0.3);
+    border-radius: 12px;
+    color: #e6c158;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.stats-all-btn:hover {
+    background: rgba(230, 193, 88, 0.25);
+}
+
+/* Результат теста (без диаграммы) */
+.result-card {
+    text-align: center;
+    padding: 24px 20px;
+}
+
+.result-title {
+    font-size: 20px;
+    font-weight: 600;
+    margin-bottom: 4px;
+    color: #e6c158;
+}
+
+.result-percent {
+    font-size: 48px;
+    font-weight: 700;
+    color: #e6c158;
+    margin: 16px 0;
+}
+
+.result-progress {
+    margin: 20px 0;
+    height: 12px;
+}
+
+.result-progress .progress-bar-fill {
+    background: #2ecc71;
+}
+
+.result-stats {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 12px;
+    margin: 20px 0;
+    padding: 12px;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 16px;
+}
+
+.result-stat {
+    flex: 1;
+    min-width: 80px;
+    text-align: center;
+}
+
+.result-stat .stat-label {
+    font-size: 12px;
+    color: #888;
+    margin-bottom: 4px;
+}
+
+.result-stat .stat-value {
+    font-size: 18px;
+    font-weight: 600;
+    color: #fff;
+}
+
+.result-buttons {
+    display: flex;
+    gap: 12px;
+    margin-top: 16px;
+}
+
+.result-buttons .button {
+    flex: 1;
+}
+
+/* Список всех тем */
+.all-themes {
+    max-height: 70vh;
+    overflow-y: auto;
+}
+
+/* Скрытие старой круговой диаграммы */
+.progress-circle {
+    display: none;
+}
+
+/* Адаптивность */
+@media (max-width: 480px) {
+    .stats-cards .stat-number {
+        font-size: 18px;
+    }
+    
+    .stats-cards .stat-label {
+        font-size: 10px;
+    }
+    
+    .result-percent {
+        font-size: 36px;
+    }
+    
+    .result-stat .stat-value {
+        font-size: 14px;
+    }
+    
+    .result-buttons {
+        flex-direction: column;
+    }
+    
+    .stats-screen h3 {
+        font-size: 16px;
+    }
+    
+    .stats-item-label {
+        font-size: 13px;
+    }
 }
