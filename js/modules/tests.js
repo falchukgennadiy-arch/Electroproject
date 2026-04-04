@@ -657,14 +657,14 @@ async function showStatsScreen() {
   const listEl = document.getElementById("topicsList");
   if (!listEl) return;
   
+  // Скрываем нижнее меню
+  hideBottomNav();
+  
   if (!currentUserId) {
     listEl.innerHTML = `
       <div class="stats-screen">
-        <button class="back-btn" onclick="window.renderTestsList()">
-          <div class="icon icon-back" style="width: 18px; height: 18px; background-color: currentColor;"></div>
-          Назад
-        </button>
         <div class="stats-empty">Авторизуйтесь для просмотра статистики</div>
+        <button class="button" onclick="window.renderTestsList()" style="width: 100%; margin-top: 20px;">На главную</button>
       </div>
     `;
     return;
@@ -687,11 +687,6 @@ async function showStatsScreen() {
   
   let html = `
     <div class="stats-screen">
-      <button class="back-btn" onclick="window.renderTestsList()">
-        <div class="icon icon-back" style="width: 18px; height: 18px; background-color: currentColor;"></div>
-        Назад
-      </button>
-      
       <h3>Общая статистика</h3>
       <div class="stats-section">
         <div class="stats-item">
@@ -793,6 +788,8 @@ async function showStatsScreen() {
   
   html += `
       </div>
+      
+      <button class="button" onclick="window.renderTestsList()" style="width: 100%; margin-top: 20px;">На главную</button>
     </div>
   `;
   
@@ -802,6 +799,9 @@ async function showStatsScreen() {
 async function showAllThemesStats() {
   const listEl = document.getElementById("topicsList");
   if (!listEl) return;
+  
+  // Скрываем нижнее меню
+  hideBottomNav();
   
   const themeStats = await Statistics.getThemeStats(currentUserId);
   const allQuestions = window.allQuestions || [];
@@ -814,11 +814,6 @@ async function showAllThemesStats() {
   
   let html = `
     <div class="stats-screen">
-      <button class="back-btn" onclick="window.showStatsScreen()">
-        <div class="icon icon-back" style="width: 18px; height: 18px; background-color: currentColor;"></div>
-        Назад к статистике
-      </button>
-      
       <h3>Статистика по всем темам</h3>
       <div class="stats-section all-themes">
   `;
@@ -844,6 +839,8 @@ async function showAllThemesStats() {
   
   html += `
       </div>
+      
+      <button class="button" onclick="window.showStatsScreen()" style="width: 100%; margin-top: 20px;">Назад к статистике</button>
     </div>
   `;
   
